@@ -1,6 +1,7 @@
 from machine import Pin
 import network
 import time
+import umqtt
 
 ledIn = Pin(2, Pin.OUT)
 
@@ -21,5 +22,3 @@ while(True):
     ledIn.off()
     time.sleep_ms(500)
     
-    
-# test

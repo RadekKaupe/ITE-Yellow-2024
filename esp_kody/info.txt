@@ -1,0 +1,1 @@
+Všechny soubory tady jsou jen jako examply/storage, to, co se použije, je třeba dát do složky mpfshell, odkud se to nahraje do ESP.

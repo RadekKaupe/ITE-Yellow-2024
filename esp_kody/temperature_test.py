@@ -4,7 +4,7 @@ import time
 import ubinascii
 import network
 
-from sensor_ds18b20 import tempSensorDS
+from temp_sensor import tempSensorDS
 
 ledIn = Pin(2, Pin.OUT)
 
