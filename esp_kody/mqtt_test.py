@@ -33,3 +33,4 @@ while(True):
     ledIn.off()
     time.sleep_ms(500)
     
+# format: {'team_name': 'white', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': 25.72, 'humidity': 64.5, 'illumination': 1043}

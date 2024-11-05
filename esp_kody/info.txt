@@ -1,1 +1,33 @@
 Všechny soubory tady jsou jen jako examply/storage, to, co se použije, je třeba dát do složky mpfshell, odkud se to nahraje do ESP.
+
+
+MQTT:
+
+MQTT - Specifikace
+Martin Bulín
+•
+14. 10.
+broker IP: 147.228.124.47
+broker port: 1883
+broker username: student
+broker passwd: pivotecepomqtt
+--------------------------------------------
+topic: ite/<team_name>
+
+e.g.: ite/white
+--------------------------------------------
+message structure:
+{'team_name': string, 'timestamp': string, 'temperature': float, 'humidity': float, 'illumination': float}
+
+e.g.: {'team_name': 'white', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': 25.72, 'humidity': 64.5, 'illumination': 1043}
+
+- hodnota relativní vlhkosti se udává v procentech - měla by tedy být v rozmezí <0, 100>
+- pokud měříme např. jen teplotu, klíče 'humidity' a 'illumination' ve zprávě nebudou (to je potřeba ošetřit a počítat s tím ve vašich "subscriberech")
+
+--------------------------------------------
+publishing period: 60s
+timestamp pattern: "%Y-%m-%dT%H:%M:%S.%f" (6 desetinných míst pro milisekundy - isoformat, viz Python "datetime" lib)
+teplota: 2 desetinná místa
+vlhkost: 1 desetinné místo
+intenzita osvětlení: celé číslo
+team_name choices: 'blue', 'black', 'green', 'pink', 'red', 'yellow'
