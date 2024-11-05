@@ -3,7 +3,17 @@ import network
 import time
 import umqtt
 
+from light_sensor import BH1750
+import dht
+from temp_sensor import tempSensorDS
+
 ledIn = Pin(2, Pin.OUT)
+tempSens = tempSensorDS(pin_nb=5)
+humiSens = dht.DHT11(machine.Pin(4))
+sda = machine.Pin(0)
+scl = machine.Pin(2)
+i2c = machine.I2C(scl,sda) # komunikace s light senzorem
+lightSens = BH1750(i2c)
 
 sta_if = network.WLAN(network.STA_IF)
 
@@ -24,10 +34,28 @@ if not sta_if.isconnected():
 print('network config:', sta_if.ifconfig())
 
 MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)
+MQclient.connect()
+
+temp = "Err"     # if these get sent, then we have a problem
+tempH = "Err"  
+humi = "Err" 
+light = "Err"
 
 while(True):
-    ledIn.on()
-    time.sleep_ms(500)
-    ledIn.off()
-    time.sleep_ms(500)
     
+    temp = tempSens.measure_temp()
+    light = lightSens.luminance(BH1750.ONCE_HIRES_1)
+    try:
+        humiSens.measure()
+        tempH = humiSens.temperature()
+        humi = humiSens.humidity()
+    except OSError as e:
+        tempH = "hErr"     # if these get sent, then we have a problem
+        humi = "hErr"
+        
+    payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': 25.72, 'humidity': 64.5, 'illumination': 1043}
+    
+
+    
+    
+# format: {'team_name': 'white', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': 25.72, 'humidity': 64.5, 'illumination': 1043}
