@@ -1,6 +1,8 @@
 from machine import Pin
 import network
 import time
+from machine import Timer
+from machine import I2C
 import umqtt
 
 from light_sensor import BH1750
@@ -9,10 +11,10 @@ from temp_sensor import tempSensorDS
 
 ledIn = Pin(2, Pin.OUT)
 tempSens = tempSensorDS(pin_nb=5)
-humiSens = dht.DHT11(machine.Pin(4))
-sda = machine.Pin(0)
-scl = machine.Pin(2)
-i2c = machine.I2C(scl,sda) # komunikace s light senzorem
+humiSens = dht.DHT11(Pin(4))
+sda = Pin(0)
+scl = Pin(2)
+i2c = I2C(scl,sda) # komunikace s light senzorem
 lightSens = BH1750(i2c)
 
 sta_if = network.WLAN(network.STA_IF)
@@ -40,9 +42,9 @@ temp = "Err"     # if these get sent, then we have a problem
 tempH = "Err"  
 humi = "Err" 
 light = "Err"
+payload = {}
 
-while(True):
-    
+def measure():
     temp = round(tempSens.measure_temp(), 2)
     light = round(lightSens.luminance(BH1750.ONCE_HIRES_1))
     try:
@@ -52,8 +54,16 @@ while(True):
     except OSError as e:
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
-        
-    payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': 25.72, 'humidity': 64.5, 'illumination': 1043}
+    
+    payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': temp, 'humidity': humi, 'illumination': light}
+    
+
+while(True):
+    
+    pass
+    
+    
+
     
 
     
