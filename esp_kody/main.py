@@ -43,12 +43,12 @@ light = "Err"
 
 while(True):
     
-    temp = tempSens.measure_temp()
-    light = lightSens.luminance(BH1750.ONCE_HIRES_1)
+    temp = round(tempSens.measure_temp(), 2)
+    light = round(lightSens.luminance(BH1750.ONCE_HIRES_1))
     try:
         humiSens.measure()
-        tempH = humiSens.temperature()
-        humi = humiSens.humidity()
+        tempH = round(humiSens.temperature(), 2)
+        humi = round(humiSens.humidity(), 1)
     except OSError as e:
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
