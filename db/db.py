@@ -6,16 +6,12 @@ import os
 
 # Define SQLAlchemy Base
 Base = declarative_base()
+
 load_dotenv()
-
 db_user = os.getenv("DB_USER")
-# print(db_user)
 db_password = os.getenv("DB_PASSWORD")
-# print(db_password)
 db_host = os.getenv("DB_HOST", "localhost")
-# print(db_host)
 db_name = os.getenv("DB_NAME")
-
 engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
 connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}"
 print(connection_string)
@@ -35,10 +31,10 @@ class SensorData(Base):
     timestamp = Column(DateTime, default= datetime.datetime.now(datetime.timezone.utc))
     temperature = Column(Float, nullable=False)
     humidity = Column(Float, nullable=False)
-    luminosity = Column(Float, nullable=False)
+    illumination = Column(Float, nullable=False)
     team = relationship("Team", back_populates="sensor_data")
 
-Base.metadata.create_all(engine) 
+Base.metadata.create_all(engine)
 
 # Base.metadata.drop_all(engine)
 # print("Tables dropped successfully.")
