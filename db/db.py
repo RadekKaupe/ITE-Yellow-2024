@@ -1,6 +1,6 @@
 import datetime
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship, declarative_base
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base, Session
 from dotenv import load_dotenv
 import os
 
@@ -18,7 +18,7 @@ print(connection_string)
 
 SessionLocal = sessionmaker(bind=engine)
 
-class Team(Base):
+class Teams(Base):
     __tablename__ = "teams"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True, nullable=False)
@@ -32,9 +32,26 @@ class SensorData(Base):
     temperature = Column(Float, nullable=False)
     humidity = Column(Float, nullable=False)
     illumination = Column(Float, nullable=False)
-    team = relationship("Team", back_populates="sensor_data")
+    team = relationship("Teams", back_populates="sensor_data")
 
 Base.metadata.create_all(engine)
+
+
+def create_teams():
+    teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow']
+
+    # Start a new session
+    with Session(engine) as session:
+        # Iterate over the team names and add them to the database
+        for team_name in teams:
+            team = Teams(name=team_name)  # Replace 'name' with the correct column name if it's different
+            session.add(team)
+        
+        # Commit the transaction to save changes
+        session.commit()
+        session.close()
+
+# create_teams()
 
 # Base.metadata.drop_all(engine)
 # print("Tables dropped successfully.")

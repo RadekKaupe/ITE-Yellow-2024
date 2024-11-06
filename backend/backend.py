@@ -14,7 +14,7 @@ db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'd
 
 # Add db_foler_path to sys.path
 sys.path.insert(0, db_foler_path)
-from db import SensorData, SessionLocal  
+from db import SensorData, SessionLocal, Teams
 
 engine = create_engine(f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}")
 SessionLocal = sessionmaker(bind=engine)
@@ -70,13 +70,17 @@ class DataHandler(tornado.web.RequestHandler):
 def on_message(client, userdata, msg):
     try:
         payload = json.loads(msg.payload.decode())
+        team_name = payload.get("team_name")
         temperature = payload.get("temperature")
         humidity = payload.get("humidity")
         illumination = payload.get("illumination")
-
+        team_id = team_ids[team_name]
+        print(team_name)
+        print(team_id)
         # Insert data into the database
         session = SessionLocal()
         new_data = SensorData(
+            team_id=team_id,
             temperature=temperature,
             humidity=humidity,
             illumination=illumination,
@@ -97,15 +101,26 @@ def make_app():
         (r"/data", DataHandler),  # Endpoint to get or adjust data
     ])
 
+def extract_team_ids(teams):
+    teams_ids = dict()
+    for team in teams:
+        teams_ids[str(team.name)] = team.id
+    # print(teams_ids)
+    return teams_ids
+
 if __name__ == "__main__":
     # Start Tornado server
     app = make_app()
     app.listen(8881)
+    session = SessionLocal()
+    teams = session.query(Teams).all()
+    team_ids = extract_team_ids(teams) 
+    session.close()
     print("Server started at http://localhost:8881")
 
     # Setup MQTT client and start listening
     mqtt_client = mqtt.Client()
-    mqtt_client.on_message = on_message
+    mqtt_client.on_message =  on_message
     mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
     mqtt_client.subscribe(MQTT_TOPIC)
     mqtt_client.loop_start()
