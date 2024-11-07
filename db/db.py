@@ -55,7 +55,7 @@ if __name__ == "__main__":
     print(connection_string)
     engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
     SessionLocal = sessionmaker(bind=engine)
-    Base.metadata.create_all(engine)
+    # Base.metadata.create_all(engine)
     # Base.metadata.drop_all(engine)
     # print("Tables dropped successfully.")
     # create_teams()

@@ -123,8 +123,10 @@ if __name__ == "__main__":
     app = make_app()
     app.listen(8881)
     session = SessionLocal()
+
     teams = session.query(Teams).all()
     team_ids = extract_team_ids(teams) 
+    # print(team_ids)
     session.close()
     print("Server started at http://localhost:8881")
 
