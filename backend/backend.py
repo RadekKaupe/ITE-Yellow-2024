@@ -28,10 +28,29 @@ print(connection_string)
 engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
 
 SessionLocal = sessionmaker(bind=engine)
-
+#### LOCALHOST
 MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")  # Broker address
-MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))        # Broker port
+print("Broker:"+ str(MQTT_BROKER))
+MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))  
+print("Port: "+ str(MQTT_PORT)) # Broker port
 MQTT_TOPIC = "sensor/data"                            # Topic to subscribe to
+print("topic: "+ MQTT_TOPIC + "\n")
+########
+
+#### GOLEM ####
+# BROKER_IP = os.getenv("BROKER_IP")
+# BROKER_PORT = int(os.getenv("BROKER_PORT"))
+# BROKER_UNAME = os.getenv("BROKER_UNAME")
+# BROKER_PASSWD = os.getenv("BROKER_PASSWD")
+# TOPIC = os.getenv("TOPIC")
+
+# print(f"BROKER_IP = {BROKER_IP}")
+# print(f"BROKER_PORT = {BROKER_PORT}")
+# print(f"BROKER_UNAME = {BROKER_UNAME}")
+# print(f"BROKER_PASSWD = {BROKER_PASSWD}")
+# print(f"TOPIC = {TOPIC}")
+# #########
+
 
 #Tornado
 class DataHandler(tornado.web.RequestHandler):
@@ -128,12 +147,19 @@ if __name__ == "__main__":
     team_ids = extract_team_ids(teams) 
     # print(team_ids)
     session.close()
+    
     print("Server started at http://localhost:8881")
-
+    print("\n")
     # Setup MQTT client and start listening
     mqtt_client = mqtt.Client()
     mqtt_client.on_message =  on_message
-    mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
+    mqtt_client.connect(MQTT_BROKER, MQTT_PORT) #LOCALHOST
+    
+    
+    #### GOLEM
+    # mqtt_client.username_pw_set(BROKER_UNAME, password=BROKER_PASSWD)
+    # mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
+
     mqtt_client.subscribe(MQTT_TOPIC)
     mqtt_client.loop_start()
 

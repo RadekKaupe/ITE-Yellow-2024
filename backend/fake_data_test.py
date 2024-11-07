@@ -4,14 +4,26 @@ import time
 import random
 from datetime import datetime, timezone
 
-# MQTT Settings
 MQTT_BROKER = "localhost"  # Adjust if using a different host
 MQTT_PORT = 1883
 MQTT_TOPIC = "sensor/data"  # Topic that the backend is subscribed to
-
-# MQTT Client Setup
 client = mqtt.Client()
 client.connect(MQTT_BROKER, MQTT_PORT)
+
+#### GOLEM ####
+# BROKER_IP = os.getenv("BROKER_IP")
+# BROKER_PORT = int(os.getenv("BROKER_PORT"))
+# BROKER_UNAME = os.getenv("BROKER_UNAME")
+# BROKER_PASSWD = os.getenv("BROKER_PASSWD")
+# TOPIC = os.getenv("TOPIC")
+
+# print(f"BROKER_IP = {BROKER_IP}")
+# print(f"BROKER_PORT = {BROKER_PORT}")
+# print(f"BROKER_UNAME = {BROKER_UNAME}")
+# print(f"BROKER_PASSWD = {BROKER_PASSWD}")
+# print(f"TOPIC = {TOPIC}")
+# #########
+
 
 def publish_fake_data():
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow']
