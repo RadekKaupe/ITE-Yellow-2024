@@ -8,15 +8,25 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime, timezone
 import sys
+from dotenv import load_dotenv
 
 # Get the absolute path of the directory containing db.py
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
 
 # Add db_foler_path to sys.path
 sys.path.insert(0, db_foler_path)
-from db import SensorData, SessionLocal, Teams
+from db import SensorData, Teams
 
-engine = create_engine(f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}")
+
+load_dotenv()
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_host = os.getenv("DB_HOST", "localhost")
+db_name = os.getenv("DB_NAME")
+connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}"
+print(connection_string)
+engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
+
 SessionLocal = sessionmaker(bind=engine)
 
 MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")  # Broker address

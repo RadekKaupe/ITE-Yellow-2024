@@ -5,18 +5,8 @@ from dotenv import load_dotenv
 import os
 
 # Define SQLAlchemy Base
+
 Base = declarative_base()
-
-load_dotenv()
-db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASSWORD")
-db_host = os.getenv("DB_HOST", "localhost")
-db_name = os.getenv("DB_NAME")
-engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
-connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}"
-print(connection_string)
-
-SessionLocal = sessionmaker(bind=engine)
 
 class Teams(Base):
     __tablename__ = "teams"
@@ -34,7 +24,6 @@ class SensorData(Base):
     illumination = Column(Float, nullable=False)
     team = relationship("Teams", back_populates="sensor_data")
 
-Base.metadata.create_all(engine)
 
 
 def create_teams():
@@ -51,7 +40,24 @@ def create_teams():
         session.commit()
         session.close()
 
-# create_teams()
 
-# Base.metadata.drop_all(engine)
-# print("Tables dropped successfully.")
+
+#
+if __name__ == "__main__":
+    
+    load_dotenv()
+    db_user = os.getenv("DB_USER")
+    db_password = os.getenv("DB_PASSWORD")
+    db_host = os.getenv("DB_HOST", "localhost")
+    db_name = os.getenv("DB_NAME")
+    
+    connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}"
+    print(connection_string)
+    engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
+    SessionLocal = sessionmaker(bind=engine)
+    Base.metadata.create_all(engine)
+    # Base.metadata.drop_all(engine)
+    # print("Tables dropped successfully.")
+    # create_teams()
+
+
