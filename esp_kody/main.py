@@ -1,4 +1,4 @@
-from machine import Pin
+from machine import Pin, Timer
 import network
 import time
 from machine import Timer
@@ -8,6 +8,8 @@ import umqtt
 from light_sensor import BH1750
 import dht
 from temp_sensor import tempSensorDS
+
+
 
 ledIn = Pin(2, Pin.OUT)
 tempSens = tempSensorDS(pin_nb=5)
@@ -25,6 +27,8 @@ BROKER_UNAME = 'student'
 BROKER_PASSWD = 'pivotecepomqtt'
 TOPIC = 'ite/yellow'
 SLEEP_TIME = 2
+
+
 
 if not sta_if.isconnected():
     print('connecting to network...')
@@ -44,7 +48,7 @@ humi = "Err"
 light = "Err"
 payload = {}
 
-def measure():
+def measure(timer):
     temp = round(tempSens.measure_temp(), 2)
     light = round(lightSens.luminance(BH1750.ONCE_HIRES_1))
     try:
@@ -56,7 +60,10 @@ def measure():
         humi = "hErr"
     
     payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': temp, 'humidity': humi, 'illumination': light}
-    
+    MQclient.publish(TOPIC, payload, qos=1)
+   
+timer = Timer(1)
+timer.init(mode=Timer.PERIODIC, period=1000*60, callback=measure) 
 
 while(True):
     
