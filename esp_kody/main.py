@@ -1,6 +1,7 @@
 from machine import Pin, Timer
 import network
 import time
+import ntptime
 from machine import Timer
 from machine import I2C
 import umqtt
@@ -28,7 +29,7 @@ BROKER_PASSWD = 'pivotecepomqtt'
 TOPIC = 'ite/yellow'
 SLEEP_TIME = 2
 
-
+ntptime.host = "clock1.zcu.cz"
 
 if not sta_if.isconnected():
     print('connecting to network...')
@@ -59,7 +60,8 @@ def measure(timer):
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
     
-    payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': temp, 'humidity': humi, 'illumination': light}
+    payload = "{'team_name': 'yellow', 'timestamp': " + "'2020-03-24T15:26:05.336974'"+", 'temperature': "+str(temp)+", 'humidity': "+str(humi)+", 'illumination': "+str(light)+"}"
+    #payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': temp, 'humidity': humi, 'illumination': light}
     MQclient.publish(TOPIC, payload, qos=1)
    
 timer = Timer(1)
@@ -67,7 +69,12 @@ timer.init(mode=Timer.PERIODIC, period=1000*60, callback=measure)
 
 while(True):
     
-    pass
+    try:
+        ntptime.settime()
+    except:
+        print("Error syncing time")
+        
+    time.sleep(90)
     
     
 
