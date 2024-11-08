@@ -48,7 +48,7 @@ humi = "Err"
 light = "Err"
 payload = {}
 
-def setFlag():  minPassed = True
+msNow, msPrev = time.ticks_ms()
 
 def measure(timer):
     temp = round(tempSens.measure_temp(), 2)
@@ -61,24 +61,12 @@ def measure(timer):
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
     
-    #payload = "{'team_name': 'yellow', 'timestamp': " + "'2020-03-24T15:26:05.336974'"+", 'temperature': "+str(temp)+", 'humidity': "+str(humi)+", 'illumination': "+str(light)+"}"
-    payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': temp, 'humidity': humi, 'illumination': light}
-    MQclient.publish(TOPIC, str(payload), qos=1)
-   
-timer = Timer(1)
-minPassed = False
-timer.init(mode=Timer.PERIODIC, period=1000*10, callback=setFlag) 
+    payload = "{'team_name': 'yellow', 'timestamp': " + "'2020-03-24T15:26:05.336974'"+", 'temperature': "+str(temp)+", 'humidity': "+str(humi)+", 'illumination': "+str(light)+"}"
+    #payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': temp, 'humidity': humi, 'illumination': light}
+    MQclient.publish(TOPIC, payload, qos=1)
 
 while(True):
     
-    if(minPassed):
-        measure()
-        minPassed = False
-    
-    
-
-    
-
-    
-    
-# format: {'team_name': 'white', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': 25.72, 'humidity': 64.5, 'illumination': 1043}
+    msNow = time.ticks_ms()
+    if(time.ticks_diff(msNow, msPrev) > 60000):
+        pass

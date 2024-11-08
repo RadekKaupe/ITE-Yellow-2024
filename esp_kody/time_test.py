@@ -1,4 +1,4 @@
-from machine import Pin, Timer
+from machine import Pin, Timer, RTC
 import network
 import time
 import ntptime
@@ -6,6 +6,8 @@ import ntptime
 ledIn = Pin(2, Pin.OUT)
 
 sta_if = network.WLAN(network.STA_IF)
+
+rtc = RTC()
 
 if not sta_if.isconnected():
     print('connecting to network...')
@@ -22,18 +24,26 @@ ntptime.host = "clock1.zcu.cz"
 
 def timeFormat():
     tmp = time.localtime()  # (year, month, day, hour, min, sec)
-    ms = time.time() - int(time.time())
-    return "{0}-{1}-{2}T{3}:{4}:{5:.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], ms)
+    t = time.time()
+    print("secs: " + str(t))
+    ms = t - int(t) + tmp[5]
+    return "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], ms)
+
+def syncTime():
+    try:
+        ntptime.settime()   #make sure to have internet connection
+    except:
+        print("Error syncing time")
+    t = time.time() + 3600
+    (year, month, mday, hour, minute, second, weekday, yearday) = time.localtime(t)
+    rtc.datetime((year, month, mday, 0, hour, minute, second, 0))
 
 while(True):
     
-    try:
-        print("Local time before synchronization：%s" %str(time.localtime()))
-        #make sure to have internet connection
-        ntptime.settime()
-        print("Local time after synchronization：%s" %str(time.localtime()))
-    except:
-        print("Error syncing time")
+    print("==============================")
+    print("Local time before synchronization：%s" %str(time.localtime()))
+    syncTime()
+    print("Local time after synchronization：%s" %str(time.localtime()))
     
     print(timeFormat())
     time.sleep(10)
