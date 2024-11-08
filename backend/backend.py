@@ -52,17 +52,22 @@ print("topic: "+ MQTT_TOPIC + "\n")
 # print(f"BROKER_PASSWD = {BROKER_PASSWD}")
 # print(f"TOPIC = {TOPIC}")
 # #########
-valid_schema = {
+valid_schema = { 
     "type": "object",
     "properties": {
         "team_name": { "type": "string" },
         "temperature": { "type": "number" },
         "illumination": { "type": "number" },
-        "humidity": { "type": "number" }
+        "humidity": { "type": "number" },
+        "timestamp": { 
+            "type": "string",
+            "format": "date-time"  # Specifies ISO 8601 date-time format
+        }
     },
-    "required": ["team_name", "temperature"],  # Required fields
+    "required": ["team_name", "temperature", "timestamp"],  # Required fields
     "additionalProperties": False  # No extra properties allowed
 }
+
 
 #Tornado
 class DataHandler(tornado.web.RequestHandler):
@@ -121,7 +126,7 @@ def on_message(client, userdata, msg):
         temperature = payload.get("temperature", "None")
         humidity = payload.get("humidity", "None")
         illumination = payload.get("illumination", "None")  
-        
+        timestamp = payload.get("timestamp")
         if team_name not in team_names:
             print("Not a valid team name.")
             return
@@ -136,7 +141,8 @@ def on_message(client, userdata, msg):
             temperature=temperature,
             humidity=humidity,
             illumination=illumination,
-            timestamp=datetime.now(timezone.utc).isoformat()
+            timestamp=timestamp,
+            # timestamp=datetime.now(timezone.utc).isoformat()
         )
         session.add(new_data)
         session.commit()

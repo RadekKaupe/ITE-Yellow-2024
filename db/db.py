@@ -18,10 +18,10 @@ class SensorData(Base):
     __tablename__ = "sensor_data"
     id = Column(Integer, primary_key=True, autoincrement=True)
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
-    timestamp = Column(DateTime, default= datetime.datetime.now(datetime.timezone.utc), unique=True)
+    timestamp = Column(DateTime, default= datetime.datetime.now(datetime.timezone.utc), unique=True) #mam unique, uvidim, jak vyresim prichod vice stejnych zprav
     temperature = Column(Float, nullable=False)
-    humidity = Column(Float, nullable=False)
-    illumination = Column(Float, nullable=False)
+    humidity = Column(Float, nullable=True) # mohou byt NU::
+    illumination = Column(Float, nullable=True) # mohou byt NU::
     team = relationship("Teams", back_populates="sensor_data")
 
 
