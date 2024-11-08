@@ -1,9 +1,10 @@
-from machine import Pin, Timer
+from machine import Pin, Timer, RTC
 import network
 import time
 import ntptime
 from machine import I2C
 import umqtt
+import ntptime
 
 from light_sensor import BH1750
 import dht
@@ -48,32 +49,55 @@ humi = "Err"
 light = "Err"
 payload = {}
 
-def setFlag():  minPassed = True
+def timeFormat():
+    tmp = time.localtime()  # (year, month, day, hour, min, sec)
+    #t = time.time()
+    #print("secs: " + str(t))
+    #ms = t - int(t) + tmp[5]
+    return "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])
 
-def measure(timer):
+rtc = RTC()
+def syncTime():
+    try:
+        ntptime.settime()   #make sure to have internet connection
+        t = time.time() + 3600
+        (year, month, mday, hour, minute, second, weekday, yearday) = time.localtime(t)
+        rtc.datetime((year, month, mday, 0, hour, minute, second, 0))
+    except:
+        print("Error syncing time")
+    
+
+
+def measure():
     temp = round(tempSens.measure_temp(), 2)
-    light = round(lightSens.luminance(BH1750.ONCE_HIRES_1))
+    print("temp")
+    light = int(round(lightSens.luminance(BH1750.ONCE_HIRES_1)))
+    print("light")
     try:
         humiSens.measure()
         tempH = round(humiSens.temperature(), 2)
         humi = round(humiSens.humidity(), 1)
+        print("humi")
     except OSError as e:
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
+
+    t = timeFormat()
     
     #payload = "{'team_name': 'yellow', 'timestamp': " + "'2020-03-24T15:26:05.336974'"+", 'temperature': "+str(temp)+", 'humidity': "+str(humi)+", 'illumination': "+str(light)+"}"
-    payload = {'team_name': 'yellow', 'timestamp': '2020-03-24T15:26:05.336974', 'temperature': temp, 'humidity': humi, 'illumination': light}
+    payload = {'team_name': 'yellow', 'timestamp': t, 'temperature': "{0:.2f}".format(temp), 'humidity': "{0:.1f}".format(humi), 'illumination': light}
     MQclient.publish(TOPIC, str(payload), qos=1)
    
-timer = Timer(1)
+timer1 = Timer(1)
 minPassed = False
-timer.init(mode=Timer.PERIODIC, period=1000*10, callback=setFlag) 
+def setFlagMeas(timer):  minPassed = True
+#timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
 while(True):
     
-    if(minPassed):
-        measure()
-        minPassed = False
+    syncTime()
+    measure()
+    time.sleep(10)
     
     
 
