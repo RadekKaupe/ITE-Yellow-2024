@@ -52,7 +52,17 @@ print("topic: "+ MQTT_TOPIC + "\n")
 # print(f"BROKER_PASSWD = {BROKER_PASSWD}")
 # print(f"TOPIC = {TOPIC}")
 # #########
-
+valid_schema = {
+    "type": "object",
+    "properties": {
+        "team_name": { "type": "string" },
+        "temperature": { "type": "number" },
+        "illumination": { "type": "number" },
+        "humidity": { "type": "number" }
+    },
+    "required": ["team_name", "temperature"],  # Required fields
+    "additionalProperties": False  # No extra properties allowed
+}
 
 #Tornado
 class DataHandler(tornado.web.RequestHandler):
@@ -102,24 +112,20 @@ def on_message(client, userdata, msg):
     try:
        
         payload = json.loads(msg.payload.decode())
-        if not check_json(payload, necessary_schema):
+        if not check_json(payload, valid_schema):
             print("Payload schema is not valid.")
             return
-        
-        humidity = "None"
-        
-        if check_json(payload, optional_schema):
-            humidity = payload.get("humidity", "None")
-            illumination = payload.get("illumination", "None")  
-
         ## Jsem ve "vetvi" kde je urcite minimalne team_name a temperature
         team_name = payload.get("team_name", "None")
         team_id = team_ids[team_name]
         temperature = payload.get("temperature", "None")
+        humidity = payload.get("humidity", "None")
+        illumination = payload.get("illumination", "None")  
         
-        if team_name == "None":
-            print()
-            return  
+        if team_name not in team_names:
+            print("Not a valid team name.")
+            return
+    
         
         print(team_name)
         print(team_id)
@@ -154,6 +160,11 @@ def extract_team_ids(teams):
     # print(teams_ids)
     return teams_ids
 
+def extract_team_names(teams):
+    team_names = set()
+    for team in teams:
+        team_names.add(team.name)
+    return team_names
 
 def check_json(json, schema):
     try:
@@ -202,7 +213,8 @@ if __name__ == "__main__":
     session = SessionLocal()
 
     teams = session.query(Teams).all()
-    team_ids = extract_team_ids(teams) 
+    team_ids = extract_team_ids(teams)
+    team_names = extract_team_names(teams)
     # print(team_ids)
     session.close()
     
