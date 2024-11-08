@@ -18,7 +18,7 @@ class SensorData(Base):
     __tablename__ = "sensor_data"
     id = Column(Integer, primary_key=True, autoincrement=True)
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
-    timestamp = Column(DateTime, default= datetime.datetime.now(datetime.timezone.utc))
+    timestamp = Column(DateTime, default= datetime.datetime.now(datetime.timezone.utc), unique=True)
     temperature = Column(Float, nullable=False)
     humidity = Column(Float, nullable=False)
     illumination = Column(Float, nullable=False)

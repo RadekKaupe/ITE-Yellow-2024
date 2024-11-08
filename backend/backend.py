@@ -9,6 +9,8 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime, timezone
 import sys
 from dotenv import load_dotenv
+from jsonschema import validate, ValidationError, SchemaError
+
 
 # Get the absolute path of the directory containing db.py
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
@@ -98,12 +100,27 @@ class DataHandler(tornado.web.RequestHandler):
 # MQTT 
 def on_message(client, userdata, msg):
     try:
+       
         payload = json.loads(msg.payload.decode())
-        team_name = payload.get("team_name")
-        temperature = payload.get("temperature")
-        humidity = payload.get("humidity")
-        illumination = payload.get("illumination")
+        if not check_json(payload, necessary_schema):
+            print("Payload schema is not valid.")
+            return
+        
+        humidity = "None"
+        
+        if check_json(payload, optional_schema):
+            humidity = payload.get("humidity", "None")
+            illumination = payload.get("illumination", "None")  
+
+        ## Jsem ve "vetvi" kde je urcite minimalne team_name a temperature
+        team_name = payload.get("team_name", "None")
         team_id = team_ids[team_name]
+        temperature = payload.get("temperature", "None")
+        
+        if team_name == "None":
+            print()
+            return  
+        
         print(team_name)
         print(team_id)
         # Insert data into the database
@@ -136,6 +153,47 @@ def extract_team_ids(teams):
         teams_ids[str(team.name)] = team.id
     # print(teams_ids)
     return teams_ids
+
+
+def check_json(json, schema):
+    try:
+        validate(json, schema)
+
+    except ValidationError as e:
+        print("Validation Error occured.")
+        return False
+    except SchemaError as e:
+        print("Schema error occured")
+        return False
+
+    return True
+
+
+def check_necessary_keys(msg)->bool:
+    required_keys = ["team_name", "temperature"]
+    optional_keys = ["humidity", "illumination"]
+    try:
+        payload = json.loads(msg.payload.decode())
+        if all(key in payload for key in required_keys):
+            print("All necessary keys are present.")
+        else:
+            print("Necessary keys are not present. Returning None.")
+            return None
+         
+        for key in optional_keys:
+            if key not in payload:
+                payload[key] = None  # Set missing optional keys to None
+
+        return payload
+    except json.JSONDecodeError as e:
+        print(f"Error parsing the JSON: {e}")
+        return None
+    except Exception as e:
+        print(f"An Unknown error occured: {e}")
+        return None
+    
+    
+
 
 if __name__ == "__main__":
     # Start Tornado server
