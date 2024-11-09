@@ -1,10 +1,6 @@
-// console.log(document)
-let spans = document.getElementsByTagName("span") //get element by ID ani query selector nefungovaly
-console.log(counterValue)
-if (spans.length > 0) {
-    // Access the first <span> element and set its innerHTML
-    spans[0].innerHTML = 0; // Set innerHTML to a number, e.g., 14
-}
+let span = document.getElementById("counter-value");
+console.log(span)
+span.innerHTML = "nothing";
 function onBodyLoad() {
     ws = new WebSocket('ws://localhost:8881/websocket')     // ws is a global variable (index.html)
     ws.onopen = onSocketOpen
@@ -17,6 +13,9 @@ function onSocketOpen() {
 }
 
 function onSocketMessage(message) {
+    // let span = document.getElementById("counter-value")
+    
+    console.log(span)
     var data
     try {
         data = JSON.parse(message.data)    
@@ -24,16 +23,9 @@ function onSocketMessage(message) {
         data = message.data
     }
     console.log(message.data)
-    if (data.counter !== undefined) {
-        if (spans == null){
-            console.log("counterValue is Null!")
-            console.log(spans[0])
-        } else{
-            console.log(spans[0])
-            spans[0].innerHTML = data.counter; // This will now correctly update the span
-        }
+    span.innerHTML = message.data
         
-    }
+    
 }
 
 function onSocketClose() {

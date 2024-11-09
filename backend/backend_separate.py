@@ -6,6 +6,32 @@ from json import dumps as dumps_json, loads as loads_json
 from threading import Thread, ThreadError
 from time import sleep
 import numpy as np
+import os
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+import sys
+
+db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
+
+# Add db_foler_path to sys.path
+sys.path.insert(0, db_foler_path)
+from db import SensorData, Teams
+
+
+load_dotenv()
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_host = os.getenv("DB_HOST", "localhost")
+db_name = os.getenv("DB_NAME")
+connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}"
+print(f"Connection string: {connection_string} \n" )
+engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
+
+SessionLocal = sessionmaker(bind=engine)
+
+
+
 
 class MainHandler(RequestHandler):
     def get(self):  
@@ -27,8 +53,15 @@ class WSHandler(WebSocketHandler):
         try:
             msg = loads_json(msg)
             print('Webserver: Received json WS message:', msg)
-        except (ValueError):
+            
+            # If 'team_id' is sent, we can send the specific data immediately as well
+            if 'team_id' in msg:
+                team_data = self.application.fetch_sensor_data(msg['team_id'])
+                self.write_message(dumps_json({"sensor_data": team_data}))
+
+        except ValueError:
             print('Webserver: Received WS message:', msg)
+
 
     def on_close(self):
         self.application.ws_clients.remove(self)
@@ -49,14 +82,9 @@ class WebWSApp(TornadoApplication):
             "debug": True,
             "autoreload": True
         }
-        try:
-            t = Thread(target=self.increment_and_broadcast,daemon=True)
-            t.start()
-        except ThreadError:
-            print('ERR: Thread Websocket')
-
-
-
+        # Periodically fetch and broadcast sensor data to WebSocket clients
+        self.periodic_fetch = PeriodicCallback(self.fetch_and_broadcast_data, 5000)  # 5000ms = 5 seconds
+        self.periodic_fetch.start()
 
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
         ####
@@ -64,19 +92,53 @@ class WebWSApp(TornadoApplication):
         # self.incrementer.start()
         #### Toto fungovalo, od chatbota
 
+    def fetch_sensor_data(self, team_id=None):
+            """Fetches sensor data from the database, optionally for a specific team ID."""
+            session = SessionLocal()
+            try:
+                # Query the sensor_data; filter by team_id if specified
+                query = session.query(SensorData)
+                if team_id:
+                    query = query.filter(SensorData.team_id == team_id)
+                data = query.all()
+                
+                # Convert query result to a list of dictionaries for JSON serialization
+                sensor_data_list = [
+                    {
+                        "id": d.id,
+                        "team_id": d.team_id,
+                        "timestamp": d.timestamp.isoformat(),
+                        "temperature": d.temperature,
+                        "humidity": d.humidity,
+                        "illumination": d.illumination
+                    }
+                    for d in data
+                ]
+                print(sensor_data_list)
+                return sensor_data_list
+
+            finally:
+                session.close()
+
+    def fetch_and_broadcast_data(self):
+        """Fetches all sensor data and broadcasts to all connected WebSocket clients."""
+        print("Fetching latest sensor data for broadcast.")
+        sensor_data = self.fetch_sensor_data()  # Fetch all data; can be modified to fetch specific teams
+        message = dumps_json({"sensor_data": sensor_data})
+        self.send_ws_message(message)
 
     def send_ws_message(self, message):
         for client in self.ws_clients:
             iol.spawn_callback(client.write_message, dumps_json(message))
 
-    def increment_and_broadcast(self): 
-        # sleep(5)
-        print("incremention initialized")
-        for _ in range(1000):
-            sleep(1)
-            self.counter += 1 
-            print("Counter:", int(self.counter))
-            self.send_ws_message({"counter": int(self.counter)})
+    # def increment_and_broadcast(self): 
+    #     # sleep(5)
+    #     print("incremention initialized")
+    #     for _ in range(1000):
+    #         sleep(1)
+    #         self.counter += 1 
+    #         print("Counter:", int(self.counter))
+    #         self.send_ws_message({"counter": int(self.counter)})
 
 
 if __name__ == '__main__':
