@@ -5,6 +5,7 @@ import ntptime
 from machine import I2C
 import umqtt
 import ntptime
+from machine import math
 
 from light_sensor import BH1750
 import dht
@@ -28,20 +29,7 @@ BROKER_UNAME = 'student'
 BROKER_PASSWD = 'pivotecepomqtt'
 TOPIC = 'ite/yellow'
 # SLEEP_TIME = 2
-
-ntptime.host = "clock1.zcu.cz"
-
-if not sta_if.isconnected():
-    print('connecting to network...')
-    sta_if.active(True)
-    sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
-    print("connencting to ui-hub")
-    while not sta_if.isconnected():
-        pass
-print('network config:', sta_if.ifconfig())
-
-MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)
-MQclient.connect()
+MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
 
 global temp;        temp = "Err"     # if these get sent, then we have a problem
 global tempH;       tempH = "Err"  
@@ -50,7 +38,7 @@ global light;       light = "Err"
 global timestamp;   timestamp = "Err"
 global payload;     payload = "Err"
 
-def timeStampUpdate():
+def newTimeStamp():
     global timestamp
     
     tmp = time.localtime()  # (year, month, day, hour, min, sec)
@@ -59,6 +47,7 @@ def timeStampUpdate():
     #ms = t - int(t) + tmp[5]
     timestamp =  "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])
 
+ntptime.host = "clock1.zcu.cz"
 rtc = RTC()
 def syncTime():
     try:
@@ -69,8 +58,6 @@ def syncTime():
     except:
         print("Error syncing time")
     
-
-
 def measure():
     global temp
     global tempH
@@ -83,31 +70,61 @@ def measure():
         humiSens.measure()
         tempH = round(humiSens.temperature(), 2)
         humi = round(humiSens.humidity(), 1)
-    except OSError as e:
+    except Exception as e:
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
+  
+global connBroker;  connBroker = False
+def reconnect():
+    global connBroker
+    if not sta_if.isconnected():
+        sta_if.active(True)
+        sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+        print('connecting to network...')
+        
+    else:    
+        print('network config:', sta_if.ifconfig())
+        try:
+            MQclient.connect()
+            connBroker = True
+            print("connected to broker")
+        except Exception as e:
+            print("connecting to broker failed")
 
-    return()
-    
-    
 def publish():
     global payload
+    global connBroker
     payload = json.dumps({'team_name': 'yellow', 'timestamp': timestamp, 'temperature': temp, 'humidity': humi, 'illumination': light})
-    MQclient.publish(TOPIC, payload, qos=1)
-    
+    try:
+        MQclient.publish(TOPIC, payload, qos=1)
+    except Exception as e:
+        connBroker = False
+        
 #timer1 = Timer(1)
 #minPassed = False
 #def setFlagMeas(timer):  minPassed = True
 #timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
+period = 10
+segments = 5
+remaining = segments
+subperiod = period / segments
 while(True):
     
+    for i in range(0,segments):
+        if connBroker: break
+        reconnect()
+        time.sleep(subperiod)
+        remaining = remaining - 1
+        
+    time.sleep(remaining*subperiod)
+    remaining = segments
     
     syncTime()
-    timeStampUpdate()
+    newTimeStamp()
     measure()
     publish()
-    time.sleep(10)
+
     
     
 
