@@ -1,80 +1,89 @@
-import os
-import json
-import sys
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
-import paho.mqtt.client as mqtt
-import tornado.ioloop
-import tornado.web
-from tornado import gen
+from tornado.web import StaticFileHandler, RequestHandler, Application as TornadoApplication
+from tornado.websocket import WebSocketHandler
+from tornado.ioloop import IOLoop, PeriodicCallback
+from os.path import dirname, join as join_path
+from json import dumps as dumps_json, loads as loads_json
+from threading import Thread, ThreadError
+from time import sleep
+import numpy as np
 
-db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
-
-# Add db_foler_path to sys.path
-sys.path.insert(0, db_foler_path)
-from db import SensorData, Teams
+class MainHandler(RequestHandler):
+    def get(self):  
+        # self.render("static/index_css_js_ws.html")
+        self.render("static/index.html")
 
 
-# Load environment variables
-load_dotenv()
-db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASSWORD")
-db_host = os.getenv("DB_HOST", "localhost")
-db_name = os.getenv("DB_NAME")
+class WSHandler(WebSocketHandler):
 
-# Database setup
-connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}"
-engine = create_engine(connection_string)
-SessionLocal = sessionmaker(bind=engine)
+    def initialize(self):
+        self.application.ws_clients.append(self)
+        print('Webserver: New WS Client. Connected clients:', len(self.application.ws_clients))
 
-# Tornado request handler
-class DataHandler(tornado.web.RequestHandler):
-    def get(self):
-        session = SessionLocal()
-        data = session.query(SensorData).all()
-        session.close()
-        result = [
-            {
-                "id": d.id,
-                "temperature": d.temperature,
-                "humidity": d.humidity,
-                "illumination": d.illumination,
-                "timestamp": d.timestamp.isoformat(),
-            }
-            for d in data
-        ]
-        self.write(json.dumps(result))
+    def open(self):
+        print('Webserver: Websocket opened.')
+        self.write_message('Server ready.')
 
-    def post(self):
+    def on_message(self, msg):
         try:
-            payload = json.loads(self.request.body)
-            session = SessionLocal()
+            msg = loads_json(msg)
+            print('Webserver: Received json WS message:', msg)
+        except (ValueError):
+            print('Webserver: Received WS message:', msg)
 
-            data_entry = session.query(SensorData).filter(SensorData.id == payload['id']).first()
-            if data_entry:
-                data_entry.temperature = payload.get("temperature", data_entry.temperature)
-                data_entry.humidity = payload.get("humidity", data_entry.humidity)
-                data_entry.illumination = payload.get("illumination", data_entry.illumination)
-                session.commit()
-                self.write({"status": "success", "message": "Data updated"})
-            else:
-                self.set_status(404)
-                self.write({"status": "error", "message": "Data not found"})
+    def on_close(self):
+        self.application.ws_clients.remove(self)
+        print('Webserver: Websocket client closed. Connected clients:', len(self.application.ws_clients))
 
-            session.close()
-        except Exception as e:
-            self.set_status(500)
-            self.write({"status": "error", "message": str(e)})
+class WebWSApp(TornadoApplication):
 
-# Tornado app setup
-def make_app():
-    return tornado.web.Application([
-        (r"/data", DataHandler),
-    ])
+    def __init__(self):
+        self.ws_clients = []
+        self.counter = 0
 
-if __name__ == "__main__":
-    app = make_app()
-    app.listen(8881)
-    print("Server started at http://localhost:8881")
-    tornado.ioloop.IOLoop.current().start()
+        self.tornado_handlers = [
+            (r'/', MainHandler),
+            (r'/websocket', WSHandler),
+            (r'/(.*)', StaticFileHandler, {'path': join_path(dirname(__file__), 'static')})
+        ]
+        self.tornado_settings = {
+            "debug": True,
+            "autoreload": True
+        }
+        try:
+            t = Thread(target=self.increment_and_broadcast,daemon=True)
+            t.start()
+        except ThreadError:
+            print('ERR: Thread Websocket')
+
+
+
+
+        TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
+        ####
+        # self.incrementer = PeriodicCallback(self.increment_and_broadcast, 1000)  # Every 1000ms (1 second)
+        # self.incrementer.start()
+        #### Toto fungovalo, od chatbota
+
+
+    def send_ws_message(self, message):
+        for client in self.ws_clients:
+            iol.spawn_callback(client.write_message, dumps_json(message))
+
+    def increment_and_broadcast(self): 
+        # sleep(5)
+        print("incremention initialized")
+        for _ in range(1000):
+            sleep(1)
+            self.counter += 1 
+            print("Counter:", int(self.counter))
+            self.send_ws_message({"counter": int(self.counter)})
+
+
+if __name__ == '__main__':
+    PORT = 8881
+    app = WebWSApp()
+    print('Webserver: Initialized. Listening on', PORT)
+    app.listen(PORT)
+    iol = IOLoop.current()
+    iol.start()
+    
