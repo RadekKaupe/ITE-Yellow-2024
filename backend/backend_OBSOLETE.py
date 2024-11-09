@@ -35,7 +35,7 @@ MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")  # Broker address
 print("Broker:"+ str(MQTT_BROKER))
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))  
 print("Port: "+ str(MQTT_PORT)) # Broker port
-MQTT_TOPIC = "sensor/data"                            # Topic to subscribe to
+MQTT_TOPIC = "sensor/data/test"                            # Topic to subscribe to
 print("topic: "+ MQTT_TOPIC + "\n")
 ########
 
