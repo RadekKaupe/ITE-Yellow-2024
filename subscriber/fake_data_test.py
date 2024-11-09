@@ -3,25 +3,31 @@ import json
 import time
 import random
 from datetime import datetime, timezone
+import os
+from dotenv import load_dotenv
 
 MQTT_BROKER = "localhost"  # Adjust if using a different host
 MQTT_PORT = 1883
-MQTT_TOPIC = "sensor/data"  # Topic that the backend is subscribed to
-client = mqtt.Client()
-client.connect(MQTT_BROKER, MQTT_PORT)
+TOPIC = "sensor/data"  # Topic that the backend is subscribed to
+# mqtt_client = mqtt.Client()
+# mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
 
 #### GOLEM ####
-# BROKER_IP = os.getenv("BROKER_IP")
-# BROKER_PORT = int(os.getenv("BROKER_PORT"))
-# BROKER_UNAME = os.getenv("BROKER_UNAME")
-# BROKER_PASSWD = os.getenv("BROKER_PASSWD")
+load_dotenv()
+BROKER_IP = os.getenv("BROKER_IP")
+BROKER_PORT = int(os.getenv("BROKER_PORT"))
+BROKER_UNAME = os.getenv("BROKER_UNAME")
+BROKER_PASSWD = os.getenv("BROKER_PASSWD")
 # TOPIC = os.getenv("TOPIC")
 
-# print(f"BROKER_IP = {BROKER_IP}")
-# print(f"BROKER_PORT = {BROKER_PORT}")
-# print(f"BROKER_UNAME = {BROKER_UNAME}")
-# print(f"BROKER_PASSWD = {BROKER_PASSWD}")
-# print(f"TOPIC = {TOPIC}")
+print(f"BROKER_IP = {BROKER_IP}")
+print(f"BROKER_PORT = {BROKER_PORT}")
+print(f"BROKER_UNAME = {BROKER_UNAME}")
+print(f"BROKER_PASSWD = {BROKER_PASSWD}")
+print(f"TOPIC = {TOPIC}")
+mqtt_client = mqtt.Client()
+mqtt_client.username_pw_set(BROKER_UNAME, password=BROKER_PASSWD)
+mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
 # #########
 
 
@@ -44,7 +50,7 @@ def publish_fake_data():
         payload = json.dumps(data)
         
         # Publish the data to the MQTT topic
-        client.publish(MQTT_TOPIC, payload)
+        mqtt_client.publish(TOPIC, payload)
         print(f"Published data: {payload}")
         
         time.sleep(7)
@@ -54,7 +60,7 @@ def publish_randomized_data():
     
     while True:
         date = datetime.now(timezone.utc).isoformat()
-        
+        # date = datetime.now().isoformat()
         # Randomly choose between valid, incomplete, or invalid payload
         payload_type = random.choice(["valid", "incomplete", "invalid"])
 
@@ -96,8 +102,8 @@ def publish_randomized_data():
         payload = json.dumps(data)
         
         # Publish the data to the MQTT topic
-        client.publish(MQTT_TOPIC, payload)
-        print(f"Published data: {payload}")
+        mqtt_client.publish(TOPIC, payload)
+        print(f"Published data: {payload} \n")
         
         # Wait before sending the next message
         time.sleep(10)

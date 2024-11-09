@@ -41,7 +41,25 @@ def create_teams():
         session.close()
 
 
+def choose_action():
+    valid_answers = [0,1,2,9]
+    print("Please enter a number based on your decision. ")
+    print(f"Press {valid_answers[0]} if you want to create the tables.")
+    print(f"Press {valid_answers[1]} if you want to create the teams in the TEAMS table.")
+    print(f"Press {valid_answers[2]} if you want to create the tables and create the teams at once.")
+    print(f"Press {valid_answers[3]} if you want to drop all the tables.")
+    decision = int(input())
+    while decision not in valid_answers:
+        print("Input a valid number") 
+        decision = int(input())
+    return decision
 
+def validate_deletion():
+    phrase = f"Yes, I'm sure"
+    print("Are you sure you want to drop the tables?")
+    print(f"If you are sure, type: {phrase} ")
+    validation = input()
+    return validation == phrase
 #
 if __name__ == "__main__":
     
@@ -55,9 +73,22 @@ if __name__ == "__main__":
     print(connection_string)
     engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
     SessionLocal = sessionmaker(bind=engine)
-    # Base.metadata.create_all(engine)
-    # Base.metadata.drop_all(engine)
-    # print("Tables dropped successfully.")
-    # create_teams()
+    action = choose_action()
+    if action == 0:
+        Base.metadata.create_all(engine)
+        print("Tables created successfully.")
+    elif action == 1:
+        create_teams()
+        print("Teams created successfully.")
+    elif action == 2:
+        Base.metadata.create_all(engine)
+        create_teams()
+        print("Tables and teams created successfully.")
+    elif action == 9:
+        if validate_deletion():
+            Base.metadata.drop_all(engine)
+            print("Tables dropped successfully.")
+        else:
+            print("Deletion failed, you didn't write the correct phrase.")
 
 

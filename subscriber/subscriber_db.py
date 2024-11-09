@@ -54,7 +54,7 @@ BROKER_IP = os.getenv("BROKER_IP")
 BROKER_PORT = int(os.getenv("BROKER_PORT"))
 BROKER_UNAME = os.getenv("BROKER_UNAME")
 BROKER_PASSWD = os.getenv("BROKER_PASSWD")
-# TOPIC = os.getenv("TOPIC")
+TOPIC = os.getenv("TOPIC")
 
 # #########
 
@@ -164,5 +164,5 @@ def start_communication_via_broker(): # GOLEM
     mqtt_client.loop_forever()
     
 if __name__ == "__main__":
-    start_local_host_client()
-    # start_communication_via_broker()
+    #start_local_host_client()
+    start_communication_via_broker()
