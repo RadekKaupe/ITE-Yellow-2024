@@ -1,38 +1,112 @@
-body {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
-
-h1{
-    color: darkblue;
-    font-size: 28px;
-    position: absolute;
-    top: 50px;
-    left: 100px;
+/* Reset some basic styles */
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.image-container {
-    position: absolute;
-    top: 100px; /* 50px (odsazení od horního okraje) + 28px (výška nadpisu) + 20px */
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 20px;
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding-top: 20px;
 }
 
-img {
-    width: 350px;
-    height: 200px;
-    border: 5px solid black;
+/* Header Styles */
+header {
+    background-color: #3498db;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-#unique_id {
-    color: darkblue;
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
 }
 
-.common_class {
-    line-height: 1.5em;
+header p {
+    font-size: 1.2rem;
 }
 
-.common_class_with_selector[selected=true] {
-    font-weight: bold;
+/* Team Container - Grid Layout */
+.team-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* Team Box Styling */
+.team-box {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: #fff;
+    transition: transform 0.3s;
+}
+
+.team-box:hover {
+    transform: scale(1.05);
+}
+
+.team-box h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.team-box p {
+    font-size: 1.1rem;
+    margin: 5px 0;
+}
+
+/* Individual Team Colors */
+.team1 {
+    background-color: #f1c40f; /* Yellow */
+}
+
+.team2 {
+    background-color: #ff9ff3; /* Pink */
+}
+
+.team3 {
+    background-color: #e74c3c; /* Red */
+}
+
+.team4 {
+    background-color: #333; /* Black */
+}
+
+.team5 {
+    background-color: #2ecc71; /* Green */
+}
+
+.team6 {
+    background-color: #3498db; /* Blue */
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .team-box h2 {
+        font-size: 1.3rem;
+    }
+
+    .team-box p {
+        font-size: 1rem;
+    }
 }

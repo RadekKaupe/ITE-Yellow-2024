@@ -1,27 +1,80 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>
-        skokoska
-    </title>
-    <!-- <link rel="icon" type="image/x-icon" href="/images/favicon.ico"> -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skokoska - Team Data Dashboard</title>
+
     <!-- Styles -->
-    <link rel="stylesheet" href="style.css" type="text/css" >
+    <link rel="stylesheet" href="style.css" type="text/css">
     
     <!-- Scripts -->
     <script type="text/javascript">
-        var global_variable
-        
+        var global_variable;
+
+        // Sample onBodyLoad function
+        function onBodyLoad() {
+            console.log("Page Loaded!");
+            // Your WebSocket initialization and other code here
+        }
     </script>
-   
 </head>
 
 <body onload="onBodyLoad()">
-    <!-- <h1>Nadpis Stránky pana Kokošky</h1> -->
-    
-    <div class="common_class"></div>
-    <div class="common_class"></div>
-    <div id="counter-display">Counter: <span id="counter-value">0</span></div>
+    <!-- Header Section -->
+    <header>
+        <h1>Welcome to Skokoska's Team Dashboard</h1>
+        <p>Real-time data display for each team</p>
+    </header>
+
+    <!-- Team Data Section -->
+    <div class="team-container">
+        <!-- Team Boxes -->
+        <div class="team-box team1" id="team-yellow">
+            <h2>Team Yellow</h2>
+            <p>Temperature: <span id="team-yellow-temp">--</span>°C</p>
+            <p>Humidity: <span id="team-yellow-humidity">--</span>%</p>
+            <p>Illumination: <span id="team-yellow-illumination">--</span> lx</p>
+            <p>Timestamp: <span id="team-yellow-timestamp">--</span> </p>
+        </div>
+        <div class="team-box team2" id="team-pink">
+            <h2>Team Pink</h2>
+            <p>Temperature: <span id="team-pink-temp">--</span>°C</p>
+            <p>Humidity: <span id="team-pink-humidity">--</span>%</p>
+            <p>Illumination: <span id="team-pink-illumination">--</span> lx</p>
+            <p>Timestamp: <span id="team-pink-timestamp">--</span> </p>
+        </div>
+        <div class="team-box team3" id="team-red">
+            <h2>Team Red</h2>
+            <p>Temperature: <span id="team-red-temp">--</span>°C</p>
+            <p>Humidity: <span id="team-red-humidity">--</span>%</p>
+            <p>Illumination: <span id="team-red-illumination">--</span> lx</p>
+            <p>Timestamp: <span id="team-red-timestamp">--</span> </p>
+        </div>
+        <div class="team-box team4" id="team-black">
+            <h2>Team Black</h2>
+            <p>Temperature: <span id="team-black-temp">--</span>°C</p>
+            <p>Humidity: <span id="team-black-humidity">--</span>%</p>
+            <p>Illumination: <span id="team-black-illumination">--</span> lx</p>
+            <p>Timestamp: <span id="team-black-timestamp">--</span> </p>
+        </div>
+        <div class="team-box team5" id="team-green">
+            <h2>Team Green</h2>
+            <p>Temperature: <span id="team-green-temp">--</span>°C</p>
+            <p>Humidity: <span id="team-green-humidity">--</span>%</p>
+            <p>Illumination: <span id="team-green-illumination">--</span> lx</p>
+            <p>Timestamp: <span id="team-green-timestamp">--</span> </p>
+        </div>
+        <div class="team-box team6" id="team-blue">
+            <h2>Team Blue</h2>
+            <p>Temperature: <span id="team-blue-temp">--</span>°C</p>
+            <p>Humidity: <span id="team-blue-humidity">--</span>%</p>
+            <p>Illumination: <span id="team-blue-illumination">--</span> lx</p>
+            <p>Timestamp: <span id="team-blue-timestamp">--</span> </p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js" type="text/javascript"></script>
 </body>
-<script src="script.js" type="text/javascript">
-    </script>
 </html>

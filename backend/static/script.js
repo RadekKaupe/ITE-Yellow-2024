@@ -1,5 +1,4 @@
-let span = document.getElementById("counter-value");
-console.log(span)
+
 span.innerHTML = "nothing";
 function onBodyLoad() {
     ws = new WebSocket('ws://localhost:8881/websocket')     // ws is a global variable (index.html)
@@ -15,7 +14,6 @@ function onSocketOpen() {
 function onSocketMessage(message) {
     // let span = document.getElementById("counter-value")
     
-    console.log(span)
     var data
     try {
         data = JSON.parse(message.data)    
@@ -23,7 +21,6 @@ function onSocketMessage(message) {
         data = message.data
     }
     console.log(message.data)
-    span.innerHTML = message.data
         
     
 }
