@@ -8,7 +8,7 @@ from time import sleep
 import numpy as np
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, Session
 import sys
 
@@ -30,6 +30,15 @@ engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}
 
 SessionLocal = sessionmaker(bind=engine)
 
+def extract_teams_dict():
+    session = SessionLocal()
+    teams = session.query(Teams).all()
+    teams_dict = dict()
+    for team in teams:
+        teams_dict[team.id] = team.name
+    # print(teams_ids)    
+    session.close()
+    return teams_dict
 
 
 
@@ -92,14 +101,25 @@ class WebWSApp(TornadoApplication):
         # self.incrementer.start()
         #### Toto fungovalo, od chatbota
 
-    def fetch_sensor_data(self, team_id=None):
+    def fetch_sensor_data(self):
             """Fetches sensor data from the database, optionally for a specific team ID."""
             session = SessionLocal()
             try:
                 # Query the sensor_data; filter by team_id if specified
-                query = session.query(SensorData)
-                if team_id:
-                    query = query.filter(SensorData.team_id == team_id)
+                subquery = (
+                    session.query(
+                        SensorData.team_id,
+                        func.max(SensorData.timestamp).label("latest_timestamp")
+                    )
+                    .group_by(SensorData.team_id)
+                    .subquery()
+                )
+
+                query = (
+                    session.query(SensorData)
+                    .join(subquery, (SensorData.team_id == subquery.c.team_id) & (SensorData.timestamp == subquery.c.latest_timestamp))
+                )
+                
                 data = query.all()
                 
                 # Convert query result to a list of dictionaries for JSON serialization
@@ -107,6 +127,7 @@ class WebWSApp(TornadoApplication):
                     {
                         "id": d.id,
                         "team_id": d.team_id,
+                        "team_name": team_dict[d.team_id],
                         "timestamp": d.timestamp.isoformat(),
                         "temperature": d.temperature,
                         "humidity": d.humidity,
@@ -124,7 +145,7 @@ class WebWSApp(TornadoApplication):
         """Fetches all sensor data and broadcasts to all connected WebSocket clients."""
         print("Fetching latest sensor data for broadcast.")
         sensor_data = self.fetch_sensor_data()  # Fetch all data; can be modified to fetch specific teams
-        message = dumps_json({"sensor_data": sensor_data})
+        message = {"sensor_data": sensor_data}
         self.send_ws_message(message)
 
     def send_ws_message(self, message):
@@ -145,6 +166,8 @@ if __name__ == '__main__':
     PORT = 8881
     app = WebWSApp()
     print('Webserver: Initialized. Listening on', PORT)
+    team_dict = extract_teams_dict()
+    print(team_dict)
     app.listen(PORT)
     iol = IOLoop.current()
     iol.start()
