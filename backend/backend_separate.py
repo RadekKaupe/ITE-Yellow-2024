@@ -40,12 +40,17 @@ def extract_teams_dict():
     session.close()
     return teams_dict
 
-
+class LatestDataHandler(RequestHandler):
+    def get(self):
+        # Fetch the most recent data for each team (or however you aggregate it)
+        latest_data = self.application.fetch_sensor_data()
+        self.write({"sensor_data": latest_data})
 
 class MainHandler(RequestHandler):
     def get(self):  
         # self.render("static/index_css_js_ws.html")
         self.render("static/index.html")
+        
 
 
 class WSHandler(WebSocketHandler):
@@ -85,6 +90,7 @@ class WebWSApp(TornadoApplication):
         self.tornado_handlers = [
             (r'/', MainHandler),
             (r'/websocket', WSHandler),
+            (r'/latest-data', LatestDataHandler), 
             (r'/(.*)', StaticFileHandler, {'path': join_path(dirname(__file__), 'static')})
         ]
         self.tornado_settings = {
@@ -135,7 +141,7 @@ class WebWSApp(TornadoApplication):
                     }
                     for d in data
                 ]
-                print(sensor_data_list)
+                # print(sensor_data_list)
                 return sensor_data_list
 
             finally:

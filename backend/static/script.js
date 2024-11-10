@@ -1,4 +1,17 @@
+function fetchLatestData() {
+    fetch('/latest-data')
+        .then(response => response.json())
+        .then(data => {
+            // Assuming data has the same format as WebSocket data
+            console.log(data.sensor_data)
+            updateTeamData(data.sensor_data);
+            
+        })
+        .catch(error => console.error("Error fetching latest data:", error));
+}
+
 function onBodyLoad() {
+    fetchLatestData();
     ws = new WebSocket('ws://localhost:8881/websocket')     // ws is a global variable (index.html)
     ws.onopen = onSocketOpen
     ws.onmessage = onSocketMessage
@@ -32,8 +45,12 @@ function onSocketMessage(message) {
     updateTeamData(sensorDataArr)
 }
 
-function updateTeamData(sensorDataArray) {
+function updateTeamData(sensorDataArray=[]) {
     // Iterate through each sensor data and update the corresponding element
+    if (sensorDataArray.length == 0) {
+        return
+    } 
+    console.log(sensorDataArray)
     sensorDataArray.forEach((sensor) => {
         let team_name = sensor.team_name;
         let dateAndTime;
