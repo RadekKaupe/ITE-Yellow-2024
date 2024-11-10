@@ -9,25 +9,25 @@ from dotenv import load_dotenv
 MQTT_BROKER = "localhost"  # Adjust if using a different host
 MQTT_PORT = 1883
 TOPIC = "sensor/data"  # Topic that the backend is subscribed to
-# mqtt_client = mqtt.Client()
-# mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
+mqtt_client = mqtt.Client()
+mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
 
 #### GOLEM ####
-load_dotenv()
-BROKER_IP = os.getenv("BROKER_IP")
-BROKER_PORT = int(os.getenv("BROKER_PORT"))
-BROKER_UNAME = os.getenv("BROKER_UNAME")
-BROKER_PASSWD = os.getenv("BROKER_PASSWD")
-# TOPIC = os.getenv("TOPIC")
+# load_dotenv()
+# BROKER_IP = os.getenv("BROKER_IP")
+# BROKER_PORT = int(os.getenv("BROKER_PORT"))
+# BROKER_UNAME = os.getenv("BROKER_UNAME")
+# BROKER_PASSWD = os.getenv("BROKER_PASSWD")
+# # TOPIC = os.getenv("TOPIC")
 
-print(f"BROKER_IP = {BROKER_IP}")
-print(f"BROKER_PORT = {BROKER_PORT}")
-print(f"BROKER_UNAME = {BROKER_UNAME}")
-print(f"BROKER_PASSWD = {BROKER_PASSWD}")
-print(f"TOPIC = {TOPIC}")
-mqtt_client = mqtt.Client()
-mqtt_client.username_pw_set(BROKER_UNAME, password=BROKER_PASSWD)
-mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
+# print(f"BROKER_IP = {BROKER_IP}")
+# print(f"BROKER_PORT = {BROKER_PORT}")
+# print(f"BROKER_UNAME = {BROKER_UNAME}")
+# print(f"BROKER_PASSWD = {BROKER_PASSWD}")
+# print(f"TOPIC = {TOPIC}")
+# mqtt_client = mqtt.Client()
+# mqtt_client.username_pw_set(BROKER_UNAME, password=BROKER_PASSWD)
+# mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
 # #########
 
 
@@ -35,7 +35,7 @@ def publish_fake_data():
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow', "WRONG"]
     
     while True:
-        date = datetime.now(timezone.utc).isoformat()
+        date = datetime.now().isoformat()
         # print(date)
         # Create fake data
         data = {
@@ -53,13 +53,13 @@ def publish_fake_data():
         mqtt_client.publish(TOPIC, payload)
         print(f"Published data: {payload}")
         
-        time.sleep(7)
+        time.sleep(10)
 
 def publish_randomized_data():
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow', "WRONG"]
     
     while True:
-        date = datetime.now(timezone.utc).isoformat()
+        date = datetime.now().isoformat()
         # date = datetime.now().isoformat()
         # Randomly choose between valid, incomplete, or invalid payload
         payload_type = random.choice(["valid", "incomplete", "invalid"])
@@ -110,5 +110,5 @@ def publish_randomized_data():
 
 
 if __name__ == "__main__":
-    # publish_fake_data()
-    publish_randomized_data()
+    publish_fake_data()
+    # publish_randomized_data()
