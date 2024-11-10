@@ -35,17 +35,11 @@ global temp;        temp = "Err"     # if these get sent, then we have a problem
 global tempH;       tempH = "Err"  
 global humi;        humi = "Err" 
 global light;       light = "Err"
-global timestamp;   timestamp = "Err"
-global payload;     payload = "Err"
+global payload
 
-def newTimeStamp():
-    global timestamp
-    
-    tmp = time.localtime()  # (year, month, day, hour, min, sec)
-    #t = time.time()
-    #print("secs: " + str(t))
-    #ms = t - int(t) + tmp[5]
-    timestamp =  "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])
+def newTimeStamp(secs):
+    tmp = time.localtime(secs) 
+    return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])  ) # (year, month, day, hour, min, sec)
 
 ntptime.host = "clock1.zcu.cz"
 rtc = RTC()
@@ -91,15 +85,52 @@ def reconnect():
         except Exception as e:
             print("connecting to broker failed")
 
+archive = list()
 def publish():
     global payload
     global connBroker
-    payload = json.dumps({'team_name': 'yellow', 'timestamp': timestamp, 'temperature': temp, 'humidity': humi, 'illumination': light})
+    t = time.time()
+    payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
     try:
         MQclient.publish(TOPIC, payload, qos=1)
     except Exception as e:
         connBroker = False
+        if len(archive) == 0:
+            archive.append([t, 0, temp, humi, light])   # index [1] is number of measurements same as this one
+        else:
+            if(archive[-1][2] == temp and archive[-1][3] == humi or archive[-1][4] == light): archive[-1][1] += 1
+            else:
+                archive.append([t, 0, temp, humi, light])
         
+        
+def sendArchive():
+    archive.reverse()   # older logs last now
+    for i in range(0, len(archive)):
+        log = archive.pop()
+        if(log[1] == 0):
+            payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
+            try:
+                MQclient.publish(TOPIC, payload, qos=1)
+            except Exception as e:
+                connBroker = False
+                archive.append(log)
+                archive.reverse()   # newer logs last now
+                break
+                
+        else:   
+            for j in range(0, log[1]): # send log[1] same logs with timestamps offset by j*period
+                payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*period), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
+                try:
+                    MQclient.publish(TOPIC, payload, qos=1)
+                except Exception as e:
+                    connBroker = False
+                    log[0] += j*60
+                    log[1] -= j
+                    archive.append(log)
+                    archive.reverse()   # newer logs last now
+                    break
+        if not connBroker: break
+    
 #timer1 = Timer(1)
 #minPassed = False
 #def setFlagMeas(timer):  minPassed = True
@@ -115,15 +146,16 @@ while(True):
         if connBroker: break
         reconnect()
         time.sleep(subperiod)
-        remaining = remaining - 1
+        remaining += 1
         
     time.sleep(remaining*subperiod)
     remaining = segments
     
     syncTime()
-    newTimeStamp()
     measure()
+    if(connBroker and len(archive) > 0): sendArchive() 
     publish()
+    
 
     
     
