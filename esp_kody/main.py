@@ -137,7 +137,7 @@ def sendArchive():
 #timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
 period = 10
-segments = 5
+segments = 20
 remaining = segments
 subperiod = period / segments
 while(True):
