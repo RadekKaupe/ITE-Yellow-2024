@@ -98,7 +98,7 @@ class WebWSApp(TornadoApplication):
             "autoreload": True
         }
         # Periodically fetch and broadcast sensor data to WebSocket clients
-        self.periodic_fetch = PeriodicCallback(self.fetch_and_broadcast_data, 5000)  # 5000ms = 5 seconds
+        self.periodic_fetch = PeriodicCallback(self.fetch_and_broadcast_data, 5000  )  # 5000ms = 5 seconds
         self.periodic_fetch.start()
 
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)

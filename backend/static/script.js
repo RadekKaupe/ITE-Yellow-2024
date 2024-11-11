@@ -68,19 +68,27 @@ function updateTeamData(sensorDataArray=[]) {
         // If the element exists, update its innerHTML
         
         if (dateElement) {
-            dateElement.textContent = dateAndTime.date.toDateString() ;
+            dateElement.textContent = dateAndTime.date.toDateString();
         }
         if (timeElement) {
             timeElement.textContent = dateAndTime.time;
         }
         if (tempElement) {
-            tempElement.textContent = sensor.temperature;
+            tempElement.textContent = sensor.temperature + " °C";
         }
         if (humidityElement) {
-            humidityElement.textContent = sensor.humidity;
+            let text = "This team doesn't measure humidity. ";
+            if ( sensor.humidity){
+                    text = sensor.humidity + " %";
+            }
+            humidityElement.textContent = text;
         }
         if (illuminationElement) {
-            illuminationElement.textContent = sensor.illumination;
+            let text = "This team doesn't measure illumination. ";
+            if ( sensor.illumination){
+                    text = sensor.illumination + " lx";
+            }
+            illuminationElement.textContent = text;
         }
         
     });
