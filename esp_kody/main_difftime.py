@@ -124,7 +124,7 @@ def sendArchive():
                     MQclient.publish(TOPIC, payload, qos=1)
                 except Exception as e:
                     connBroker = False
-                    log[0] += j*60
+                    log[0] += j*period
                     log[1] -= j
                     archive.append(log)
                     archive.reverse()   # newer logs last now
