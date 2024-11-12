@@ -91,6 +91,7 @@ class WebWSApp(TornadoApplication):
             (r'/', MainHandler),
             (r'/websocket', WSHandler),
             (r'/latest-data', LatestDataHandler), 
+            (r'/graphs', GraphsHandler),
             (r'/(.*)', StaticFileHandler, {'path': join_path(dirname(__file__), 'static')})
         ]
         self.tornado_settings = {
@@ -166,6 +167,12 @@ class WebWSApp(TornadoApplication):
     #         self.counter += 1 
     #         print("Counter:", int(self.counter))
     #         self.send_ws_message({"counter": int(self.counter)})
+
+
+class GraphsHandler(RequestHandler):
+    def get(self):
+        self.render("static/graphs.html")
+
 
 
 if __name__ == '__main__':

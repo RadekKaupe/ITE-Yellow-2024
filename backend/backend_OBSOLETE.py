@@ -153,6 +153,12 @@ def on_message(client, userdata, msg):
     except Exception as e:
         print(f"Error saving data: {e}")
 
+class GraphsHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("static/graphs.html")
+
+
+
 # Setup Tornado Application
 def make_app():
     return tornado.web.Application([
