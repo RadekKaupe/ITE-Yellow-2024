@@ -1,11 +1,13 @@
-from machine import Pin, Timer, RTC, json
+# from machine import Timer
+from machine import Pin, Timer, RTC
+import json
 import network
 import time
 import ntptime
 from machine import I2C
 import umqtt
 import ntptime
-from machine import math
+import math
 
 from light_sensor import BH1750
 import dht
@@ -18,7 +20,7 @@ tempSens = tempSensorDS(pin_nb=5)
 humiSens = dht.DHT11(Pin(4))
 sda = Pin(0)
 scl = Pin(2)
-i2c = I2C(scl,sda) # komunikace s light senzorem
+i2c = I2C(scl, sda, freq = 200000) # komunikace s light senzorem
 lightSens = BH1750(i2c)
 
 sta_if = network.WLAN(network.STA_IF)
@@ -31,15 +33,15 @@ TOPIC = 'ite/yellow'
 # SLEEP_TIME = 2
 MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
 
-global temp;        temp = "Err"     # if these get sent, then we have a problem
-global tempH;       tempH = "Err"  
-global humi;        humi = "Err" 
-global light;       light = "Err"
+global temp;        temp = 999     # if these get sent, then we have a problem
+global tempH;       tempH = 999
+global humi;        humi = 999 
+global light;       light = 999
 global payload
 
 def newTimeStamp(secs):
     tmp = time.localtime(secs) 
-    return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])  ) # (year, month, day, hour, min, sec)
+    return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:09.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])  ) # (year, month, day, hour, min, sec)
 
 ntptime.host = "clock1.zcu.cz"
 rtc = RTC()
@@ -91,6 +93,7 @@ def publish():
     global connBroker
     t = time.time()
     payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
+    print(payload)
     try:
         MQclient.publish(TOPIC, payload, qos=1)
     except Exception as e:
@@ -136,9 +139,9 @@ def sendArchive():
 #def setFlagMeas(timer):  minPassed = True
 #timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
-period = 10
+period = 60*1000
 previous = time.ticks_ms()
-now = 0
+now = previous
 while(True):
     
     if not connBroker: reconnect()

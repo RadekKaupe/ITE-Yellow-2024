@@ -2,6 +2,7 @@ from machine import Pin
 from onewire import OneWire
 from ds18x20 import DS18X20
 from time import sleep
+from sys import exit
 
 class tempSensorDS:
 

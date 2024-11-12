@@ -1,10 +1,13 @@
-from machine import Pin, Timer, RTC, json
+# from machine import Timer
+from machine import Pin, Timer, RTC
+import json
 import network
 import time
 import ntptime
 from machine import I2C
 import umqtt
 import ntptime
+import math
 
 from light_sensor import BH1750
 import dht
@@ -17,7 +20,7 @@ tempSens = tempSensorDS(pin_nb=5)
 humiSens = dht.DHT11(Pin(4))
 sda = Pin(0)
 scl = Pin(2)
-i2c = I2C(scl,sda) # komunikace s light senzorem
+i2c = I2C(scl, sda, freq = 200000) # komunikace s light senzorem
 lightSens = BH1750(i2c)
 
 sta_if = network.WLAN(network.STA_IF)
@@ -28,37 +31,19 @@ BROKER_UNAME = 'student'
 BROKER_PASSWD = 'pivotecepomqtt'
 TOPIC = 'ite/yellow'
 # SLEEP_TIME = 2
+MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
+
+global temp;        temp = 999     # if these get sent, then we have a problem
+global tempH;       tempH = 999
+global humi;        humi = 999 
+global light;       light = 999
+global payload
+
+def newTimeStamp(secs):
+    tmp = time.localtime(secs) 
+    return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:09.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])  ) # (year, month, day, hour, min, sec)
 
 ntptime.host = "clock1.zcu.cz"
-
-if not sta_if.isconnected():
-    print('connecting to network...')
-    sta_if.active(True)
-    sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
-    print("connencting to ui-hub")
-    while not sta_if.isconnected():
-        pass
-print('network config:', sta_if.ifconfig())
-
-MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)
-MQclient.connect()
-
-global temp;        temp = "Err"     # if these get sent, then we have a problem
-global tempH;       tempH = "Err"  
-global humi;        humi = "Err" 
-global light;       light = "Err"
-global timestamp;   timestamp = "Err"
-global payload;     payload = "Err"
-
-def timeStampUpdate():
-    global timestamp
-    
-    tmp = time.localtime()  # (year, month, day, hour, min, sec)
-    #t = time.time()
-    #print("secs: " + str(t))
-    #ms = t - int(t) + tmp[5]
-    timestamp =  "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])
-
 rtc = RTC()
 def syncTime():
     try:
@@ -69,8 +54,6 @@ def syncTime():
     except:
         print("Error syncing time")
     
-
-
 def measure():
     global temp
     global tempH
@@ -83,31 +66,95 @@ def measure():
         humiSens.measure()
         tempH = round(humiSens.temperature(), 2)
         humi = round(humiSens.humidity(), 1)
-    except OSError as e:
+    except Exception as e:
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
+  
+global connBroker;  connBroker = False
+def reconnect():
+    global connBroker
+    if not sta_if.isconnected():
+        sta_if.active(True)
+        sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+        print('connecting to network...')
+        
+    else:    
+        print('network config:', sta_if.ifconfig())
+        try:
+            MQclient.connect()
+            connBroker = True
+            print("connected to broker")
+        except Exception as e:
+            print("connecting to broker failed")
 
-    return()
-    
-    
+archive = list()
 def publish():
     global payload
-    payload = json.dumps({'team_name': 'yellow', 'timestamp': timestamp, 'temperature': temp, 'humidity': humi, 'illumination': light})
-    MQclient.publish(TOPIC, payload, qos=1)
+    global connBroker
+    t = time.time()
+    payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
+    print(payload)
+    try:
+        MQclient.publish(TOPIC, payload, qos=1)
+    except Exception as e:
+        connBroker = False
+        if len(archive) == 0:
+            archive.append([t, 0, temp, humi, light])   # index [1] is number of measurements same as this one
+        else:
+            if(archive[-1][2] == temp and archive[-1][3] == humi or archive[-1][4] == light): archive[-1][1] += 1
+            else:
+                archive.append([t, 0, temp, humi, light])
+        
+        
+def sendArchive():
+    archive.reverse()   # older logs last now
+    for i in range(0, len(archive)):
+        log = archive.pop()
+        if(log[1] == 0):
+            payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
+            try:
+                MQclient.publish(TOPIC, payload, qos=1)
+            except Exception as e:
+                connBroker = False
+                archive.append(log)
+                archive.reverse()   # newer logs last now
+                break
+                
+        else:   
+            for j in range(0, log[1]): # send log[1] same logs with timestamps offset by j*period
+                payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*period), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
+                try:
+                    MQclient.publish(TOPIC, payload, qos=1)
+                except Exception as e:
+                    connBroker = False
+                    log[0] += j*period
+                    log[1] -= j
+                    archive.append(log)
+                    archive.reverse()   # newer logs last now
+                    break
+        if not connBroker: break
     
 #timer1 = Timer(1)
 #minPassed = False
 #def setFlagMeas(timer):  minPassed = True
 #timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
+period = 60*1000
+previous = time.ticks_ms()
+now = previous
 while(True):
     
+    if not connBroker: reconnect()
     
-    syncTime()
-    timeStampUpdate()
-    measure()
-    publish()
-    time.sleep(10)
+    now = time.ticks_ms()
+    if(time.ticks_diff(now, previous) >= period): 
+        syncTime()
+        measure()
+        if(connBroker and len(archive) > 0): sendArchive() 
+        publish()
+        previous = now
+    
+
     
     
 
