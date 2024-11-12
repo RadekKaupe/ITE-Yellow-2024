@@ -3,7 +3,7 @@ function fetchLatestData() {
         .then(response => response.json())
         .then(data => {
             // Assuming data has the same format as WebSocket data
-            console.log(data.sensor_data)
+            // console.log(data.sensor_data)
             updateTeamData(data.sensor_data);
             
         })
@@ -50,7 +50,7 @@ function updateTeamData(sensorDataArray=[]) {
     if (sensorDataArray.length == 0) {
         return
     } 
-    console.log(sensorDataArray)
+    // console.log(sensorDataArray)
     sensorDataArray.forEach((sensor) => {
         let team_name = sensor.team_name;
         let dateAndTime;
@@ -78,14 +78,14 @@ function updateTeamData(sensorDataArray=[]) {
         }
         if (humidityElement) {
             let text = "This team doesn't measure humidity. ";
-            if ( sensor.humidity){
+            if ( sensor.humidity != null ){
                     text = sensor.humidity + " %";
             }
             humidityElement.textContent = text;
         }
         if (illuminationElement) {
             let text = "This team doesn't measure illumination. ";
-            if ( sensor.illumination){
+            if ( sensor.illumination != null){
                     text = sensor.illumination + " lx";
             }
             illuminationElement.textContent = text;
