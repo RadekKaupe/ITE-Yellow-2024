@@ -75,7 +75,10 @@ def reconnect():
     global connBroker
     if not sta_if.isconnected():
         sta_if.active(True)
-        sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+        try:
+            sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+        except Exception as e:
+            print("connecting to network failed")
         print('connecting to network...')
         
     else:    
