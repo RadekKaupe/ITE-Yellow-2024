@@ -101,12 +101,13 @@ def publish():
         if len(archive) == 0:
             archive.append([t, 0, temp, humi, light])   # index [1] is number of measurements same as this one
         else:
-            if(archive[-1][2] == temp and archive[-1][3] == humi or archive[-1][4] == light): archive[-1][1] += 1
+            if(archive[-1][2] == temp and archive[-1][3] == humi and archive[-1][4] == light): archive[-1][1] += 1
             else:
                 archive.append([t, 0, temp, humi, light])
         
         
-def sendArchive():
+def sendArchive():  
+    global payload
     archive.reverse()   # older logs last now
     for i in range(0, len(archive)):
         log = archive.pop()
