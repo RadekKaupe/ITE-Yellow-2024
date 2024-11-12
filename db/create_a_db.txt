@@ -1,0 +1,7 @@
+Přihlášení:
+psql -U username -d postgres
+
+Vytvoření DB:
+CREATE DATABASE your_new_database_name;
+
+Musím potom připojit k db ve VsCode.
