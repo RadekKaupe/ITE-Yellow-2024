@@ -98,7 +98,7 @@ def publish():
     payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
     print(payload)
     try:
-        MQclient.publish(TOPIC, payload, qos=2)
+        MQclient.publish(TOPIC, payload, qos=1)
     except Exception as e:
         connBroker = False
         if len(archive) == 0:
@@ -117,7 +117,7 @@ def sendArchive():
         if(log[1] == 0):
             payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
             try:
-                MQclient.publish(TOPIC, payload, qos=2)
+                MQclient.publish(TOPIC, payload, qos=1)
             except Exception as e:
                 connBroker = False
                 archive.append(log)
@@ -128,7 +128,7 @@ def sendArchive():
             for j in range(0, log[1]): # send log[1] same logs with timestamps offset by j*period
                 payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*period), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
-                    MQclient.publish(TOPIC, payload, qos=2)
+                    MQclient.publish(TOPIC, payload, qos=1)
                 except Exception as e:
                     connBroker = False
                     log[0] += j*period
