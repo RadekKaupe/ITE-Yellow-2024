@@ -40,12 +40,55 @@ def extract_teams_dict() ->dict[int:str]:
     session.close()
     return teams_dict
 
-class LatestDataHandler(RequestHandler):
+class GraphDataHandler(RequestHandler):
+        def get(self):
+            # Create a new session
+            session = SessionLocal()
+
+            try:
+                # Fetch all data, ordered by team_id and timestamp
+                query = (
+                    session.query(SensorData)
+                    .order_by(SensorData.team_id, SensorData.timestamp)  # Order by team_id and timestamp
+                )
+
+                # Get all the data for all teams
+                all_data = query.all()
+
+                # Organize the data by team_id for easier frontend consumption
+                result = {}
+                for data in all_data:
+                    if data.team_id not in result:
+                        result[data.team_id] = []
+
+                    result[data.team_id].append({
+                        'timestamp': data.timestamp.isoformat(),  # ISO format for date-time
+                        'temperature': data.temperature,
+                        'humidity': data.humidity if data.humidity is not None else None,
+                        'illumination': data.illumination if data.illumination is not None else None
+                    })
+
+                # Respond with JSON data, structure is { 'team_id': [data] }
+                self.set_header("Content-Type", "application/json")
+                self.write(dumps_json({'sensor_data': result}))
+
+            except Exception as e:
+                # Handle any errors during the data fetch
+                self.set_status(500)
+                self.write({"error": str(e)})
+
+            finally:
+                # Close the session
+                session.close()
+
+
+class LatestDataHandler(RequestHandler): # zaručuje loadovani dat pri refreshi
     def get(self) -> None:
         # Fetch the most recent data for each team (or however you aggregate it)
         latest_data = self.application.fetch_sensor_data()
         self.write({"sensor_data": latest_data})
-
+        
+    
 class MainHandler(RequestHandler):
     def get(self) -> None:  
         # self.render("static/index_css_js_ws.html")
@@ -89,6 +132,7 @@ class WebWSApp(TornadoApplication):
 
         self.tornado_handlers = [
             (r'/', MainHandler),
+            (r"/graph-data", GraphDataHandler),
             (r'/websocket', WSHandler),
             (r'/latest-data', LatestDataHandler), 
             (r'/graphs', GraphsHandler),
@@ -109,7 +153,7 @@ class WebWSApp(TornadoApplication):
         #### Toto fungovalo, od chatbota
 
     def fetch_sensor_data(self) -> list:
-            """Fetches sensor data from the database, optionally for a specific team ID."""
+            """Fetches the latest sensor data from the database"""
             session = SessionLocal()
             try:
                 # Query the sensor_data; filter by team_id if specified

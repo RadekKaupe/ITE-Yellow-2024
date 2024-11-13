@@ -4,13 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graphs</title>
-    <link rel="stylesheet" href="style.css"> <!-- Link to CSS file -->
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+    <style>
+        canvas {
+            width: 100% !important;
+            height: 400px;
+        }
+    </style>
 </head>
-<body onload="onGraphsPageLoad()">
-    <h1>Graphs</h1>
-    <div id="graph-container">
-        <!-- This is where the graphs will be rendered in future steps -->
+<body>
+    <h1>Sensor Data Graphs</h1>
+
+    <div>
+        <h2>Temperature</h2>
+        <canvas id="tempChart"></canvas>
     </div>
-    <script src="graphs.js"></script> <!-- Link to a dedicated JS file for this page -->
+    
+    <div>
+        <h2>Humidity</h2>
+        <canvas id="humidityChart"></canvas>
+    </div>
+    
+    <div>
+        <h2>Illumination</h2>
+        <canvas id="illuminationChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="graphs.js"></script>
+    <div><a href="/">Go back</a>    </div>
 </body>
 </html>
