@@ -75,7 +75,10 @@ def reconnect():
     global connBroker
     if not sta_if.isconnected():
         sta_if.active(True)
-        sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+        try:
+            sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+        except Exception as e:
+            print("connecting to network failed")
         print('connecting to network...')
         
     else:    
@@ -106,7 +109,7 @@ def publish():
                 archive.append([t, 0, temp, humi, light])
         
         
-def sendArchive():
+def sendArchive():  
     global payload
     archive.reverse()   # older logs last now
     for i in range(0, len(archive)):
