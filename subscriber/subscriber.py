@@ -59,7 +59,7 @@ BROKER_PASSWD = os.getenv("BROKER_PASSWD")
 # #########
 
 # #### ZBYTECNA FUNKCE
-def check_necessary_keys(msg)->bool:
+def check_necessary_keys(msg) -> bool:
     required_keys = ["team_name", "temperature"]
     optional_keys = ["humidity", "illumination"]
     try:
@@ -85,19 +85,22 @@ def check_necessary_keys(msg)->bool:
 
 
 # Helper functions
-def extract_team_ids(teams):
+def extract_team_ids(teams) -> dict[str:int]:
     teams_ids = dict()
     for team in teams:
         teams_ids[str(team.name)] = team.id
     # print(teams_ids)
     return teams_ids
-def extract_team_names(teams):
+
+
+
+def extract_team_names(teams) -> set:
     team_names = set()
     for team in teams:
         team_names.add(team.name)
     return team_names
 
-def check_json(data, schema):
+def check_json(data, schema) -> bool:
     try:
         validate(data, schema)
     except ValidationError as e:
@@ -110,7 +113,7 @@ def check_json(data, schema):
     return True
 
 # MQTT message handling
-def on_message(client, userdata, msg):
+def on_message(client, userdata, msg) -> None:
     try:
         payload = json.loads(msg.payload.decode())
         if not check_json(payload, valid_schema):
@@ -139,7 +142,7 @@ def on_message(client, userdata, msg):
         print(f"Error saving data: {e}")
 
 # Initialize and start MQTT client
-def start_local_host_client(): #LOCAL HOST
+def start_local_host_client() -> None: #LOCAL HOST
     print("Broker:"+ str(MQTT_BROKER))
     print("Port: "+ str(MQTT_PORT)) # Broker port
     print("topic: "+ TOPIC + "\n")
@@ -150,7 +153,7 @@ def start_local_host_client(): #LOCAL HOST
     mqtt_client.loop_forever()
     print("Loop not started")
 
-def start_communication_via_broker(): # GOLEM
+def start_communication_via_broker() -> None: # GOLEM
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
     print(f"BROKER_UNAME = {BROKER_UNAME}")

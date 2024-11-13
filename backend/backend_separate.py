@@ -30,7 +30,7 @@ engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}
 
 SessionLocal = sessionmaker(bind=engine)
 
-def extract_teams_dict():
+def extract_teams_dict() ->dict[int:str]:
     session = SessionLocal()
     teams = session.query(Teams).all()
     teams_dict = dict()
@@ -41,13 +41,13 @@ def extract_teams_dict():
     return teams_dict
 
 class LatestDataHandler(RequestHandler):
-    def get(self):
+    def get(self) -> None:
         # Fetch the most recent data for each team (or however you aggregate it)
         latest_data = self.application.fetch_sensor_data()
         self.write({"sensor_data": latest_data})
 
 class MainHandler(RequestHandler):
-    def get(self):  
+    def get(self) -> None:  
         # self.render("static/index_css_js_ws.html")
         self.render("static/index.html")
         
@@ -55,15 +55,15 @@ class MainHandler(RequestHandler):
 
 class WSHandler(WebSocketHandler):
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.application.ws_clients.append(self)
         print('Webserver: New WS Client. Connected clients:', len(self.application.ws_clients))
 
-    def open(self):
+    def open(self)  -> None:
         print('Webserver: Websocket opened.')
         self.write_message('Server ready.')
 
-    def on_message(self, msg):
+    def on_message(self, msg)  -> None:
         try:
             msg = loads_json(msg)
             print('Webserver: Received json WS message:', msg)
@@ -77,7 +77,7 @@ class WSHandler(WebSocketHandler):
             print('Webserver: Received WS message:', msg)
 
 
-    def on_close(self):
+    def on_close(self) -> None:
         self.application.ws_clients.remove(self)
         print('Webserver: Websocket client closed. Connected clients:', len(self.application.ws_clients))
 
@@ -108,7 +108,7 @@ class WebWSApp(TornadoApplication):
         # self.incrementer.start()
         #### Toto fungovalo, od chatbota
 
-    def fetch_sensor_data(self):
+    def fetch_sensor_data(self) -> list:
             """Fetches sensor data from the database, optionally for a specific team ID."""
             session = SessionLocal()
             try:
@@ -148,14 +148,14 @@ class WebWSApp(TornadoApplication):
             finally:
                 session.close()
 
-    def fetch_and_broadcast_data(self):
+    def fetch_and_broadcast_data(self) -> None:
         """Fetches all sensor data and broadcasts to all connected WebSocket clients."""
         print("Fetching latest sensor data for broadcast.")
         sensor_data = self.fetch_sensor_data()  # Fetch all data; can be modified to fetch specific teams
         message = {"sensor_data": sensor_data}
         self.send_ws_message(message)
 
-    def send_ws_message(self, message):
+    def send_ws_message(self, message) -> None:
         for client in self.ws_clients:
             iol.spawn_callback(client.write_message, dumps_json(message))
 
@@ -170,7 +170,7 @@ class WebWSApp(TornadoApplication):
 
 
 class GraphsHandler(RequestHandler):
-    def get(self):
+    def get(self) -> None:
         self.render("static/graphs.html")
 
 

@@ -26,7 +26,7 @@ class SensorData(Base):
 
 
 
-def create_teams():
+def create_teams() -> None:
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow']
 
     # Start a new session
@@ -41,7 +41,7 @@ def create_teams():
         session.close()
 
 
-def choose_action():
+def choose_action() -> int:
     valid_answers = [0,1,2,9]
     print("Please enter a number based on your decision. ")
     print(f"Press {valid_answers[0]} if you want to create the tables.")
@@ -54,7 +54,7 @@ def choose_action():
         decision = int(input())
     return decision
 
-def validate_deletion():
+def validate_deletion() -> bool:
     phrase = f"Yes, I'm sure"
     print("Are you sure you want to drop the tables?")
     print(f"If you are sure, type: {phrase} ")
