@@ -6,6 +6,9 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from jsonschema import validate, ValidationError, SchemaError
 import paho.mqtt.client as mqtt
+import pytz
+from datetime import datetime
+
 
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
 
@@ -41,6 +44,7 @@ valid_schema = {
     "additionalProperties": False
 }
 
+LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
 #### LOCALHOST
 MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")  # Broker address
@@ -81,8 +85,11 @@ def check_necessary_keys(msg) -> bool:
     except Exception as e:
         print(f"An Unknown error occured: {e}")
         return None
-    
-
+#### ####
+def convert_to_local_time(utc_timestamp: str):
+    utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    utc_time = utc_time.replace(tzinfo=pytz.UTC)
+    return utc_time.astimezone(LOCAL_TIMEZONE)
 
 # Helper functions
 def extract_team_ids(teams) -> dict[str:int]:
@@ -128,12 +135,14 @@ def on_message(client, userdata, msg) -> None:
             print("Invalid team name.\n")
             return
 
+        utc_timestamp = payload.get("timestamp")
+        local_timestamp = convert_to_local_time(utc_timestamp)
         new_data = SensorData(
             team_id=team_ids[team_name],
             temperature=payload.get("temperature"),
             humidity=payload.get("humidity"),
             illumination=payload.get("illumination"),
-            timestamp=payload.get("timestamp")
+            timestamp=local_timestamp
         )
         session.add(new_data)
         session.commit()
