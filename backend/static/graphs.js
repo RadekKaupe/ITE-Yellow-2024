@@ -57,7 +57,7 @@ function prepareChartData(sensorData) {
     };
 }
 
-// Function to create the charts
+// Function to create the charts with toggleable lines
 function createCharts(data) {
     // Create the charts
     const tempChartCtx = document.getElementById('tempChart').getContext('2d');
@@ -72,9 +72,32 @@ function createCharts(data) {
             datasets: Object.keys(data.temperatureData).map(team => ({
                 label: `Temperature - ${team}`,
                 data: data.temperatureData[team],
-                borderColor: getColorByTeamId(team),
-                fill: false
+                borderColor: getColorByTeamId(team),  // Use the color based on the team ID
+                fill: false,
+                hidden: false  // Initially, all datasets will be visible
             }))
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,  // Show the legend
+                    position: 'top',
+                    labels: {
+                        boxWidth: 10,
+                        padding: 20
+                    }
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
         }
     });
 
@@ -82,13 +105,36 @@ function createCharts(data) {
     const humidityChart = new Chart(humidityChartCtx, {
         type: 'line',
         data: {
-            labels: data.labels, // Use the sorted labels for the x-axis
+            labels: data.labels,
             datasets: Object.keys(data.humidityData).map(team => ({
                 label: `Humidity - ${team}`,
                 data: data.humidityData[team],
                 borderColor: getColorByTeamId(team),
-                fill: false
+                fill: false,
+                hidden: false  // Initially, all datasets will be visible
             }))
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        boxWidth: 10,
+                        padding: 20
+                    }
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
         }
     });
 
@@ -96,17 +142,39 @@ function createCharts(data) {
     const illuminationChart = new Chart(illuminationChartCtx, {
         type: 'line',
         data: {
-            labels: data.labels, // Use the sorted labels for the x-axis
+            labels: data.labels,
             datasets: Object.keys(data.illuminationData).map(team => ({
                 label: `Illumination - ${team}`,
                 data: data.illuminationData[team],
                 borderColor: getColorByTeamId(team),
-                fill: false
+                fill: false,
+                hidden: false  // Initially, all datasets will be visible
             }))
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        boxWidth: 10,
+                        padding: 20
+                    }
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
         }
     });
 }
-
 // Function to generate random colors for different teams
 function getRandomColor() {
     const letters = '0123456789ABCDEF';

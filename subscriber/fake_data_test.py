@@ -33,6 +33,7 @@ mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
 
 def publish_fake_data():
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow', "WRONG"]
+    teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow']
     
     while True:
         date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")
@@ -53,7 +54,7 @@ def publish_fake_data():
         mqtt_client.publish(TOPIC, payload)
         print(f"Published data: {payload}")
         
-        time.sleep(10)
+        time.sleep(1)
 
 def publish_randomized_data():
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow', "WRONG"]
