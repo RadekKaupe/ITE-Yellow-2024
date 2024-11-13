@@ -6,6 +6,9 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from jsonschema import validate, ValidationError, SchemaError
 import paho.mqtt.client as mqtt
+import pytz
+from datetime import datetime
+
 
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
 
@@ -41,6 +44,7 @@ valid_schema = {
     "additionalProperties": False
 }
 
+LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
 #### LOCALHOST
 MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")  # Broker address
@@ -82,6 +86,24 @@ def check_necessary_keys(msg)->bool:
         print(f"An Unknown error occured: {e}")
         return None
     
+    ### ### 
+
+def convert_to_local_time(utc_timestamp: str):
+    try:
+        # Attempt to parse with fractional seconds
+        utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
+    except ValueError:
+        try:
+            # Attempt to parse without fractional seconds
+            utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            # If neither format matches, raise an error
+            raise ValueError(f"Invalid timestamp format: '{utc_timestamp}'")
+    
+    # Set timezone to UTC and convert to local timezone
+    utc_time = utc_time.replace(tzinfo=pytz.UTC)
+    return utc_time.astimezone(LOCAL_TIMEZONE)
+
 
 
 # Helper functions
@@ -110,7 +132,7 @@ def check_json(data, schema):
     return True
 
 # MQTT message handling
-def on_message(client, userdata, msg):
+def on_message(client, userdata, msg) -> None:
     try:
         payload = json.loads(msg.payload.decode())
         if not check_json(payload, valid_schema):
@@ -125,12 +147,14 @@ def on_message(client, userdata, msg):
             print("Invalid team name.\n")
             return
 
+        utc_timestamp = payload.get("timestamp")
+        local_timestamp = convert_to_local_time(utc_timestamp)
         new_data = SensorData(
             team_id=team_ids[team_name],
             temperature=payload.get("temperature"),
             humidity=payload.get("humidity"),
             illumination=payload.get("illumination"),
-            timestamp=payload.get("timestamp")
+            timestamp=local_timestamp
         )
         session.add(new_data)
         session.commit()

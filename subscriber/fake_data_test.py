@@ -35,7 +35,7 @@ def publish_fake_data():
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow', "WRONG"]
     
     while True:
-        date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")
         # print(date)
         # Create fake data
         data = {
@@ -59,7 +59,7 @@ def publish_randomized_data():
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow', "WRONG"]
     
     while True:
-        date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")
         # date = datetime.now().isoformat()
         # Randomly choose between valid, incomplete, or invalid payload
         payload_type = random.choice(["valid", "incomplete", "invalid"])

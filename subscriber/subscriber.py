@@ -86,8 +86,20 @@ def check_necessary_keys(msg) -> bool:
         print(f"An Unknown error occured: {e}")
         return None
 #### ####
+
 def convert_to_local_time(utc_timestamp: str):
-    utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    try:
+        # Attempt to parse with fractional seconds
+        utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
+    except ValueError:
+        try:
+            # Attempt to parse without fractional seconds
+            utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            # If neither format matches, raise an error
+            raise ValueError(f"Invalid timestamp format: '{utc_timestamp}'")
+    
+    # Set timezone to UTC and convert to local timezone
     utc_time = utc_time.replace(tzinfo=pytz.UTC)
     return utc_time.astimezone(LOCAL_TIMEZONE)
 
