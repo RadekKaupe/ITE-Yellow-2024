@@ -143,7 +143,7 @@ def sendArchive():
 #def setFlagMeas(timer):  minPassed = True
 #timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
-period = 60*1000
+period = 5*1000
 previous = time.ticks_ms()
 now = previous
 while(True):
@@ -152,6 +152,7 @@ while(True):
     
     now = time.ticks_ms()
     if(time.ticks_diff(now, previous) >= period): 
+        ledIn.value(not ledIn.value())
         syncTime()
         measure()
         if(connBroker and len(archive) > 0): sendArchive() 
