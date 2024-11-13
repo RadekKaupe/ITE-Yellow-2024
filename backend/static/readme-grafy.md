@@ -1,0 +1,3 @@
+Zatim grafy fungujou dost prasácky. Z dat získaných z db si najdu všechny unique timestampy a potom zvlášť řešim samotný data. Momentálně se tyhle dvě věci řeší nezávisle, což je prasárna, protože pro danej label samozřejmě budu mít jen jeden záznam, každej to posílá v trochu jinou vteřinu daný minuty. V těch grafech co jsem zkoušel se to neprojevuje, ale než to dám na VM, tak tohle musim ošetřit. 
+Navic vypadaj hnusně, fungujou, ale jsou nechutný. Udělám tam potom nějaký omezení na časovej interval, buď třeba za posledních 24 hodin nebo průměr za den v posledním měsíci, nebo tak něco. 
+A třetí věc, momentálně vůbec neřeším NULL hodnoty, ještě jsem je nezkoušel a nemám otestovaný, co udělají. 
