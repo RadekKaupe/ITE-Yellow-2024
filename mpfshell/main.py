@@ -16,6 +16,9 @@ from temp_sensor import tempSensorDS
 
 
 ledIn = Pin(2, Pin.OUT)
+led = Pin(16, Pin.OUT)
+led.on()
+
 tempSens = tempSensorDS(pin_nb=5)
 humiSens = dht.DHT11(Pin(4))
 sda = Pin(0)
@@ -24,6 +27,7 @@ i2c = I2C(scl, sda, freq = 200000) # komunikace s light senzorem
 lightSens = BH1750(i2c)
 
 sta_if = network.WLAN(network.STA_IF)
+sta_if.disconnect()
 
 BROKER_IP = '147.228.124.47'
 BROKER_PORT = 1883
@@ -148,6 +152,7 @@ previous = time.ticks_ms()
 now = previous
 while(True):
     
+    led.value(not connBroker)
     if not connBroker: reconnect()
     
     now = time.ticks_ms()
