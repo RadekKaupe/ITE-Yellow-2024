@@ -76,7 +76,7 @@ class GraphDataHandler(RequestHandler):
             averages = self.calculate_hourly_averages(restructured_data)
             print(averages)
             self.set_header("Content-Type", "application/json")
-            self.write(dumps_json({'sensor_data': averages}))
+            self.write(dumps_json(averages))
 
         except Exception as e:
             # Handle any errors during the data fetch

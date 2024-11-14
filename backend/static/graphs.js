@@ -3,187 +3,64 @@ let graphDataArry = [];
 async function fetchGraphData() {
     try {
         const response = await fetch('/graph-data');
-        const data = await response.json();
+        // const data = await response.json();
+        let data = {
+            "2024-11-09T10:00:00": [
+                { "team_id": 1, "mean_temp": 22.5, "mean_humi": 60, "mean_illu": 300 }
+            ],
+            "2024-11-10T10:00:00": [
+                { "team_id": 1, "mean_temp": 22.5, "mean_humi": 60, "mean_illu": 300 }
+            ],
+            "2024-11-10T19:00:00": [
+                { "team_id": 1, "mean_temp": 22.245, "mean_humi": 54.22, "mean_illu": 284.08 },
+                { "team_id": 2, "mean_temp": 23.74, "mean_humi": 50.46, "mean_illu": 482.632 }
+            ]
+        };
         graphDataArry = data; // Save the fetched data
         console.log(graphDataArry);
-        const preparedData = prepareChartData(graphDataArry); // Now data is available, call prepareChartData
-        createCharts(preparedData); // Create the charts with the prepared data
+        const preparedData = prepareChartData(graphDataArry); 
+        console.log(preparedData)
     } catch (error) {
         console.error('Error fetching graph data:', error);
     }
 }
-
-// Function to format data for Chart.js
 function prepareChartData(sensorData) {
-    const teams = Object.keys(sensorData.sensor_data); // Access the 'sensor_data' field
-    const labels = []; // We will collect all unique timestamps here
-    const temperatureData = {}; // Will store temperature data for each team
-    const humidityData = {}; // Will store humidity data for each team
-    const illuminationData = {}; // Will store illumination data for each team
-
-    // Iterate over each team
-    teams.forEach(team => {
-        const dataArray = sensorData.sensor_data[team]; // Get the array of data for this team
-
-        // Prepare labels (timestamps) for the x-axis
-        dataArray.forEach(data => {
-            const timestamp = new Date(data.timestamp).toLocaleTimeString();
-            if (!labels.includes(timestamp)) {
-                labels.push(timestamp); // Add timestamp to the labels list (unique)
-            }
-        });
-
-        // Initialize the arrays for each team
-        temperatureData[team] = [];
-        humidityData[team] = [];
-        illuminationData[team] = [];
-
-        // Prepare the actual sensor data for the chart
-        dataArray.forEach(data => {
-            temperatureData[team].push(data.temperature);
-            humidityData[team].push(data.humidity);
-            illuminationData[team].push(data.illumination);
-        });
+    const labels = Object.keys(sensorData); // Timestamps as labels
+  const teams = new Set(); // To store unique team_ids
+  
+  // Loop through the data to gather unique teams
+  Object.entries(sensorData).forEach(([timestamp, teamsData]) => {
+    teamsData.forEach(team => {
+      teams.add(team.team_id); // Add team_id to the set (only unique ids will be kept)
     });
+  });
 
-    // Sort the labels to maintain the chronological order
-    labels.sort();
-
+  // Initialize an array for each team's dataset
+  const datasets = Array.from(teams).map(teamId => {
     return {
-        labels: labels,
-        temperatureData: temperatureData,
-        humidityData: humidityData,
-        illuminationData: illuminationData
+      label: `Team ${teamId}`,
+      data: labels.map(timestamp => {
+        // Find the team data for the current timestamp
+        const teamData = sensorData[timestamp].find(team => team.team_id === teamId);
+        return teamData ? teamData.mean_temp : null; // Handle missing data with null
+      }),
+      fill: false, // If you're using a line chart
+      borderColor: getColorByTeamId(teamId), // Random color for each line
+      tension: 0.1, // Smoothness of the line (optional)
     };
+  });
+
+  // Prepare chart data object for Chart.js
+  const chartData = {
+    labels: labels,
+    datasets: datasets
+  };
+
+  console.log(chartData); // This will show the structure that will be passed to Chart.js
+  return chartData;
+
 }
 
-// Function to create the charts with toggleable lines
-function createCharts(data) {
-    // Create the charts
-    const tempChartCtx = document.getElementById('tempChart').getContext('2d');
-    const humidityChartCtx = document.getElementById('humidityChart').getContext('2d');
-    const illuminationChartCtx = document.getElementById('illuminationChart').getContext('2d');
-
-    // Temperature Chart
-    const tempChart = new Chart(tempChartCtx, {
-        type: 'line',
-        data: {
-            labels: data.labels, // Use the sorted labels for the x-axis
-            datasets: Object.keys(data.temperatureData).map(team => ({
-                label: `Temperature - ${team}`,
-                data: data.temperatureData[team],
-                borderColor: getColorByTeamId(team),  // Use the color based on the team ID
-                fill: false,
-                hidden: false  // Initially, all datasets will be visible
-            }))
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: true,  // Show the legend
-                    position: 'top',
-                    labels: {
-                        boxWidth: 10,
-                        padding: 20
-                    }
-                }
-            },
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            scales: {
-                x: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Humidity Chart
-    const humidityChart = new Chart(humidityChartCtx, {
-        type: 'line',
-        data: {
-            labels: data.labels,
-            datasets: Object.keys(data.humidityData).map(team => ({
-                label: `Humidity - ${team}`,
-                data: data.humidityData[team],
-                borderColor: getColorByTeamId(team),
-                fill: false,
-                hidden: false  // Initially, all datasets will be visible
-            }))
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        boxWidth: 10,
-                        padding: 20
-                    }
-                }
-            },
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            scales: {
-                x: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Illumination Chart
-    const illuminationChart = new Chart(illuminationChartCtx, {
-        type: 'line',
-        data: {
-            labels: data.labels,
-            datasets: Object.keys(data.illuminationData).map(team => ({
-                label: `Illumination - ${team}`,
-                data: data.illuminationData[team],
-                borderColor: getColorByTeamId(team),
-                fill: false,
-                hidden: false  // Initially, all datasets will be visible
-            }))
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        boxWidth: 10,
-                        padding: 20
-                    }
-                }
-            },
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            scales: {
-                x: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-// Function to generate random colors for different teams
-function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
 function getColorByTeamId(teamId) {
     const teamColors = {
         1: 'blue',
