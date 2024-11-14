@@ -3,8 +3,8 @@ let graphDataArry = [];
 async function fetchGraphData() {
     try {
         const response = await fetch('/graph-data');
-        // const data = await response.json();
-        let data = {
+        let data = await response.json();
+        data = {
             "2024-11-09T10:00:00": [
                 { "team_id": 1, "mean_temp": 22.5, "mean_humi": 60, "mean_illu": 300 }
             ],
@@ -26,40 +26,48 @@ async function fetchGraphData() {
 }
 function prepareChartData(sensorData) {
     const labels = Object.keys(sensorData); // Timestamps as labels
-  const teams = new Set(); // To store unique team_ids
-  
-  // Loop through the data to gather unique teams
-  Object.entries(sensorData).forEach(([timestamp, teamsData]) => {
-    teamsData.forEach(team => {
-      teams.add(team.team_id); // Add team_id to the set (only unique ids will be kept)
+    const teams = new Set(); // To store unique team_ids
+    
+    // Loop through the data to gather unique teams
+    Object.entries(sensorData).forEach(([timestamp, teamsData]) => {
+      teamsData.forEach(team => {
+        teams.add(team.team_id); // Add team_id to the set (only unique ids will be kept)
+      });
     });
-  });
-
-  // Initialize an array for each team's dataset
-  const datasets = Array.from(teams).map(teamId => {
-    return {
-      label: `Team ${teamId}`,
-      data: labels.map(timestamp => {
-        // Find the team data for the current timestamp
-        const teamData = sensorData[timestamp].find(team => team.team_id === teamId);
-        return teamData ? teamData.mean_temp : null; // Handle missing data with null
-      }),
-      fill: false, // If you're using a line chart
-      borderColor: getColorByTeamId(teamId), // Random color for each line
-      tension: 0.1, // Smoothness of the line (optional)
+  
+    // Utility function to generate a dataset for each physical quantity
+    const createMetricDataset = (metric, label) => {
+      return Array.from(teams).map(teamId => {
+        return {
+          label: `${label} Team ${teamId}`,
+          data: labels.map(timestamp => {
+            const teamData = sensorData[timestamp].find(team => team.team_id === teamId);
+            return teamData ? teamData[metric] : null; // Handle missing data with null
+          }),
+          fill: false, // If you're using a line chart (set to true for filled area charts)
+          borderColor: getColorByTeamId(teamId), // Random color for each line
+          tension: 0.1 // Optional, smooth the line
+        };
+      });
     };
-  });
-
-  // Prepare chart data object for Chart.js
-  const chartData = {
-    labels: labels,
-    datasets: datasets
-  };
-
-  console.log(chartData); // This will show the structure that will be passed to Chart.js
-  return chartData;
-
-}
+  
+    // Create separate datasets for each metric
+    const tempDatasets = createMetricDataset('mean_temp', 'Temperature');
+    const humiDatasets = createMetricDataset('mean_humi', 'Humidity');
+    const illuDatasets = createMetricDataset('mean_illu', 'Illumination');
+    
+    // Combine all datasets into a single chartData object
+    const chartData = {
+      labels: labels, // Timestamps as x-axis labels
+      datasets: [
+        ...tempDatasets,   // Temperature datasets
+        ...humiDatasets,   // Humidity datasets
+        ...illuDatasets    // Illumination datasets
+      ]
+    };
+  
+    return chartData;
+  }
 
 function getColorByTeamId(teamId) {
     const teamColors = {
