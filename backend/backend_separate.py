@@ -242,7 +242,6 @@ class WebWSApp(TornadoApplication):
             """Fetches the latest sensor data from the database"""
             session = SessionLocal()
             try:
-                # Query the sensor_data; filter by team_id if specified
                 subquery = (
                     session.query(
                         SensorData.team_id,
