@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, Session
 import sys
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
 
@@ -47,9 +47,14 @@ class GraphDataHandler(RequestHandler):
         session = SessionLocal()
 
         try:
+            days = 1
+            now = datetime.now()
+            last_24_hours = now - timedelta(days=days)
+
             # Fetch all data, ordered by team_id and timestamp
             query = (
                 session.query(SensorData)
+                .filter(SensorData.timestamp >= last_24_hours)  # Adjust the time range here
                 .order_by(SensorData.team_id, SensorData.timestamp)  # Order by team_id and timestamp
             )
 
@@ -74,7 +79,7 @@ class GraphDataHandler(RequestHandler):
 
             restructured_data = self.restructure_data(result)
             averages = self.calculate_hourly_averages(restructured_data)
-            print(averages)
+            # print(averages)
             self.set_header("Content-Type", "application/json")
             self.write(dumps_json(averages))
 
