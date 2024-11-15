@@ -1,0 +1,1 @@
+UPDATE sensor_data set humidity = null WHERE team_id = 5;

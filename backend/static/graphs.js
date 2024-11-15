@@ -88,10 +88,25 @@ function getColorByTeamId(teamId) {
 }
 
 function createChart(chartId, chartData, title) {
+
+      const filteredDatasets = chartData.datasets.filter(dataset => {
+        return !dataset.data.every(value => value === null || value === undefined);
+      });
+
+// If no valid datasets remain, do not create the chart
+    if (filteredDatasets.length === 0) {
+        console.log('No valid data to display for this metric.');
+        return;
+    }
+    console.log("Filtered Datasets:", filteredDatasets);   
     const ctx = document.getElementById(chartId).getContext('2d');
+      
     new Chart(ctx, {
       type: 'line', // Change this to 'bar', 'radar', etc. if needed
-      data: chartData,
+      data: {
+        labels: chartData.labels, // Use the same labels
+        datasets: filteredDatasets // Use filtered datasets
+    },
       options: {
         responsive: true,
         scales: {
@@ -131,7 +146,5 @@ function createChart(chartId, chartData, title) {
     });
   }
 
-
-
-// Start fetching and plotting data
+  // Start fetching and plotting data
 fetchGraphData();
