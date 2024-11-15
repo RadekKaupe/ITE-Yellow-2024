@@ -22,7 +22,7 @@ led.on()
 tempSens = tempSensorDS(pin_nb=5)
 humiSens = dht.DHT11(Pin(4))
 sda = Pin(0)
-scl = Pin(2)
+scl = Pin(14)
 i2c = I2C(scl, sda, freq = 200000) # komunikace s light senzorem
 lightSens = BH1750(i2c)
 
