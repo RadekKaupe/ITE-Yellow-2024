@@ -34,6 +34,7 @@ BROKER_PORT = 1883
 BROKER_UNAME = 'student'
 BROKER_PASSWD = 'pivotecepomqtt'
 TOPIC = 'ite/yellow'
+QOS = 0
 # SLEEP_TIME = 2
 MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
 
@@ -81,6 +82,7 @@ def reconnect():
         sta_if.active(True)
         try:
             sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+            time.sleep_ms(500)
         except Exception as e:
             print("connecting to network failed")
         print('connecting to network...')
@@ -102,7 +104,7 @@ def publish():
     payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
     print(payload)
     try:
-        MQclient.publish(TOPIC, payload, qos=1)
+        MQclient.publish(TOPIC, payload, QOS)
     except Exception as e:
         connBroker = False
         if len(archive) == 0:
@@ -114,6 +116,7 @@ def publish():
         
         
 def sendArchive():  
+    global connBroker
     global payload
     archive.reverse()   # older logs last now
     for i in range(0, len(archive)):
@@ -121,7 +124,7 @@ def sendArchive():
         if(log[1] == 0):
             payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
             try:
-                MQclient.publish(TOPIC, payload, qos=1)
+                MQclient.publish(TOPIC, payload, QOS)
             except Exception as e:
                 connBroker = False
                 archive.append(log)
@@ -132,7 +135,7 @@ def sendArchive():
             for j in range(0, log[1]): # send log[1] same logs with timestamps offset by j*period
                 payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*period), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
-                    MQclient.publish(TOPIC, payload, qos=1)
+                    MQclient.publish(TOPIC, payload, QOS)
                 except Exception as e:
                     connBroker = False
                     log[0] += j*period
@@ -147,9 +150,9 @@ def sendArchive():
 #def setFlagMeas(timer):  minPassed = True
 #timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
-period = 5*1000
+period = 60*1000
 previous = time.ticks_ms()
-now = previous
+now = previous+1
 while(True):
     
     led.value(not connBroker)
