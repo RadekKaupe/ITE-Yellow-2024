@@ -98,7 +98,7 @@ header p {
 }
 
 .team6 {
-    background-color: #3498db; /* Blue */
+    background-color: #3450db; /* Blue */
 }
 
 a {
@@ -107,7 +107,7 @@ a {
     font-size: 18px;        /* Sets font size */
     font-weight: bold;      /* Makes the font bold */
     color: white;           /* Sets text color */
-    background-color: #007BFF;  /* Blue background color */
+    background-color: #3498db;;  /* Blue background color */
     padding: 10px 20px;     /* Adds padding around the text */
     border-radius: 5px;     /* Rounds the corners */
     transition: background-color 0.3s, transform 0.2s;  /* Adds smooth hover effects */
@@ -125,7 +125,7 @@ a:focus {
 }
 
 .link {
-    margin-top: 10px;
+    margin-top: 20px;
     margin-bottom: 10px; 
 }
 

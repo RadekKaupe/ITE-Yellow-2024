@@ -17,62 +17,84 @@ async function fetchGraphData() {
         //     ]
         // };
         graphDataArry = data; // Save the fetched data
-        console.log(graphDataArry);
+        // console.log(graphDataArry);
         const temp_data = prepareChartData(graphDataArry, 'mean_temp'); 
         const humi_data = prepareChartData(graphDataArry, 'mean_humi'); 
         const illu_data = prepareChartData(graphDataArry, 'mean_illu'); 
 
 
-        console.log(temp_data)
-        console.log(humi_data)
-        console.log(illu_data)
+        // console.log(temp_data)
+        // console.log(humi_data)
+        // console.log(illu_data)
 
 
-        createChart('tempChart', temp_data, 'Temperature');
-        createChart('humidityChart', humi_data, 'Humidity');
-        createChart('illuminationChart', illu_data, 'Illumination');
+        createChart('tempChart', temp_data, 'Temperature [°C]');
+        createChart('humidityChart', humi_data, 'Humidity [%]');
+        createChart('illuminationChart', illu_data, 'Illumination [lx]');
     } catch (error) {
         console.error('Error fetching graph data:', error);
     }
 }
-function prepareChartData(sensorData, metric) {
-    const labels = Object.keys(sensorData); // Timestamps as labels
+
+
+  function prepareChartData(sensorData, metric) {
+    // Extract full timestamps for internal mapping and hours with ":00" for display
+    const fullTimestamps = Object.keys(sensorData); // Full timestamps
+    const labels = fullTimestamps.map((timestamp, index) => {
+        const date = new Date(timestamp);
+        const hour = date.getHours();
+        const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
+
+        // Add date for the first label, last label, and `01:00`
+        if (index === 0 || index === fullTimestamps.length - 1 || hour === 0) {
+            const formattedDate = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); // e.g., "Nov 16"
+            return `${formattedDate} ${formattedHour}`;
+        }
+
+        return formattedHour; // For other labels, just return the time
+    });
+
     const teams = new Set(); // To store unique team_ids
 
     // Loop through the data to gather unique teams
     Object.entries(sensorData).forEach(([timestamp, teamsData]) => {
-      teamsData.forEach(team => {
-        teams.add(team.team_id); // Add team_id to the set (only unique ids will be kept)
-      });
+        teamsData.forEach(team => {
+            teams.add(team.team_id); // Add team_id to the set (only unique ids will be kept)
+        });
     });
 
     // Create datasets for the specific metric (temperature, humidity, or illumination)
     const createMetricDataset = (metric, label) => {
-      return Array.from(teams).map(teamId => {
-        return {
-          label: `${label} Team ${teamId}`,
-          data: labels.map(timestamp => {
-            const teamData = sensorData[timestamp].find(team => team.team_id === teamId);
-            return teamData ? teamData[metric] : null; // Handle missing data with null
-          }),
-          fill: false, // If you're using a line chart (set to true for filled area charts)
-          borderColor: getColorByTeamId(teamId), // Random color for each line
-          tension: 0.1 // Optional, smooth the line
-        };
-      });
+        return Array.from(teams).map(teamId => {
+          let color = getColorByTeamId(teamId);
+          color = color.charAt(0).toUpperCase() + color.slice(1);
+            return {
+                label: `Team ${color}`,
+                data: fullTimestamps.map(timestamp => {
+                    const teamData = sensorData[timestamp]?.find(team => team.team_id === teamId);
+                    return teamData ? teamData[metric] : null; // Handle missing data with null
+                }),
+                fill: false, // If you're using a line chart (set to true for filled area charts)
+                borderColor: getColorByTeamId(teamId), // Random color for each line
+                tension: 0.1 // Optional, smooth the line
+            };
+        });
     };
 
     // Create datasets for the metric
     const datasets = createMetricDataset(metric, metric.charAt(0).toUpperCase() + metric.slice(1));
-    
+
     // Return chartData in a format suitable for Chart.js
     const chartData = {
-      labels: labels, // Timestamps as x-axis labels
-      datasets: datasets
+        labels: labels, // Hours as XX:00, with dates on key points
+        datasets: datasets
     };
 
     return chartData;
-  }
+}
+
+
+
 function getColorByTeamId(teamId) {
     const teamColors = {
         1: 'blue',
@@ -98,7 +120,7 @@ function createChart(chartId, chartData, title) {
         console.log('No valid data to display for this metric.');
         return;
     }
-    console.log("Filtered Datasets:", filteredDatasets);   
+    // console.log("Filtered Datasets:", filteredDatasets);   
     const ctx = document.getElementById(chartId).getContext('2d');
       
     new Chart(ctx, {
@@ -114,7 +136,7 @@ function createChart(chartId, chartData, title) {
             type: 'category', // Use 'category' for timestamps on the x-axis
             title: {
               display: true,
-              text: 'Timestamp' // Label for the x-axis
+              text: 'Last 24 hours' // Label for the x-axis
             }
           },
           y: {
