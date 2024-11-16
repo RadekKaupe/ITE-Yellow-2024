@@ -1,5 +1,5 @@
 # from machine import Timer
-from machine import Pin, Timer, RTC
+from machine import Pin, Timer
 import json
 import network
 import time
@@ -49,13 +49,13 @@ def newTimeStamp(secs):
     return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:09.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])  ) # (year, month, day, hour, min, sec)
 
 ntptime.host = "clock1.zcu.cz"
-rtc = RTC()
+#rtc = RTC()
 def syncTime():
     try:
         ntptime.settime()   # make sure to have internet connection
-        t = time.time() + 3600 # offset because settime gives time - 1 hour
-        (year, month, mday, hour, minute, second, weekday, yearday) = time.localtime(t)
-        rtc.datetime((year, month, mday, 0, hour, minute, second, 0))
+        #t = time.time() + 3600 # offset because settime gives time - 1 hour
+        #(year, month, mday, hour, minute, second, weekday, yearday) = time.localtime(t)
+        #rtc.datetime((year, month, mday, 0, hour, minute, second, 0))
     except:
         print("Error syncing time")
     
