@@ -70,7 +70,7 @@ def measure():
     try:
         humiSens.measure()
         tempH = round(humiSens.temperature(), 2)
-        humi = round(humiSens.humidity(), 1)
+        humi = round(float(humiSens.humidity()), 1)
     except Exception as e:
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
