@@ -106,7 +106,7 @@ class MQTTClient:
     def ping(self):
         self.sock.write(b"\xc0\0")
 
-    def publish(self, topic, msg, retain=False, qos=0):
+    def publish(self, topic, msg, retain=False, qos=0, timeout=None):
         pkt = bytearray(b"\x30\0\0\0")
         pkt[0] |= qos << 1 | retain
         sz = 2 + len(topic) + len(msg)
@@ -130,7 +130,7 @@ class MQTTClient:
         self.sock.write(msg)
         if qos == 1:
             while 1:
-                op = self.wait_msg()
+                op = self.wait_msg(timeout)
                 if op == 0x40:
                     sz = self.sock.read(1)
                     assert sz == b"\x02"
@@ -151,7 +151,7 @@ class MQTTClient:
         self._send_str(topic)
         self.sock.write(qos.to_bytes(1, "little"))
         while 1:
-            op = self.wait_msg()
+            op = self.wait_msg(timeout=None)
             if op == 0x90:
                 resp = self.sock.read(4)
                 #print(resp)
@@ -164,9 +164,9 @@ class MQTTClient:
     # Subscribed messages are delivered to a callback previously
     # set by .set_callback() method. Other (internal) MQTT
     # messages processed internally.
-    def wait_msg(self):
+    def wait_msg(self, timeout=None):
         res = self.sock.read(1)
-        self.sock.setblocking(True)
+        self.sock.settimeout(timeout)   # seconds(float)
         if res is None:
             return None
         if res == b"":
@@ -201,4 +201,4 @@ class MQTTClient:
     # the same processing as wait_msg.
     def check_msg(self):
         self.sock.setblocking(False)
-        return self.wait_msg()
+        return self.wait_msg(timeout=None)
