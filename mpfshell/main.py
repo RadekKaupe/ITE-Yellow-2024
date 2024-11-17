@@ -72,7 +72,7 @@ def measure():
         humiSens.measure()
         tempH = round(humiSens.temperature(), 2)
         humi = round(float(humiSens.humidity()), 1)
-    except Exception as e:
+    except:
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
   
@@ -84,7 +84,7 @@ def reconnect():
         try:
             sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
             time.sleep_ms(500)
-        except Exception as e:
+        except:
             print("connecting to network failed")
         print('connecting to network...')
         
@@ -94,7 +94,7 @@ def reconnect():
             MQclient.connect()
             connBroker = True
             print("connected to broker")
-        except Exception as e:
+        except:
             print("connecting to broker failed")
 
 archive = list()
@@ -106,7 +106,7 @@ def publish():
     print(payload)
     try:
         MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
-    except Exception as e:
+    except:
         connBroker = False
         if len(archive) == 0:
             archive.append([t, 0, temp, humi, light])   # index [1] is number of measurements same as this one
@@ -126,7 +126,7 @@ def sendArchive():
             payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
             try:
                 MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
-            except Exception as e:
+            except:
                 connBroker = False
                 archive.append(log)
                 archive.reverse()   # newer logs last now
@@ -137,7 +137,7 @@ def sendArchive():
                 payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*period), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
                     MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
-                except Exception as e:
+                except:
                     connBroker = False
                     log[0] += j*period
                     log[1] -= j
