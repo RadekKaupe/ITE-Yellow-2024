@@ -79,9 +79,10 @@ class GraphDataHandler(RequestHandler):
 
             restructured_data = self.restructure_data(result)
             averages = self.calculate_hourly_averages(restructured_data)
+            sorted = self.sort_data_by_timestamp(averages)
             # print(averages)
             self.set_header("Content-Type", "application/json")
-            self.write(dumps_json(averages))
+            self.write(dumps_json(sorted))
 
         except Exception as e:
             # Handle any errors during the data fetch
@@ -164,6 +165,17 @@ class GraphDataHandler(RequestHandler):
                 else:
                     timestamp_dict[timestamp_key] = []
         return timestamp_dict
+    
+    def sort_data_by_timestamp(self, data):
+        # Sort the data dictionary by keys (timestamps) without lambda or collections
+        timestamps = list(data.keys())  # Extract the keys (timestamps)
+        timestamps.sort(key=datetime.fromisoformat)  # Sort the timestamps
+
+        # Build a new dictionary with sorted keys
+        sorted_data = {}
+        for timestamp in timestamps:
+            sorted_data[timestamp] = data[timestamp]
+        return sorted_data
 
     
         
