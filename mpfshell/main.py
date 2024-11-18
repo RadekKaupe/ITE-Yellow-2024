@@ -36,6 +36,8 @@ BROKER_PASSWD = 'pivotecepomqtt'
 TOPIC = 'ite/yellow'
 QOS = 1
 TIMEOUT = 0.5   # sec
+RECON_PERIOD = 500 # ms
+
 # SLEEP_TIME = 2
 MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
 
@@ -79,11 +81,13 @@ def measure():
 global connBroker;  connBroker = False
 def reconnect():
     global connBroker
+    global recPrev
+    recPrev = time.ticks_ms()
     if not sta_if.isconnected():
         sta_if.active(True)
         try:
             sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
-            time.sleep_ms(500)
+            #time.sleep_ms(500)
         except Exception as e:
             print("connecting to network failed")
         print('connecting to network...')
@@ -101,13 +105,15 @@ archive = list()
 def publish():
     global payload
     global connBroker
+    global recPrev
     t = time.time()
     payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
     print(payload)
     try:
-        MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
+        MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
     except Exception as e:
         connBroker = False
+        recPrev = time.ticks_ms()
         if len(archive) == 0:
             archive.append([t, 0, temp, humi, light])   # index [1] is number of measurements same as this one
         else:
@@ -119,15 +125,17 @@ def publish():
 def sendArchive():  
     global connBroker
     global payload
+    global recPrev
     archive.reverse()   # older logs last now
     for i in range(0, len(archive)):
         log = archive.pop()
         if(log[1] == 0):
             payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
             try:
-                MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
+                MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
             except Exception as e:
                 connBroker = False
+                recPrev = time.ticks_ms()
                 archive.append(log)
                 archive.reverse()   # newer logs last now
                 break
@@ -136,9 +144,10 @@ def sendArchive():
             for j in range(0, log[1]): # send log[1] same logs with timestamps offset by j*period
                 payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*period), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
-                    MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
+                    MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
                 except Exception as e:
                     connBroker = False
+                    recPrev = time.ticks_ms()
                     log[0] += j*period
                     log[1] -= j
                     archive.append(log)
@@ -153,13 +162,15 @@ def sendArchive():
 
 period = 60*1000
 previous = time.ticks_ms()
-now = previous+1
+now = previous + 1
+
+recPrev = time.ticks_ms()
 while(True):
     
-    led.value(not connBroker)
-    if not connBroker: reconnect()
-    
     now = time.ticks_ms()
+    led.value(not connBroker)
+    if(not connBroker and time.ticks_diff(now, recPrev) >= RECON_PERIOD): reconnect()
+    
     if(time.ticks_diff(now, previous) >= period): 
         ledIn.value(not ledIn.value())
         syncTime()
