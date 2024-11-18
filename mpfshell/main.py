@@ -74,7 +74,7 @@ def measure():
         humiSens.measure()
         tempH = round(humiSens.temperature(), 2)
         humi = round(float(humiSens.humidity()), 1)
-    except Exception as e:
+    except:
         tempH = "hErr"     # if these get sent, then we have a problem
         humi = "hErr"
   
@@ -87,8 +87,13 @@ def reconnect():
         sta_if.active(True)
         try:
             sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+<<<<<<< HEAD
             #time.sleep_ms(500)
         except Exception as e:
+=======
+            time.sleep_ms(500)
+        except:
+>>>>>>> c15af610396cd18dc34035a0c90e760882598420
             print("connecting to network failed")
         print('connecting to network...')
         
@@ -98,7 +103,7 @@ def reconnect():
             MQclient.connect()
             connBroker = True
             print("connected to broker")
-        except Exception as e:
+        except:
             print("connecting to broker failed")
 
 archive = list()
@@ -110,8 +115,13 @@ def publish():
     payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
     print(payload)
     try:
+<<<<<<< HEAD
         MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
     except Exception as e:
+=======
+        MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
+    except:
+>>>>>>> c15af610396cd18dc34035a0c90e760882598420
         connBroker = False
         recPrev = time.ticks_ms()
         if len(archive) == 0:
@@ -132,8 +142,13 @@ def sendArchive():
         if(log[1] == 0):
             payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
             try:
+<<<<<<< HEAD
                 MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
             except Exception as e:
+=======
+                MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
+            except:
+>>>>>>> c15af610396cd18dc34035a0c90e760882598420
                 connBroker = False
                 recPrev = time.ticks_ms()
                 archive.append(log)
@@ -144,8 +159,13 @@ def sendArchive():
             for j in range(0, log[1]): # send log[1] same logs with timestamps offset by j*period
                 payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*period), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
+<<<<<<< HEAD
                     MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
                 except Exception as e:
+=======
+                    MQclient.publish(TOPIC, payload, QOS, TIMEOUT)
+                except:
+>>>>>>> c15af610396cd18dc34035a0c90e760882598420
                     connBroker = False
                     recPrev = time.ticks_ms()
                     log[0] += j*period
