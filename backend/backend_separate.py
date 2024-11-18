@@ -79,10 +79,8 @@ class GraphDataHandler(RequestHandler):
 
             restructured_data = self.restructure_data(result)
             averages = self.calculate_hourly_averages(restructured_data)
-            sorted = self.sort_data_by_timestamp(averages)
-            # print(averages)
             self.set_header("Content-Type", "application/json")
-            self.write(dumps_json(sorted))
+            self.write(dumps_json(averages))
 
         except Exception as e:
             # Handle any errors during the data fetch
@@ -128,7 +126,6 @@ class GraphDataHandler(RequestHandler):
     def restructure_data(self, data:dict[int:list[dict]]) -> dict:
         timestamp_dict = {}
         timestamp_dict = self.fill_dict_with_timestamp_keys(timestamp_dict, data)
-        # timestamp_dict = timestamp_dict.copy()
         for team_id, _list in data.items():
             for record in _list:
                 timestamp_string = record.get('timestamp')
@@ -154,31 +151,24 @@ class GraphDataHandler(RequestHandler):
         hour = dt.hour
         timestamp_key = datetime.combine(date, time(hour))
         return timestamp_key.isoformat()
-
-    def fill_dict_with_timestamp_keys(self, timestamp_dict:dict, data:dict):
+    
+    def fill_dict_with_timestamp_keys(self, timestamp_dict: dict, data: dict):
+        # Use a set to collect all unique timestamp keys
+        timestamp_keys = set()
+        
         for team_id, _list in data.items():
             for record in _list:
                 timestamp_string = record.get('timestamp')
                 timestamp_key = self.key_based_on_time_string(timestamp_string)
-                if timestamp_key in timestamp_dict:
-                    continue
-                else:
-                    timestamp_dict[timestamp_key] = []
-        return timestamp_dict
-    
-    def sort_data_by_timestamp(self, data):
-        # Sort the data dictionary by keys (timestamps) without lambda or collections
-        timestamps = list(data.keys())  # Extract the keys (timestamps)
-        timestamps.sort(key=datetime.fromisoformat)  # Sort the timestamps
-
-        # Build a new dictionary with sorted keys
-        sorted_data = {}
-        for timestamp in timestamps:
-            sorted_data[timestamp] = data[timestamp]
-        return sorted_data
-
-    
+                timestamp_keys.add(timestamp_key)
         
+        # Sort the keys and populate the dictionary in sorted order
+        for timestamp_key in sorted(timestamp_keys, key=datetime.fromisoformat):
+            if timestamp_key not in timestamp_dict:
+                timestamp_dict[timestamp_key] = []
+        
+        return timestamp_dict
+
 
 class LatestDataHandler(RequestHandler): # zaručuje loadovani dat pri refreshi
     def get(self) -> None:
