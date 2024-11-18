@@ -16,7 +16,7 @@ class tempSensorDS:
             return self.ow.scan()[0]
         except IndexError:
             print('ERR: No DS sensors found.')
-            exit(0)
+            #exit(0)
 
     def measure_temp(self, delay=0.75):
         self.ow.convert_temp()

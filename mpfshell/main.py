@@ -19,7 +19,9 @@ ledIn = Pin(2, Pin.OUT)
 led = Pin(16, Pin.OUT)
 led.on()
 
-tempSens = tempSensorDS(pin_nb=5)
+tempOnline = True
+try: tempSens = tempSensorDS(pin_nb=5)
+except: tempOnline = False
 humiSens = dht.DHT11(Pin(4))
 sda = Pin(0)
 scl = Pin(14)
@@ -68,11 +70,12 @@ def measure():
     global humi
     global light
     
-    temp = round(tempSens.measure_temp(), 2)
+    if(tempOnline): temp = round(tempSens.measure_temp(), 2)
     light = int(round(lightSens.luminance(BH1750.ONCE_HIRES_1)))
     try:
         humiSens.measure()
-        tempH = round(humiSens.temperature(), 2)
+        tempH = round(float(humiSens.temperature()), 2)
+        if(not tempOnline): temp = tempH
         humi = round(float(humiSens.humidity()), 1)
     except:
         tempH = "hErr"     # if these get sent, then we have a problem
