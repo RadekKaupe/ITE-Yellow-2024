@@ -13,6 +13,7 @@ class Teams(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True, nullable=False)
     sensor_data = relationship("SensorData", back_populates="team")
+    sensor_data_test = relationship("SensorDataTest", back_populates="team")
 
 class SensorData(Base):
     __tablename__ = "sensor_data"
@@ -24,7 +25,35 @@ class SensorData(Base):
     illumination = Column(Float, nullable=True) # mohou byt NU::
     team = relationship("Teams", back_populates="sensor_data")
 
-
+class SensorDataTest(Base):
+    __tablename__ = "sensor_data_test"
+    
+    # Auto-incrementing primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+    # Foreign key column referencing the teams table
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    
+    # Default UTC timestamp
+    timestamp = Column(DateTime, default= datetime.datetime.now(datetime.timezone.utc))
+    
+    # Required temperature value
+    temperature = Column(Float, nullable=False)
+    
+    # Optional humidity value
+    humidity = Column(Float, nullable=True)
+    
+    # Optional illumination value
+    illumination = Column(Float, nullable=True)
+    
+    # Local timestamp (no default)
+    my_timestamp = Column(DateTime, nullable=True)
+    
+    # Explicit UTC timestamp (no default)
+    utc_timestamp = Column(DateTime, nullable=True)
+    
+    # Optional relationship with the Teams model, if needed
+    team = relationship("Teams", back_populates="sensor_data_test")
 
 def create_teams() -> None:
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow']

@@ -7,14 +7,14 @@ from dotenv import load_dotenv
 from jsonschema import validate, ValidationError, SchemaError
 import paho.mqtt.client as mqtt
 import pytz
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
 
 # Add db_foler_path to sys.path
 sys.path.insert(0, db_foler_path)
-from db import SensorData, Teams
+from db import SensorData, Teams, SensorDataTest
 
 
 
@@ -156,6 +156,22 @@ def on_message(client, userdata, msg) -> None:
             illumination=payload.get("illumination"),
             timestamp=local_timestamp
         )
+
+        session.add(new_data)
+        session.commit()
+        
+        new_data = SensorDataTest(
+            team_id=team_ids[team_name],
+            temperature=payload.get("temperature"),
+            humidity=payload.get("humidity"),
+            illumination=payload.get("illumination"),
+            timestamp=local_timestamp,
+            utc_timestamp = utc_timestamp,
+            my_timestamp = convert_to_local_time(datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f"))
+        )
+
+
+        # print(payload)
         session.add(new_data)
         session.commit()
         print(f"Data saved: {new_data} \n")
