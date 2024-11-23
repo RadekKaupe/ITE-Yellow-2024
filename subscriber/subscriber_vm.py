@@ -7,14 +7,14 @@ from dotenv import load_dotenv
 from jsonschema import validate, ValidationError, SchemaError
 import paho.mqtt.client as mqtt
 import pytz
-from datetime import datetime
-
+from datetime import datetime, timezone
+import time
 
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
 
 # Add db_foler_path to sys.path
 sys.path.insert(0, db_foler_path)
-from db import SensorData, Teams
+from db import SensorData, Teams, SensorDataTest
 
 
 
@@ -156,9 +156,25 @@ def on_message(client, userdata, msg) -> None:
             illumination=payload.get("illumination"),
             timestamp=local_timestamp
         )
+
         session.add(new_data)
         session.commit()
-        print(f"Data saved: {new_data} \n")
+        print(f"Data saved to test db: {new_data}\n")
+        new_data = SensorDataTest(
+            team_id=team_ids[team_name],
+            temperature=payload.get("temperature"),
+            humidity=payload.get("humidity"),
+            illumination=payload.get("illumination"),
+            timestamp=local_timestamp,
+            utc_timestamp = utc_timestamp,
+            my_timestamp = convert_to_local_time(datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f"))
+        )
+
+
+        # print(payload)
+        session.add(new_data)
+        session.commit()
+        print(f"Data saved to real db: {new_data} \n")
     except Exception as e:
         print(f"Error saving data: {e}")
 
@@ -174,18 +190,55 @@ def start_local_host_client(): #LOCAL HOST
     mqtt_client.loop_forever()
     print("Loop not started")
 
-def start_communication_via_broker(): # GOLEM
+
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Connected to MQTT Broker!")
+        client.subscribe(TOPIC)  # Subscribe to the topic upon successful connection
+    else:
+        print(f"Failed to connect, return code {rc}")
+
+# Callback for when the client disconnects from the broker
+def on_disconnect(client, userdata, rc):
+    print("Disconnected from MQTT Broker!")
+    if rc != 0:
+        print("Unexpected disconnection. Attempting to reconnect...")
+
+# Start communication with the MQTT broker
+def start_communication_via_broker():
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
     print(f"BROKER_UNAME = {BROKER_UNAME}")
     print(f"BROKER_PASSWD = {BROKER_PASSWD}")
     print(f"TOPIC = {TOPIC}")
+
     mqtt_client = mqtt.Client()
+
+    # Assign callbacks
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_disconnect = on_disconnect
     mqtt_client.on_message = on_message
+
+    # Set username and password
     mqtt_client.username_pw_set(BROKER_UNAME, password=BROKER_PASSWD)
-    mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
-    mqtt_client.subscribe(TOPIC)
-    mqtt_client.loop_forever()
+
+    # Start a background thread for MQTT communication
+    mqtt_client.loop_start()
+
+    # Keep trying to connect to the broker
+    while True:
+        try:
+            print("Attempting to connect to MQTT Broker...")
+            mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
+            mqtt_client.subscribe(TOPIC)
+            break  # Exit the loop if connected successfully
+        except Exception as e:
+            print(f"Connection failed: {e}. Retrying in 5 seconds...")
+            time.sleep(5)
+
+    # Keep the main thread alive
+    while True:
+        time.sleep(1)
     
 if __name__ == "__main__":
     #start_local_host_client()
