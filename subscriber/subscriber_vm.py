@@ -50,6 +50,7 @@ LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")  # Broker address
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))  
 TOPIC = "sensor/data"                            # Topic to subscribe to
+QOS = 2
 
 ########
 
@@ -186,7 +187,7 @@ def start_local_host_client(): #LOCAL HOST
     mqtt_client = mqtt.Client()
     mqtt_client.on_message = on_message
     mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
-    mqtt_client.subscribe(TOPIC)
+    mqtt_client.subscribe(TOPIC, qos = QOS)
     mqtt_client.loop_forever()
     print("Loop not started")
 
@@ -194,7 +195,7 @@ def start_local_host_client(): #LOCAL HOST
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to MQTT Broker!")
-        client.subscribe(TOPIC)  # Subscribe to the topic upon successful connection
+        client.subscribe(TOPIC, qos = QOS)  # Subscribe to the topic upon successful connection
     else:
         print(f"Failed to connect, return code {rc}")
 
@@ -230,7 +231,7 @@ def start_communication_via_broker():
         try:
             print("Attempting to connect to MQTT Broker...")
             mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
-            mqtt_client.subscribe(TOPIC)
+            mqtt_client.subscribe(TOPIC, qos = QOS)
             break  # Exit the loop if connected successfully
         except Exception as e:
             print(f"Connection failed: {e}. Retrying in 5 seconds...")

@@ -145,13 +145,13 @@ def sendArchive():
                 
         else:   
             for j in range(0, log[1]): # send log[1] same logs with timestamps offset by j*period
-                payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*period), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
+                payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*(period/1000)), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
                     MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
                 except:
                     connBroker = False
                     recPrev = time.ticks_ms()
-                    log[0] += j*period
+                    log[0] += j*(period/1000)
                     log[1] -= j
                     archive.append(log)
                     archive.reverse()   # newer logs last now
@@ -163,7 +163,7 @@ def sendArchive():
 #def setFlagMeas(timer):  minPassed = True
 #timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
-period = 60*1000
+period = 60*1000    # m/s
 previous = time.ticks_ms()
 now = previous + 1
 
