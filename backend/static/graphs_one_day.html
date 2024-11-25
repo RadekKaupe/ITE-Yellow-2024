@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphs</title>
+    <link rel="stylesheet" href="graphs.css" type="text/css">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+    <style>
+        canvas {
+            width: 100% !important;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sensor Data Graphs for the last 24 hours</h1>
+    </header>
+    <div>
+        <h2>Temperature</h2>
+        <canvas id="tempChart"></canvas>
+    </div>
+    
+    <div>
+        <h2>Humidity</h2>
+        <canvas id="humidityChart"></canvas>
+    </div>
+    
+    <div>
+        <h2>Illumination</h2>
+        <canvas id="illuminationChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="graphs.js"></script>
+    <div class="link"><a href="/">Go back</a>    </div>
+</body>
+</html>

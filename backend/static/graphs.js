@@ -1,8 +1,10 @@
 let graphDataArry = [];
 
-async function fetchGraphData() {
+async function fetchGraphData(endpoint){
     try {
-        const response = await fetch('/graph-data');
+        // const response = await fetch('/graph-data/one-day');
+        console.log(endpoint)
+        const response = await fetch(endpoint);
         let data = await response.json();
         // data = {
         //     "2024-11-09T10:00:00": [
@@ -169,4 +171,9 @@ function createChart(chartId, chartData, title) {
   }
 
   // Start fetching and plotting data
-fetchGraphData();
+  const currentPath = window.location.pathname;
+  if (currentPath.includes('graphs-one-day')) {
+      fetchGraphData('/graph-data/one-day'); // Pass the one-day endpoint and x-axis label
+  } else if (currentPath.includes('graphs-one-month')) {
+      fetchGraphData('/graph-data/one-month'); // Pass the one-month endpoint and x-axis label
+  }

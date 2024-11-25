@@ -43,11 +43,21 @@ def extract_teams_dict() ->dict[int:str]:
 
 class GraphDataHandler(RequestHandler):
     def get(self):
+        try:
+            # Fetch and process data for the last 24 hours (default behavior)
+            averages = self.fetch_data(days=1)
+            self.set_header("Content-Type", "application/json")
+            if averages is not None:
+                self.write(dumps_json(averages))
+        except Exception as e:
+            self.set_status(500)
+            self.write({"error": str(e)})
+
+    def fetch_data(self, days: int = 1):
         # Create a new session
         session = SessionLocal()
 
         try:
-            days = 1
             now = datetime.now()
             last_24_hours = now - timedelta(days=days)
 
@@ -80,7 +90,8 @@ class GraphDataHandler(RequestHandler):
             restructured_data = self.restructure_data(result)
             averages = self.calculate_hourly_averages(restructured_data)
             self.set_header("Content-Type", "application/json")
-            self.write(dumps_json(averages))
+            # self.write(dumps_json(averages))
+            return averages
 
         except Exception as e:
             # Handle any errors during the data fetch
@@ -170,6 +181,28 @@ class GraphDataHandler(RequestHandler):
         return timestamp_dict
 
 
+class GraphsHandler(RequestHandler):
+    def get(self) -> None:
+        self.render("static/graphs_one_day.html")
+
+class GraphData30DaysHandler(GraphDataHandler):
+    def get(self):
+        try:
+            # Fetch and process data for the last 30 days
+            averages = self.fetch_data(days=30)
+            print(averages)
+            self.set_header("Content-Type", "application/json")
+            if averages is not None:
+                self.write(dumps_json(averages))
+        except Exception as e:
+            self.set_status(500)
+            self.write({"error": str(e)})
+
+class Graphs30DaysHandler(RequestHandler):
+    def get(self):
+        self.render("static/graphs_one_month.html")
+
+
 class LatestDataHandler(RequestHandler): # zaručuje loadovani dat pri refreshi
     def get(self) -> None:
         # Fetch the most recent data for each team (or however you aggregate it)
@@ -220,10 +253,12 @@ class WebWSApp(TornadoApplication):
 
         self.tornado_handlers = [
             (r'/', MainHandler),
-            (r"/graph-data", GraphDataHandler),
+            (r"/graph-data/one-day", GraphDataHandler),
+            (r"/graph-data/one-month", GraphData30DaysHandler),
             (r'/websocket', WSHandler),
             (r'/latest-data', LatestDataHandler), 
-            (r'/graphs', GraphsHandler),
+            (r'/graphs-one-day', GraphsHandler),
+            (r'/graphs-one-month', Graphs30DaysHandler),
             (r'/(.*)', StaticFileHandler, {'path': join_path(dirname(__file__), 'static')})
         ]
         self.tornado_settings = {
@@ -298,11 +333,6 @@ class WebWSApp(TornadoApplication):
     #         self.counter += 1 
     #         print("Counter:", int(self.counter))
     #         self.send_ws_message({"counter": int(self.counter)})
-
-
-class GraphsHandler(RequestHandler):
-    def get(self) -> None:
-        self.render("static/graphs.html")
 
 
 
