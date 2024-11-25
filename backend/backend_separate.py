@@ -52,8 +52,15 @@ class GraphDataHandler(RequestHandler):
         except Exception as e:
             self.set_status(500)
             self.write({"error": str(e)})
-
-    def fetch_data(self, days: int = 1):
+    
+    
+    ##
+    ## TODO: udelej pro zobrazeni za posledni mesic jinak,
+    ## momentalne se tam stale zobrazuji hodiny, ale ja bych chtel dny.
+    ## Musim upravit logiku tady nebo spis udelat novou tridu
+    ## 
+    
+    def fetch_data(self, days: int = 1): 
         # Create a new session
         session = SessionLocal()
 
@@ -190,7 +197,6 @@ class GraphData30DaysHandler(GraphDataHandler):
         try:
             # Fetch and process data for the last 30 days
             averages = self.fetch_data(days=30)
-            print(averages)
             self.set_header("Content-Type", "application/json")
             if averages is not None:
                 self.write(dumps_json(averages))
