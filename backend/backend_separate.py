@@ -66,12 +66,12 @@ class GraphDataHandler(RequestHandler):
 
         try:
             now = datetime.now()
-            last_24_hours = now - timedelta(days=days)
+            time_interval = now - timedelta(days=days)
 
             # Fetch all data, ordered by team_id and timestamp
             query = (
                 session.query(SensorData)
-                .filter(SensorData.timestamp >= last_24_hours)  # Adjust the time range here
+                .filter(SensorData.timestamp >= time_interval)  # Adjust the time range here
                 .order_by(SensorData.team_id, SensorData.timestamp)  # Order by team_id and timestamp
             )
 
@@ -91,11 +91,8 @@ class GraphDataHandler(RequestHandler):
                     'illumination': data.illumination if data.illumination is not None else None
                 })
 
-            # Respond with JSON data, structure is { 'team_id': [data] }
-            # print(result)
-
             restructured_data = self.restructure_data(result)
-            averages = self.calculate_hourly_averages(restructured_data)
+            averages = self.calculate_averages(restructured_data)
             self.set_header("Content-Type", "application/json")
             # self.write(dumps_json(averages))
             return averages
@@ -109,7 +106,7 @@ class GraphDataHandler(RequestHandler):
             # Close the session
             session.close()
     
-    def calculate_hourly_averages(self, data):
+    def calculate_averages(self, data):
         averages = {}
         for timestamp, readings in data.items():
             team_data = {}
@@ -203,6 +200,79 @@ class GraphData30DaysHandler(GraphDataHandler):
         except Exception as e:
             self.set_status(500)
             self.write({"error": str(e)})
+    def calculate_averages(self, data):
+        # Debug message to confirm function is being called.
+        # print("Function `calculate_averages` called.")
+        
+        # Dictionary to store intermediate data for averages calculation.
+        averages = {}
+
+        # Aggregation loop
+        for timestamp, readings in data.items():
+            # Extract the date part from the timestamp.
+            if "T" in timestamp:
+                date = timestamp.split("T")[0]  # ISO 8601 format
+            else:
+                date = timestamp.split()[0]  # Space-separated format
+
+            if date not in averages:
+                # Initialize the date key if not present in averages.
+                averages[date] = {}
+
+            for record in readings:
+                team_id = record['team_id']
+
+                if team_id not in averages[date]:
+                    # Initialize the team data if not present for the current date.
+                    averages[date][team_id] = {'temp': [], 'humi': [], 'illu': []}
+
+                # Append the non-None values to the respective lists.
+                if record['temp'] is not None:
+                    averages[date][team_id]['temp'].append(record['temp'])
+                if record['humi'] is not None:
+                    averages[date][team_id]['humi'].append(record['humi'])
+                if record['illu'] is not None:
+                    averages[date][team_id]['illu'].append(record['illu'])
+
+        # Print the intermediate aggregation for verification.
+        # print("Aggregated Data for Averages Calculation:")
+        # for date, team_data in averages.items():
+        #     print(f"Date: {date}, Data: {team_data}")
+
+        # Prepare the output with averages.
+        daily_averages = {}
+
+        # Average calculation loop
+        for date, team_data in averages.items():
+            daily_averages[date] = []
+
+            for team_id, metrics in team_data.items():
+                # Calculate averages for each metric.
+                avg_temp = sum(metrics['temp']) / len(metrics['temp']) if metrics['temp'] else None
+                avg_humi = sum(metrics['humi']) / len(metrics['humi']) if metrics['humi'] else None
+                avg_illu = sum(metrics['illu']) / len(metrics['illu']) if metrics['illu'] else None
+
+                # # Debug each average calculation.
+                # print(f"Date: {date}, Team: {team_id}, Temp: {metrics['temp']}, Avg Temp: {avg_temp}")
+                # print(f"Date: {date}, Team: {team_id}, Humi: {metrics['humi']}, Avg Humi: {avg_humi}")
+                # print(f"Date: {date}, Team: {team_id}, Illu: {metrics['illu']}, Avg Illu: {avg_illu}")
+
+                # Append the team's daily average data to the results for the date.
+                daily_averages[date].append({
+                    'team_id': team_id,
+                    'mean_temp': avg_temp,
+                    'mean_humi': avg_humi,
+                    'mean_illu': avg_illu
+                })
+
+        # Final debug print of daily averages.
+        # print("Final Calculated Daily Averages:")
+        # for date, data in daily_averages.items():
+        #     print(f"Date: {date}, Data: {data}")
+
+        return daily_averages
+
+
 
 class Graphs30DaysHandler(RequestHandler):
     def get(self):
