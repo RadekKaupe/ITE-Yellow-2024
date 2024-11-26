@@ -12,6 +12,9 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, Session
 import sys
 from datetime import datetime, time, timedelta
+import pytz
+from datetime import datetime, timezone
+
 
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
 
@@ -28,8 +31,26 @@ db_name = os.getenv("DB_NAME")
 connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}"
 print(f"Connection string: {connection_string} \n" )
 engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
+LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
 SessionLocal = sessionmaker(bind=engine)
+
+def convert_to_local_time(utc_timestamp: str):
+    try:
+        # Attempt to parse with fractional seconds
+        utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
+    except ValueError:
+        try:
+            # Attempt to parse without fractional seconds
+            utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            # If neither format matches, raise an error
+            raise ValueError(f"Invalid timestamp format: '{utc_timestamp}'")
+    
+    # Set timezone to UTC and convert to local timezone
+    utc_time = utc_time.replace(tzinfo=pytz.UTC)
+    return utc_time.astimezone(LOCAL_TIMEZONE)
+
 
 def extract_teams_dict() ->dict[int:str]:
     session = SessionLocal()
@@ -83,9 +104,10 @@ class GraphDataHandler(RequestHandler):
             for data in all_data:
                 if data.team_id not in result:
                     result[data.team_id] = []
-
+                converted_timestamp = convert_to_local_time(data.timestamp.isoformat()).isoformat();
+                # print(converted_timestamp)
                 result[data.team_id].append({
-                    'timestamp': data.timestamp.isoformat(),  # ISO format for date-time
+                    'timestamp': converted_timestamp,  # ISO format for date-time
                     'temperature': data.temperature,
                     'humidity': data.humidity if data.humidity is not None else None,
                     'illumination': data.illumination if data.illumination is not None else None

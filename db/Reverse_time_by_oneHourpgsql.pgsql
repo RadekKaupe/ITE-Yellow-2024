@@ -1,6 +1,6 @@
-SELECT timestamp, 
-       timestamp - INTERVAL '1 hour' AS corrected_time
-FROM sensor_data;
+-- SELECT timestamp, 
+--        timestamp - INTERVAL '1 hour' AS corrected_time
+-- FROM sensor_data;
 
--- UPDATE sensor_data
--- SET timestamp = timestamp - INTERVAL '1 hour';
+UPDATE sensor_data
+SET timestamp = timestamp - INTERVAL '1 hour';

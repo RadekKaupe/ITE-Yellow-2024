@@ -149,18 +149,19 @@ def on_message(client, userdata, msg) -> None:
             return
 
         utc_timestamp = payload.get("timestamp")
-        local_timestamp = convert_to_local_time(utc_timestamp)
+        
         new_data = SensorData(
             team_id=team_ids[team_name],
             temperature=payload.get("temperature"),
             humidity=payload.get("humidity"),
             illumination=payload.get("illumination"),
-            timestamp=local_timestamp
+            timestamp=utc_timestamp
         )
 
         session.add(new_data)
         session.commit()
         print(f"Data saved to test db: {new_data}\n")
+        local_timestamp = convert_to_local_time(utc_timestamp)
         new_data = SensorDataTest(
             team_id=team_ids[team_name],
             temperature=payload.get("temperature"),
