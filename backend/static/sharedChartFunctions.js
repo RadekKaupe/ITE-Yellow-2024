@@ -11,7 +11,7 @@ export async function fetchGraphData(endpoint, callback) {
 }
 
 export function prepareChartData(sensorData, metric, options = {}) {
-    console.log(options.oneDay)
+    // console.log(options.oneDay)
     const fullTimestamps = Object.keys(sensorData);
     const labels = fullTimestamps.map((timestamp, index) => {
         const date = new Date(timestamp);
@@ -19,7 +19,7 @@ export function prepareChartData(sensorData, metric, options = {}) {
             const month = String(date.getMonth() + 1).padStart(2, '0'); // months are zero-based
             const day = String(date.getDate()).padStart(2, '0');
             const formattedDate = `${day}.${month}.`;
-            console.log(formattedDate); 
+            // console.log(formattedDate); 
             return formattedDate;
             
         }
