@@ -63,15 +63,28 @@ function updateTeamData(sensorDataArray=[]) {
         let humidityElement = document.getElementById(`team-${team_name}-humidity`);
         let illuminationElement = document.getElementById(`team-${team_name}-illumination`);
         if (sensor.timestamp){
-            dateAndTime = extractDateAndTime( sensor.timestamp);
+            // console.log(sensor.timestamp)
+            let date =  new Date(sensor.timestamp);
+            // console.log(date)
+            formattedDate = date.toLocaleDateString('en-US', {
+                weekday: 'long',  // Full day name (e.g., "Tuesday")
+                month: 'short',   // Abbreviated month name (e.g., "Nov")
+                day: 'numeric',   // Day of the month (e.g., "26")
+                year: 'numeric'   // Full year (e.g., "2024")
+              });
+            localTime = date.toLocaleTimeString('en-GB', { hour12: false }); 
+            // console.log(localTime);
+            // const date = new Date(dateAndTime);
+            // const localTime = date.toLocaleTimeString('en-GB', { hour12: false }); // 'en-GB' is used to get 24-hour format
+            // console.log(localTime);
         }
         // If the element exists, update its innerHTML
         
         if (dateElement) {
-            dateElement.textContent = dateAndTime.date.toDateString();
+            dateElement.textContent = formattedDate;
         }
         if (timeElement) {
-            timeElement.textContent = dateAndTime.time;
+            timeElement.textContent = localTime; 
         }
         if (tempElement) {
             tempElement.textContent = sensor.temperature + " °C";

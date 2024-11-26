@@ -392,14 +392,13 @@ class WebWSApp(TornadoApplication):
                 )
                 
                 data = query.all()
-                
                 # Convert query result to a list of dictionaries for JSON serialization
                 sensor_data_list = [
                     {
                         "id": d.id,
                         "team_id": d.team_id,
                         "team_name": team_dict[d.team_id],
-                        "timestamp": d.timestamp.isoformat(),
+                        "timestamp": convert_to_local_time(d.timestamp.isoformat()).isoformat(),
                         "temperature": d.temperature,
                         "humidity": d.humidity,
                         "illumination": d.illumination
