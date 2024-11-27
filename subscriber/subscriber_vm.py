@@ -84,7 +84,6 @@ def convert_to_local_time(utc_timestamp: str):
     return utc_time.astimezone(LOCAL_TIMEZONE)
 
 
-
 # Helper functions
 def extract_team_ids(teams):
     teams_ids = dict()
@@ -122,7 +121,7 @@ def check_json(data, schema):
 # MQTT message handling
 def on_message(client, userdata, msg) -> None:
     try:
-        global aimtec_sensors, team_ids
+        global aimtec_sensors, team_ids, timestamp_dict
         payload = json.loads(msg.payload.decode())
         if not check_json(payload, valid_schema):
             print("Invalid payload schema.\n")
@@ -150,8 +149,8 @@ def send_to_aimtec(payload, aimtec_sensors):
     
 def save_to_db(payload):
     try:
-        global team_ids
-        session = SessionLocal()
+        global team_ids, timestamp_dict
+        
         # team_ids = extract_team_ids(session.query(Teams).all())
         print(team_ids)
         team_name = payload.get("team_name")
@@ -161,17 +160,23 @@ def save_to_db(payload):
             return
 
         utc_timestamp = payload.get("timestamp")
+        if check_timestamp(payload, timestamp_dict):
+            print("New payload has the same timestamp as the last one. Returning.")
+            # return # to tady byt nemuze, stale to chci ukladat do testovaci db
         
-        new_data = SensorData(
+        session = SessionLocal()
+        new_data = SensorData( ## TODO: refaktoruj toto, rozdel to na dve fce
             team_id=team_ids[team_name],
             temperature=payload.get("temperature"),
             humidity=payload.get("humidity"),
             illumination=payload.get("illumination"),
             timestamp=utc_timestamp
         )
+        
+        timestamp_dict[team_name] = utc_timestamp 
 
-        # session.add(new_data)
-        # session.commit()
+        session.add(new_data)
+        session.commit()
         print(f"Data saved to test db: {new_data}\n")
         local_timestamp = convert_to_local_time(utc_timestamp)
         new_data = SensorDataTest(
@@ -186,8 +191,8 @@ def save_to_db(payload):
 
 
         # print(payload)
-        # session.add(new_data)
-        # session.commit()
+        session.add(new_data)
+        session.commit()
         session.close()
         print(f"Data saved to real db: {new_data} \n")
 
@@ -197,6 +202,12 @@ def save_to_db(payload):
 def check_timestamp(payload: dict, current_timestamps:dict) -> bool:
     team_name = payload["team_name"]
     return payload["timestamp"] ==  current_timestamps[team_name]
+
+
+def create_timestamp_dict():
+    ... # TODO: vznik pri spusteni skriptu, vytahnu si nejnovejsi timestampy z db
+
+
 
 # Initialize and start MQTT client
 def start_local_host_client(): #LOCAL HOST
@@ -226,7 +237,7 @@ def on_disconnect(client, userdata, rc):
 
 # Start communication with the MQTT broker
 def start_communication_via_broker():
-    global aimtec_sensors, team_ids
+    global aimtec_sensors, team_ids, timestamp_dict
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
     print(f"BROKER_UNAME = {BROKER_UNAME}")
