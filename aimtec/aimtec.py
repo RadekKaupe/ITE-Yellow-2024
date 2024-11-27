@@ -124,7 +124,7 @@ def post_measurement_payload(payload, aimtec_sensor):
 
 def post_measurement_all(payload, aimtec_sensors):
     for aimtec_sensor in aimtec_sensors:
-            post_alert(payload, aimtec_sensor)
+        post_measurement_payload(payload, aimtec_sensor)
 
 
 def post_alert(payload, aimtec_sensor):
@@ -149,15 +149,13 @@ def post_alert(payload, aimtec_sensor):
         upper_limit_key: upper_limit_value
 	}
     print(f"Alert payload: {alert_payload}")
+    # post_(EP_ALERTS, alert_payload)
 
-alert_payload = {
-		"createdOn": None,
-		"sensorUUID": None,
-		"temperature": None,
-        "lowTemperature": None,
-        "highTemperature": None
-	}
 
+def check_and_post_alerts_all(payload, aimtec_sensors):
+    for aimtec_sensor in aimtec_sensors:
+        if not check_if_value_in_range(payload, aimtec_sensor): 
+            post_alert(payload, aimtec_sensor)
 
 test_sensor_data = {"team_name": "orange", "timestamp": "2024-11-27T11:25:25.508795", "temperature": 25.77, "humidity": 55.27, "illumination": 754.88}
 
@@ -169,10 +167,10 @@ def check_if_value_in_range(sensor_data:dict, aimtec_sensor_dict:dict):
     type_ = aimtec_sensor_dict["type"]
     value = sensor_data[type_]
     lower_limit, upper_limit = fetch_lower_and_upper_limit(aimtec_sensor_dict)
-    print(type_)
-    print(f"Value: {value}")
-    print(f"Lower limit: {lower_limit}")
-    print(f"Upper limit: {upper_limit}")
+    # print(type_)
+    # print(f"Value: {value}")
+    # print(f"Lower limit: {lower_limit}")
+    # print(f"Upper limit: {upper_limit}")
     return value >= lower_limit and value <= upper_limit
     
 def fetch_lower_and_upper_limit(aimtec_sensor_dict):

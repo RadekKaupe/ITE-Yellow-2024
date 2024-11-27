@@ -92,6 +92,13 @@ def extract_team_ids(teams):
         teams_ids[str(team.name)] = team.id
     # print(teams_ids)
     return teams_ids
+
+def fetch_team_ids_from_db():
+    session = SessionLocal()
+    team_ids = extract_team_ids(session.query(Teams).all())
+    session.close()
+    return team_ids
+
 def extract_team_names(teams):
     team_names = set()
     for team in teams:
@@ -110,26 +117,27 @@ def check_json(data, schema):
         return False
     return True
 
+
+
 # MQTT message handling
 def on_message(client, userdata, msg) -> None:
     try:
-        global aimtec_sensors
+        global aimtec_sensors, team_ids
         payload = json.loads(msg.payload.decode())
         if not check_json(payload, valid_schema):
             print("Invalid payload schema.\n")
             return
         print("Valid Scheme, continuing.")
+        
+
         print(payload)
         if payload["team_name"] == "yellow":
             send_to_aimtec(payload, aimtec_sensors)
-        # save_to_db(payload=payload)
+        save_to_db(payload=payload)
     except Exception as e:
         print(f"Error saving data: {e}")
 
 def send_to_aimtec(payload, aimtec_sensors):
-    aimtec_temp_sensor = aimtec_sensors[0]
-    aimtec_humi_sensor = aimtec_sensors[1]
-    aimtec_illu_sensor = aimtec_sensors[2]
     # print(aimtec_temp_sensor)
     # print(aimtec_humi_sensor)
     # print(aimtec_illu_sensor)
@@ -138,18 +146,14 @@ def send_to_aimtec(payload, aimtec_sensors):
     # print(f"{aimtec.check_if_value_in_range(payload, aimtec_illu_sensor)}\n")
     # print(payload)
     aimtec.post_measurement_all(payload, aimtec_sensors)
-    if not aimtec.check_if_value_in_range(payload, aimtec_temp_sensor): ### TOHLE udělej líp
-        aimtec.post_alert(payload, aimtec_temp_sensor)
-    if not aimtec.check_if_value_in_range(payload, aimtec_humi_sensor):
-        aimtec.post_alert(payload, aimtec_humi_sensor)
-    if not aimtec.check_if_value_in_range(payload, aimtec_illu_sensor):
-        aimtec.post_alert(payload, aimtec_illu_sensor)
+    aimtec.check_and_post_alerts_all(payload, aimtec_sensors)
     
 def save_to_db(payload):
     try:
-        
+        global team_ids
         session = SessionLocal()
-        team_ids = extract_team_ids(session.query(Teams).all())
+        # team_ids = extract_team_ids(session.query(Teams).all())
+        print(team_ids)
         team_name = payload.get("team_name")
         
         if team_name not in team_ids:
@@ -166,8 +170,8 @@ def save_to_db(payload):
             timestamp=utc_timestamp
         )
 
-        session.add(new_data)
-        session.commit()
+        # session.add(new_data)
+        # session.commit()
         print(f"Data saved to test db: {new_data}\n")
         local_timestamp = convert_to_local_time(utc_timestamp)
         new_data = SensorDataTest(
@@ -182,12 +186,17 @@ def save_to_db(payload):
 
 
         # print(payload)
-        session.add(new_data)
-        session.commit()
+        # session.add(new_data)
+        # session.commit()
+        session.close()
         print(f"Data saved to real db: {new_data} \n")
-    except:
+
+    except Exception as e:
         print(f"Error saving data: {e}")    
 
+def check_timestamp(payload: dict, current_timestamps:dict) -> bool:
+    team_name = payload["team_name"]
+    return payload["timestamp"] ==  current_timestamps[team_name]
 
 # Initialize and start MQTT client
 def start_local_host_client(): #LOCAL HOST
@@ -217,7 +226,7 @@ def on_disconnect(client, userdata, rc):
 
 # Start communication with the MQTT broker
 def start_communication_via_broker():
-    global aimtec_sensors
+    global aimtec_sensors, team_ids
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
     print(f"BROKER_UNAME = {BROKER_UNAME}")
@@ -244,6 +253,7 @@ def start_communication_via_broker():
             mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
             mqtt_client.subscribe(TOPIC, qos = QOS)
             aimtec_sensors = aimtec.get_aimtec_sensor_dicts()
+            team_ids = fetch_team_ids_from_db()
             break  # Exit the loop if connected successfully
         except Exception as e:
             print(f"Connection failed: {e}. Retrying in 5 seconds...")
