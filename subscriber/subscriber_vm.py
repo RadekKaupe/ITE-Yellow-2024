@@ -1,7 +1,7 @@
 import os
 import json
 import sys
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from jsonschema import validate, ValidationError, SchemaError
@@ -127,9 +127,7 @@ def on_message(client, userdata, msg) -> None:
             print("Invalid payload schema.\n")
             return
         print("Valid Scheme, continuing.")
-        
-
-        print(payload)
+        print(f"Payload data: {payload}")
         if payload["team_name"] == "yellow":
             send_to_aimtec(payload, aimtec_sensors)
         save_to_db(payload=payload)
@@ -144,40 +142,43 @@ def send_to_aimtec(payload, aimtec_sensors):
     # print(f"{aimtec.check_if_value_in_range(payload, aimtec_humi_sensor)}\n")
     # print(f"{aimtec.check_if_value_in_range(payload, aimtec_illu_sensor)}\n")
     # print(payload)
+    print("Posting measurements and alerts.")
     aimtec.post_measurement_all(payload, aimtec_sensors)
     aimtec.check_and_post_alerts_all(payload, aimtec_sensors)
+    print("Finished posting measurements and alerts.\n")
     
 def save_to_db(payload):
     try:
+        print("Saving to database.")
         global team_ids, timestamp_dict
         
         # team_ids = extract_team_ids(session.query(Teams).all())
-        print(team_ids)
+        # print(team_ids)
         team_name = payload.get("team_name")
         
         if team_name not in team_ids:
             print("Invalid team name.\n")
             return
-
-        utc_timestamp = payload.get("timestamp")
-        if check_timestamp(payload, timestamp_dict):
-            print("New payload has the same timestamp as the last one. Returning.")
-            # return # to tady byt nemuze, stale to chci ukladat do testovaci db
-        
         session = SessionLocal()
-        new_data = SensorData( ## TODO: refaktoruj toto, rozdel to na dve fce
-            team_id=team_ids[team_name],
-            temperature=payload.get("temperature"),
-            humidity=payload.get("humidity"),
-            illumination=payload.get("illumination"),
-            timestamp=utc_timestamp
-        )
-        
-        timestamp_dict[team_name] = utc_timestamp 
-
-        session.add(new_data)
-        session.commit()
-        print(f"Data saved to test db: {new_data}\n")
+        utc_timestamp = payload.get("timestamp")
+        if not check_timestamp(payload, timestamp_dict, team_ids): # pripad, že timestampy jsou ruzne
+            # print("New payload has the same timestamp as the last one. Returning.")
+            new_data = SensorData(
+                team_id=team_ids[team_name],
+                temperature=payload.get("temperature"),
+                humidity=payload.get("humidity"),
+                illumination=payload.get("illumination"),
+                timestamp=utc_timestamp
+            )
+            timestamp_dict[team_ids[team_name]] = utc_timestamp 
+            # print(f"Timestamp dictionary: {timestamp_dict}")
+            session.add(new_data)
+            session.commit()
+            print(f"Data saved to test db: {new_data}")
+                
+                # return # to tady byt nemuze, stale to chci ukladat do testovaci db
+        else:   
+            print("New payload has the same timestamp as the last one. Saving to test db only.")
         local_timestamp = convert_to_local_time(utc_timestamp)
         new_data = SensorDataTest(
             team_id=team_ids[team_name],
@@ -194,18 +195,44 @@ def save_to_db(payload):
         session.add(new_data)
         session.commit()
         session.close()
-        print(f"Data saved to real db: {new_data} \n")
+        print(f"Data saved to real db: {new_data}")
+        print("Saving to database finished.\n")
 
     except Exception as e:
-        print(f"Error saving data: {e}")    
+        print(f"Error saving data to database: {e}")    
 
-def check_timestamp(payload: dict, current_timestamps:dict) -> bool:
+def check_timestamp(payload: dict, current_timestamps:dict, team_ids) -> bool:
     team_name = payload["team_name"]
-    return payload["timestamp"] ==  current_timestamps[team_name]
+    return payload["timestamp"] ==  current_timestamps[team_ids[team_name]]
 
 
 def create_timestamp_dict():
-    ... # TODO: vznik pri spusteni skriptu, vytahnu si nejnovejsi timestampy z db
+    session = SessionLocal()
+
+    # Query to get the latest timestamp for each team
+    latest_timestamps = (
+        session.query(
+            SensorData.team_id,  # Team ID
+            func.max(SensorData.timestamp).label("latest_timestamp")  # Latest timestamp
+        )
+        .group_by(SensorData.team_id)  # Group by team_id
+        .all()  # Execute the query
+    )
+    # formatted_date = latest_timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f")
+    # Convert the result into a dictionary
+    latest_timestamps_dict = {
+        team_id: (
+            latest_timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f") if latest_timestamp else None
+        )
+        for team_id, latest_timestamp in latest_timestamps
+    }
+
+    # Print the dictionary
+    # print(latest_timestamps_dict)
+
+    # Close the session when done
+    session.close()
+    return latest_timestamps_dict
 
 
 
@@ -265,6 +292,7 @@ def start_communication_via_broker():
             mqtt_client.subscribe(TOPIC, qos = QOS)
             aimtec_sensors = aimtec.get_aimtec_sensor_dicts()
             team_ids = fetch_team_ids_from_db()
+            timestamp_dict = create_timestamp_dict()
             break  # Exit the loop if connected successfully
         except Exception as e:
             print(f"Connection failed: {e}. Retrying in 5 seconds...")
