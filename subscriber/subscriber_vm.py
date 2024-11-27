@@ -113,19 +113,38 @@ def check_json(data, schema):
 # MQTT message handling
 def on_message(client, userdata, msg) -> None:
     try:
-        global aimtec_temp_sensor, aimtec_humi_sensor, aimtec_illu_sensor
+        global aimtec_sensors
         payload = json.loads(msg.payload.decode())
         if not check_json(payload, valid_schema):
             print("Invalid payload schema.\n")
             return
         print("Valid Scheme, continuing.")
         print(payload)
-        print(aimtec_temp_sensor)
+        if payload["team_name"] == "yellow":
+            send_to_aimtec(payload, aimtec_sensors)
         # save_to_db(payload=payload)
     except Exception as e:
         print(f"Error saving data: {e}")
 
-
+def send_to_aimtec(payload, aimtec_sensors):
+    aimtec_temp_sensor = aimtec_sensors[0]
+    aimtec_humi_sensor = aimtec_sensors[1]
+    aimtec_illu_sensor = aimtec_sensors[2]
+    # print(aimtec_temp_sensor)
+    # print(aimtec_humi_sensor)
+    # print(aimtec_illu_sensor)
+    # print(f"{aimtec.check_if_value_in_range(payload, aimtec_temp_sensor)}\n")
+    # print(f"{aimtec.check_if_value_in_range(payload, aimtec_humi_sensor)}\n")
+    # print(f"{aimtec.check_if_value_in_range(payload, aimtec_illu_sensor)}\n")
+    # print(payload)
+    aimtec.post_measurement_all(payload, aimtec_sensors)
+    if not aimtec.check_if_value_in_range(payload, aimtec_temp_sensor): ### TOHLE udělej líp
+        aimtec.post_alert(payload, aimtec_temp_sensor)
+    if not aimtec.check_if_value_in_range(payload, aimtec_humi_sensor):
+        aimtec.post_alert(payload, aimtec_humi_sensor)
+    if not aimtec.check_if_value_in_range(payload, aimtec_illu_sensor):
+        aimtec.post_alert(payload, aimtec_illu_sensor)
+    
 def save_to_db(payload):
     try:
         
@@ -198,7 +217,7 @@ def on_disconnect(client, userdata, rc):
 
 # Start communication with the MQTT broker
 def start_communication_via_broker():
-    global aimtec_temp_sensor, aimtec_humi_sensor, aimtec_illu_sensor
+    global aimtec_sensors
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
     print(f"BROKER_UNAME = {BROKER_UNAME}")
@@ -225,10 +244,6 @@ def start_communication_via_broker():
             mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
             mqtt_client.subscribe(TOPIC, qos = QOS)
             aimtec_sensors = aimtec.get_aimtec_sensor_dicts()
-            aimtec_temp_sensor = aimtec_sensors[0]
-            aimtec_humi_sensor = aimtec_sensors[1]
-            aimtec_illu_sensor = aimtec_sensors[2]
-
             break  # Exit the loop if connected successfully
         except Exception as e:
             print(f"Connection failed: {e}. Retrying in 5 seconds...")
