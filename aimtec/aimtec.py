@@ -58,35 +58,6 @@ payload_login = {
     "password": "tmSwNIYM4p19MYk4iTr8",
 }
 
-json_file = post_(EP_LOGIN, payload_login)
-pp(f"json file: {json_file} \n" )
-
-
-# read the sensors
-response = get_(EP_SENSORS)
-# pp(response) # pretty-print the response to see what we got
-SENSOR_UUID = response[0]['sensorUUID'] # save the first sensor UUID for later
-pp(f"SENSOR_UUID: {SENSOR_UUID} \n")
-
-sensor_uuid_list = [json['sensorUUID'] for json in response]
-print(sensor_uuid_list)
-temperature = {"type": "temperature"}
-humidity = {"type": "humidity"}
-illumination = {"type": "illumination"}
-
-for dict_ in response:
-    if dict_['name'].endswith("temperature"):
-        temperature.update(dict_)
-    
-    elif dict_['name'].endswith("humidity"):
-        humidity.update(dict_)
-    
-    elif dict_['name'].endswith("illumination"):
-        illumination.update(dict_)
-    
-pp(temperature)
-pp(humidity)
-pp(illumination)
 
 ##
 ## Momentalne si to delam slozitejsi a pocitam s tim, 
@@ -106,9 +77,6 @@ print()
 # json_file = post_(EP_MEASUREMENTS, measurement_payload)
 # pp(json_file)
 
-
-response = get_(EP_ALERTS)
-pp(response)
 
 
 
@@ -142,5 +110,59 @@ def check_if_value_in_range(sensor_data:dict, aimtec_sensor_dict:dict):
     return value >= lower_limit and value <= upper_limit
     
 
-t = check_if_value_in_range(test_sensor_data, temperature)
-print(t)
+def get_aimtec_sensor_dicts():
+    response = get_(EP_SENSORS)
+    temperature = {"type": "temperature"}
+    humidity = {"type": "humidity"}
+    illumination = {"type": "illumination"}
+
+    for dict_ in response:
+        if dict_['name'].endswith("temperature"):
+            temperature.update(dict_)
+        
+        elif dict_['name'].endswith("humidity"):
+            humidity.update(dict_)
+        
+        elif dict_['name'].endswith("illumination"):
+            illumination.update(dict_)
+    return temperature, humidity, illumination
+        
+
+if __name__ == "__main__":
+
+    json_file = post_(EP_LOGIN, payload_login)
+    pp(f"json file: {json_file} \n" )
+
+
+    # read the sensors
+    response = get_(EP_SENSORS)
+    # pp(response) # pretty-print the response to see what we got
+    SENSOR_UUID = response[0]['sensorUUID'] # save the first sensor UUID for later
+    pp(f"SENSOR_UUID: {SENSOR_UUID} \n")
+
+    sensor_uuid_list = [json['sensorUUID'] for json in response]
+    print(sensor_uuid_list)
+    temperature = {"type": "temperature"}
+    humidity = {"type": "humidity"}
+    illumination = {"type": "illumination"}
+
+    for dict_ in response:
+        if dict_['name'].endswith("temperature"):
+            temperature.update(dict_)
+        
+        elif dict_['name'].endswith("humidity"):
+            humidity.update(dict_)
+        
+        elif dict_['name'].endswith("illumination"):
+            illumination.update(dict_)
+        
+    pp(temperature)
+    pp(humidity)
+    pp(illumination)
+
+    
+    response = get_(EP_ALERTS)
+    pp(response)
+    t = check_if_value_in_range(test_sensor_data, temperature)
+    print(t)
+    

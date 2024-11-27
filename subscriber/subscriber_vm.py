@@ -15,6 +15,11 @@ db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'd
 # Add db_foler_path to sys.path
 sys.path.insert(0, db_foler_path)
 from db import SensorData, Teams, SensorDataTest
+aimtec_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aimtec'))
+
+# Add db_foler_path to sys.path
+sys.path.insert(0, aimtec_foler_path)
+import aimtec
 
 
 
@@ -62,33 +67,6 @@ BROKER_PASSWD = os.getenv("BROKER_PASSWD")
 TOPIC = os.getenv("TOPIC")
 
 # #########
-
-# #### ZBYTECNA FUNKCE
-def check_necessary_keys(msg)->bool:
-    required_keys = ["team_name", "temperature"]
-    optional_keys = ["humidity", "illumination"]
-    try:
-        payload = json.loads(msg.payload.decode())
-        if all(key in payload for key in required_keys):
-            print("All necessary keys are present.")
-        else:
-            print("Necessary keys are not present. Returning None.")
-            return None
-         
-        for key in optional_keys:
-            if key not in payload:
-                payload[key] = None  # Set missing optional keys to None
-
-        return payload
-    except json.JSONDecodeError as e:
-        print(f"Error parsing the JSON: {e}")
-        return None
-    except Exception as e:
-        print(f"An Unknown error occured: {e}")
-        return None
-    
-    ### ### 
-
 def convert_to_local_time(utc_timestamp: str):
     try:
         # Attempt to parse with fractional seconds
@@ -135,11 +113,22 @@ def check_json(data, schema):
 # MQTT message handling
 def on_message(client, userdata, msg) -> None:
     try:
+        global aimtec_temp_sensor, aimtec_humi_sensor, aimtec_illu_sensor
         payload = json.loads(msg.payload.decode())
         if not check_json(payload, valid_schema):
             print("Invalid payload schema.\n")
             return
         print("Valid Scheme, continuing.")
+        print(payload)
+        print(aimtec_temp_sensor)
+        # save_to_db(payload=payload)
+    except Exception as e:
+        print(f"Error saving data: {e}")
+
+
+def save_to_db(payload):
+    try:
+        
         session = SessionLocal()
         team_ids = extract_team_ids(session.query(Teams).all())
         team_name = payload.get("team_name")
@@ -177,8 +166,9 @@ def on_message(client, userdata, msg) -> None:
         session.add(new_data)
         session.commit()
         print(f"Data saved to real db: {new_data} \n")
-    except Exception as e:
-        print(f"Error saving data: {e}")
+    except:
+        print(f"Error saving data: {e}")    
+
 
 # Initialize and start MQTT client
 def start_local_host_client(): #LOCAL HOST
@@ -208,6 +198,7 @@ def on_disconnect(client, userdata, rc):
 
 # Start communication with the MQTT broker
 def start_communication_via_broker():
+    global aimtec_temp_sensor, aimtec_humi_sensor, aimtec_illu_sensor
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
     print(f"BROKER_UNAME = {BROKER_UNAME}")
@@ -233,6 +224,11 @@ def start_communication_via_broker():
             print("Attempting to connect to MQTT Broker...")
             mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
             mqtt_client.subscribe(TOPIC, qos = QOS)
+            aimtec_sensors = aimtec.get_aimtec_sensor_dicts()
+            aimtec_temp_sensor = aimtec_sensors[0]
+            aimtec_humi_sensor = aimtec_sensors[1]
+            aimtec_illu_sensor = aimtec_sensors[2]
+
             break  # Exit the loop if connected successfully
         except Exception as e:
             print(f"Connection failed: {e}. Retrying in 5 seconds...")
