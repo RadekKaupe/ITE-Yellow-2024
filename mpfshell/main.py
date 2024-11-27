@@ -47,6 +47,7 @@ global temp;        temp = 999     # if these get sent, then we have a problem
 global tempH;       tempH = 999
 global humi;        humi = 999 
 global light;       light = 999
+global t;           t = 999
 global payload
 
 def newTimeStamp(secs):
@@ -69,7 +70,9 @@ def measure():
     global tempH
     global humi
     global light
+    global t
     
+    t = time.time()
     if(tempOnline): temp = round(tempSens.measure_temp(), 2)
     light = int(round(lightSens.luminance(BH1750.ONCE_HIRES_1)))
     try:
@@ -78,8 +81,8 @@ def measure():
         if(not tempOnline): temp = tempH
         humi = round(float(humiSens.humidity()), 1)
     except:
-        tempH = "hErr"     # if these get sent, then we have a problem
-        humi = "hErr"
+        tempH = 999     # if these get sent, then we have a problem
+        humi = 999
   
 global connBroker;  connBroker = False
 def reconnect():
@@ -109,7 +112,6 @@ def publish():
     global payload
     global connBroker
     global recPrev
-    t = time.time()
     payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
     print(payload)
     try:
@@ -124,7 +126,15 @@ def publish():
             else:
                 archive.append([t, 0, temp, humi, light])
         
-        
+
+def archiveAppend():
+    if len(archive) == 0:
+            archive.append([t, 0, temp, humi, light])   # index [1] is number of measurements same as this one
+    else:
+        if(archive[-1][2] == temp and archive[-1][3] == humi and archive[-1][4] == light): archive[-1][1] += 1
+        else:
+            archive.append([t, 0, temp, humi, light])
+
 def sendArchive():  
     global connBroker
     global payload
@@ -144,7 +154,7 @@ def sendArchive():
                 break
                 
         else:   
-            for j in range(0, log[1]): # send log[1] same logs with timestamps offset by j*period
+            for j in range(0, log[1]+1): # send log[1]+1 same logs with timestamps offset by j*period
                 payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*(period/1000)), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
                     MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
@@ -176,10 +186,11 @@ while(True):
     
     if(time.ticks_diff(now, previous) >= period): 
         ledIn.value(not ledIn.value())
-        syncTime()
+        if sta_if.isconnected(): syncTime()
         measure()
         if(connBroker and len(archive) > 0): sendArchive() 
-        publish()
+        if(connBroker): publish()
+        else: archiveAppend()
         previous = now
     
 
