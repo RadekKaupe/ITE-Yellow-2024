@@ -1,5 +1,5 @@
 # from machine import Timer
-from machine import Pin, Timer
+from machine import Pin, Timer, reset
 import json
 import network
 import time
@@ -38,7 +38,7 @@ BROKER_PASSWD = 'pivotecepomqtt'
 TOPIC = 'ite/yellow'
 QOS = 1
 TIMEOUT = 0.5   # sec
-RECON_PERIOD = 2000 # ms
+RECON_PERIOD = 4500 # ms
 
 # SLEEP_TIME = 2
 MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
@@ -134,6 +134,7 @@ def archiveAppend():
         if(archive[-1][2] == temp and archive[-1][3] == humi and archive[-1][4] == light): archive[-1][1] += 1
         else:
             archive.append([t, 0, temp, humi, light])
+    print("log archived")
 
 def sendArchive():  
     global connBroker
@@ -178,21 +179,66 @@ previous = time.ticks_ms()
 now = previous + 1
 
 recPrev = time.ticks_ms()
-while(True):
+try:
+    while(True):
+        
+        now = time.ticks_ms()
+        led.value(not connBroker)
+        if(not connBroker and time.ticks_diff(now, recPrev) >= RECON_PERIOD): reconnect()
+        
+        if(time.ticks_diff(now, previous) >= period): 
+            ledIn.value(not ledIn.value())
+            if sta_if.isconnected(): syncTime()
+            measure()
+            if(connBroker and len(archive) > 0): sendArchive() 
+            if(connBroker): publish()
+            else: archiveAppend()
+            previous = now
+            
+except Exception as e:
     
-    now = time.ticks_ms()
-    led.value(not connBroker)
-    if(not connBroker and time.ticks_diff(now, recPrev) >= RECON_PERIOD): reconnect()
+    print("Fatal Error")
+    t = time.time()
+    tmp = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'error': str(e)})
     
-    if(time.ticks_diff(now, previous) >= period): 
-        ledIn.value(not ledIn.value())
-        if sta_if.isconnected(): syncTime()
-        measure()
-        if(connBroker and len(archive) > 0): sendArchive() 
-        if(connBroker): publish()
-        else: archiveAppend()
-        previous = now
+    try: sta_if.disconnect()
+    except: print("Already disconnected")
     
+    #connBroker2 = False
+    while(True):
+    
+        if not sta_if.isconnected():
+            sta_if.active(True)
+            try:
+                while(not sta_if.isconnected()):
+                    sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+                    print('connecting to network...')
+                    time.sleep_ms(RECON_PERIOD)
+            except:
+                print("connecting to network failed")
+                #connBroker2 = False
+                continue
+            
+        #if(not connBroker2):   
+        try:
+            MQclient.connect()
+            print("connected to broker")
+            #connBroker2 = True
+        except:
+            print("connecting to broker failed")
+            #connBroker2 = False
+            continue
+            
+        try:
+            MQclient.publish(TOPIC, tmp, qos=QOS, timeout=TIMEOUT)
+            break
+        except:
+            #connBroker2 = False
+            print("error publishing failed")
+            continue
+        
+    reset()
+            
 
     
     
