@@ -1,4 +1,4 @@
-from db import SensorData, Teams
+
 from tornado.web import StaticFileHandler, RequestHandler, Application as TornadoApplication
 from tornado.websocket import WebSocketHandler
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -9,8 +9,8 @@ from time import sleep
 import numpy as np
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, func
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy import create_engine, func, select
+from sqlalchemy.orm import sessionmaker, Session, aliased
 import sys
 from datetime import datetime, time, timedelta
 import pytz
@@ -20,8 +20,10 @@ from datetime import datetime, timezone
 db_foler_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'db'))
 
+
 # Add db_foler_path to sys.path
 sys.path.insert(0, db_foler_path)
+from db import SensorData, Teams, SensorDataOutliers
 
 
 load_dotenv()
@@ -77,12 +79,6 @@ class GraphDataHandler(RequestHandler):
         except Exception as e:
             self.set_status(500)
             self.write({"error": str(e)})
-
-    ##
-    # TODO: udelej pro zobrazeni za posledni mesic jinak,
-    # momentalne se tam stale zobrazuji hodiny, ale ja bych chtel dny.
-    # Musim upravit logiku tady nebo spis udelat novou tridu
-    ##
 
     def fetch_data(self, days: int = 1):
         # Create a new session
@@ -314,6 +310,53 @@ class Graphs30DaysHandler(RequestHandler):
     def get(self):
         self.render("static/graphs_one_month.html")
 
+class AlertDataHandler(RequestHandler):
+    def get(self):
+        # Fetch all the outlier data from the sensor_data_outliers table
+        try:
+            session = SessionLocal()
+            sdo = aliased(SensorDataOutliers)
+            sd = aliased(SensorData)
+            sdo2 = aliased(SensorDataOutliers)
+            sd2 = aliased(SensorData)
+            # Create the subquery to find the maximum ID for each team
+            subquery = (
+                session.query(func.max(sdo2.id))
+                .join(SensorData, sdo2.sensor_data_id == SensorData.id)
+                .filter(SensorData.team_id == sd.team_id)
+                .label("max_id")
+            )
+
+            # Main query to select the rows from sensor_data_outliers based on subquery result
+            query = (
+                session.query(sdo)
+                .join(sd, sdo.sensor_data_id == sd.id)
+                .filter(sdo.id == subquery)
+            )
+            latest_alert_data = query.all()
+            # print(latest_outliers)
+            # Prepare the data to send as JSON response
+            outliers_data = [
+                {
+                    "id": outlier.id,
+                    "sensor_data_id": outlier.sensor_data_id,
+                    "team_id": outlier.sensor_data.team_id,
+                    "is_temperature_out_of_range": outlier.is_temperature_out_of_range,
+                    "is_humidity_out_of_range": outlier.is_humidity_out_of_range,
+                    "is_illumination_out_of_range": outlier.is_illumination_out_of_range,
+                }
+                for outlier in latest_alert_data
+            ]
+            
+            # Respond with the list of outliers in JSON format
+            self.write({"outliers": outliers_data})
+            session.close()
+        except Exception as e:
+            # Handle any exceptions by sending a 500 error
+            self.set_status(500)
+            self.write({"error": str(e)})
+
+
 
 class LatestDataHandler(RequestHandler):  # zaručuje loadovani dat pri refreshi
     def get(self) -> None:
@@ -368,6 +411,7 @@ class WebWSApp(TornadoApplication):
             (r'/', MainHandler),
             (r"/graph-data/one-day", GraphDataHandler),
             (r"/graph-data/one-month", GraphData30DaysHandler),
+            (r"/alert-data", AlertDataHandler),
             (r'/websocket', WSHandler),
             (r'/latest-data', LatestDataHandler),
             (r'/graphs-one-day', GraphsHandler),
