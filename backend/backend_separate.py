@@ -433,7 +433,7 @@ class WebWSApp(TornadoApplication):
         }
         # Periodically fetch and broadcast sensor data to WebSocket clients
         self.periodic_fetch = PeriodicCallback(
-            self.fetch_and_broadcast_data, 5000)  # 5000ms = 5 seconds
+            self.fetch_and_broadcast_data, 5000)  # 5000ms = 5 seconds !!!!!
         self.periodic_fetch.start()
 
         TornadoApplication.__init__(
@@ -443,10 +443,12 @@ class WebWSApp(TornadoApplication):
         # self.incrementer.start()
         # Toto fungovalo, od chatbota
 
+
     def fetch_sensor_data(self) -> list:
-        """Fetches the latest sensor data from the database"""
+        """Fetches the latest sensor data from the database, along with outlier information"""
         session = SessionLocal()
         try:
+            # Subquery to fetch the latest sensor data for each team
             subquery = (
                 session.query(
                     SensorData.team_id,
@@ -456,31 +458,107 @@ class WebWSApp(TornadoApplication):
                 .subquery()
             )
 
+            # Main query to fetch sensor data that corresponds to the latest timestamp for each team
             query = (
                 session.query(SensorData)
                 .join(subquery, (SensorData.team_id == subquery.c.team_id) & (SensorData.timestamp == subquery.c.latest_timestamp))
             )
 
+            # Fetch the sensor data
             data = query.all()
-            # Convert query result to a list of dictionaries for JSON serialization
+
+            # Fetch outlier data for each sensor data record
+            # Creating a list of sensor data IDs to fetch the outliers
+            sensor_data_ids = [d.id for d in data]
+
+            # Subquery to get the latest outlier for each sensor data record
+            sdo = aliased(SensorDataOutliers)
+            outlier_subquery = (
+                session.query(func.max(sdo.id))
+                .join(SensorData, sdo.sensor_data_id == SensorData.id)
+                .filter(SensorData.id.in_(sensor_data_ids))
+                .group_by(sdo.sensor_data_id)
+                .label("max_id")
+            )
+
+            # Query to fetch the latest outliers for the relevant sensor data
+            outlier_query = (
+                session.query(sdo)
+                .join(SensorData, sdo.sensor_data_id == SensorData.id)
+                .filter(sdo.id == outlier_subquery)
+            )
+
+            # Fetch outliers
+            outliers_data = outlier_query.all()
+
+            # Create a dictionary to map sensor data IDs to their outlier info
+            outlier_dict = {}
+            for outlier in outliers_data:
+                outlier_dict[outlier.sensor_data_id] = {
+                    "is_temperature_out_of_range": outlier.is_temperature_out_of_range,
+                    "is_humidity_out_of_range": outlier.is_humidity_out_of_range,
+                    "is_illumination_out_of_range": outlier.is_illumination_out_of_range
+                }
+
+            # Convert the sensor data to a list of dictionaries with outlier information
             sensor_data_list = [
                 {
                     "id": d.id,
                     "team_id": d.team_id,
-                    "team_name": team_dict[d.team_id],
+                    "team_name": team_dict[d.team_id],  # Assuming team_dict is available elsewhere
                     "timestamp": convert_to_local_time(d.timestamp.isoformat()).isoformat(),
                     "temperature": d.temperature,
                     "humidity": d.humidity,
-                    "illumination": d.illumination ## TODO: pridej sem i info o alertech
+                    "illumination": d.illumination,
+                    "outliers": outlier_dict.get(d.id, {})  # Add outlier data if available
                 }
                 for d in data
             ]
-            # print(sensor_data_list)
+
             return sensor_data_list
 
         finally:
             session.close()
 
+    # def fetch_sensor_data(self) -> list:
+    #     """Fetches the latest sensor data from the database"""
+    #     session = SessionLocal()
+    #     try:
+    #         subquery = (
+    #             session.query(
+    #                 SensorData.team_id,
+    #                 func.max(SensorData.timestamp).label("latest_timestamp")
+    #             )
+    #             .group_by(SensorData.team_id)
+    #             .subquery()
+    #         )
+
+    #         query = (
+    #             session.query(SensorData)
+    #             .join(subquery, (SensorData.team_id == subquery.c.team_id) & (SensorData.timestamp == subquery.c.latest_timestamp))
+    #         )
+
+    #         data = query.all()
+    #         # Convert query result to a list of dictionaries for JSON serialization
+    #         sensor_data_list = [
+    #             {
+    #                 "id": d.id,
+    #                 "team_id": d.team_id,
+    #                 "team_name": team_dict[d.team_id],
+    #                 "timestamp": convert_to_local_time(d.timestamp.isoformat()).isoformat(),
+    #                 "temperature": d.temperature,
+    #                 "humidity": d.humidity,
+    #                 "illumination": d.illumination 
+    #             }
+    #             for d in data
+    #         ]
+    #         # print(sensor_data_list)
+    #         return sensor_data_list
+
+    #     finally:
+    #         session.close()
+            
+            
     def fetch_and_broadcast_data(self) -> None:
         """Fetches all sensor data and broadcasts to all connected WebSocket clients."""
         # print("Fetching latest sensor data for broadcast.")

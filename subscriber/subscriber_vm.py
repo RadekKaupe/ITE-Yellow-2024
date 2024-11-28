@@ -48,6 +48,16 @@ valid_schema = {
     "required": ["team_name", "temperature", "timestamp"],
     "additionalProperties": False
 }
+error_scheme = { 
+    "type": "object",
+    "properties": {
+        "team_name": {"type": "string"},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "error": {"type": "string"}
+    },
+    "required": ["team_name", "temperature", "timestamp"],
+    "additionalProperties": False
+}
 
 LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
@@ -116,13 +126,32 @@ def check_json(data, schema):
         return False
     return True
 
+def save_dict_to_file(error_dict):
+    # Create the folder named 'err' if it does not exist
+    filename = error_dict["timestamp"]
+    folder_name = "err"
+    os.makedirs(folder_name, exist_ok=True)
+    
+    # Define the full path for the file
+    file_path = os.path.join(folder_name, filename)
+    
+    # Write the contents of the dictionary to the file
+    with open(file_path, "w") as file:
+        for key, value in error_dict.items():
+            file.write(f"{key}: {value}\n")
 
+    # Inform the user about the file creation
+    print(f"Dictionary saved to {file_path}")
 
 # MQTT message handling
 def on_message(client, userdata, msg) -> None:
     try:
         global aimtec_sensors, team_ids, timestamp_dict
         payload = json.loads(msg.payload.decode())
+        if check_json(payload, error_scheme):
+            save_dict_to_file(payload)
+            print("Error payload scheme.\n")
+            return
         if not check_json(payload, valid_schema):
             print("Invalid payload schema.\n")
             return
