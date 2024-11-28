@@ -14,7 +14,7 @@ db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'd
 
 # Add db_foler_path to sys.path
 sys.path.insert(0, db_foler_path)
-from db import SensorData, Teams, SensorDataTest
+from db import SensorData, Teams, SensorDataTest, SensorDataOutliers
 aimtec_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'aimtec'))
 
 # Add db_foler_path to sys.path
@@ -128,32 +128,26 @@ def on_message(client, userdata, msg) -> None:
             return
         print("Valid Scheme, continuing.")
         print(f"Payload data: {payload}")
-        if payload["team_name"] == "yellow":
-            send_to_aimtec(payload, aimtec_sensors)
-        save_to_db(payload=payload)
+        save_sensor_data_to_db(payload=payload)
     except Exception as e:
         print(f"Error saving data: {e}")
 
 def send_to_aimtec(payload, aimtec_sensors):
-    # print(aimtec_temp_sensor)
-    # print(aimtec_humi_sensor)
-    # print(aimtec_illu_sensor)
-    # print(f"{aimtec.check_if_value_in_range(payload, aimtec_temp_sensor)}\n")
-    # print(f"{aimtec.check_if_value_in_range(payload, aimtec_humi_sensor)}\n")
-    # print(f"{aimtec.check_if_value_in_range(payload, aimtec_illu_sensor)}\n")
-    # print(payload)
     print("Posting measurements and alerts.")
     aimtec.post_measurement_all(payload, aimtec_sensors)
-    aimtec.check_and_post_alerts_all(payload, aimtec_sensors)
+    check_and_post_alerts_all(payload, aimtec_sensors)
     print("Finished posting measurements and alerts.\n")
     
-def save_to_db(payload):
+def check_and_post_alerts_all(payload, aimtec_sensors):
+    for aimtec_sensor in aimtec_sensors:
+        if not aimtec.check_if_value_in_range(payload, aimtec_sensor): 
+            aimtec.post_alert(payload, aimtec_sensor)
+
+
+def save_sensor_data_to_db(payload):
     try:
-        print("Saving to database.")
+        print("Saving sensor data to database.")
         global team_ids, timestamp_dict
-        
-        # team_ids = extract_team_ids(session.query(Teams).all())
-        # print(team_ids)
         team_name = payload.get("team_name")
         
         if team_name not in team_ids:
@@ -162,7 +156,6 @@ def save_to_db(payload):
         session = SessionLocal()
         utc_timestamp = payload.get("timestamp")
         if not check_timestamp(payload, timestamp_dict, team_ids): # pripad, že timestampy jsou ruzne
-            # print("New payload has the same timestamp as the last one. Returning.")
             new_data = SensorData(
                 team_id=team_ids[team_name],
                 temperature=payload.get("temperature"),
@@ -174,9 +167,12 @@ def save_to_db(payload):
             # print(f"Timestamp dictionary: {timestamp_dict}")
             session.add(new_data)
             session.commit()
-            print(f"Data saved to test db: {new_data}")
+    
+            if team_name == "yellow":
+                check_and_post_alerts_all(payload, aimtec_sensors)
+                save_alert_to_db(session, payload, new_data, aimtec_sensors)
+                print(f"Data saved to test db: {new_data}")
                 
-                # return # to tady byt nemuze, stale to chci ukladat do testovaci db
         else:   
             print("New payload has the same timestamp as the last one. Saving to test db only.")
         local_timestamp = convert_to_local_time(utc_timestamp)
@@ -190,16 +186,33 @@ def save_to_db(payload):
             my_timestamp = convert_to_local_time(datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f"))
         )
 
-
-        # print(payload)
         session.add(new_data)
         session.commit()
         session.close()
         print(f"Data saved to real db: {new_data}")
-        print("Saving to database finished.\n")
+        print("Saving sensor data to database finished.\n")
 
     except Exception as e:
         print(f"Error saving data to database: {e}")    
+
+
+def save_alert_to_db(session, payload, sensor_data, aimtec_sensors):
+    is_temperature_out_of_range = not aimtec.check_if_value_in_range(payload, aimtec_sensors[0])
+    is_humidity_out_of_range = not aimtec.check_if_value_in_range(payload, aimtec_sensors[1])
+    is_illumination_out_of_range = not aimtec.check_if_value_in_range(payload, aimtec_sensors[2])
+    print(f"Saving alert to database: {is_temperature_out_of_range}, {is_humidity_out_of_range}, {is_temperature_out_of_range}")
+
+    outlier_data = SensorDataOutliers(
+        sensor_data_id=sensor_data.id,
+        is_temperature_out_of_range=is_temperature_out_of_range,
+        is_humidity_out_of_range=is_humidity_out_of_range,
+        is_illumination_out_of_range=is_illumination_out_of_range
+    )
+    session.add(outlier_data)
+    session.commit()
+    print(f"Outlier data saved: {outlier_data}")
+    print("Finished saving alert to database.")
+
 
 def check_timestamp(payload: dict, current_timestamps:dict, team_ids) -> bool:
     team_name = payload["team_name"]
@@ -218,8 +231,6 @@ def create_timestamp_dict():
         .group_by(SensorData.team_id)  # Group by team_id
         .all()  # Execute the query
     )
-    # formatted_date = latest_timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f")
-    # Convert the result into a dictionary
     latest_timestamps_dict = {
         team_id: (
             latest_timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f") if latest_timestamp else None
@@ -227,10 +238,6 @@ def create_timestamp_dict():
         for team_id, latest_timestamp in latest_timestamps
     }
 
-    # Print the dictionary
-    # print(latest_timestamps_dict)
-
-    # Close the session when done
     session.close()
     return latest_timestamps_dict
 
