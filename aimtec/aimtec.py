@@ -6,6 +6,7 @@ from pprint import pp
 import pytz
 from datetime import datetime, timezone
 import time
+import asyncio
 
 
 load_dotenv()
@@ -185,7 +186,7 @@ def fetch_lower_and_upper_limit(aimtec_sensor_dict):
     return lower_limit, upper_limit
 
 
-def get_aimtec_sensor_dicts():
+async def get_aimtec_sensor_dicts():
     response = get_(EP_SENSORS)
     temperature = {"type": "temperature"}
     humidity = {"type": "humidity"}

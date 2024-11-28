@@ -9,6 +9,7 @@ import paho.mqtt.client as mqtt
 import pytz
 from datetime import datetime, timezone
 import time
+import asyncio
 
 db_foler_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'db'))
 
@@ -102,7 +103,7 @@ def extract_team_ids(teams):
     # print(teams_ids)
     return teams_ids
 
-def fetch_team_ids_from_db():
+async def fetch_team_ids_from_db():
     session = SessionLocal()
     team_ids = extract_team_ids(session.query(Teams).all())
     session.close()
@@ -152,10 +153,11 @@ def on_message(client, userdata, msg) -> None:
             save_dict_to_file(payload)
             print("Error payload scheme.\n")
             return
+        print("Scheme is not a error scheme, continuing.\n")
         if not check_json(payload, valid_schema):
             print("Invalid payload schema.\n")
             return
-        print("Valid Scheme, continuing.")
+        print("Valid paylod scheme, continuing.")
         print(f"Payload data: {payload}")
         save_sensor_data_to_db(payload=payload)
     except Exception as e:
@@ -248,7 +250,7 @@ def check_timestamp(payload: dict, current_timestamps:dict, team_ids) -> bool:
     return payload["timestamp"] ==  current_timestamps[team_ids[team_name]]
 
 
-def create_timestamp_dict():
+async def create_timestamp_dict():
     session = SessionLocal()
 
     # Query to get the latest timestamp for each team
@@ -298,8 +300,9 @@ def on_disconnect(client, userdata, rc):
     if rc != 0:
         print("Unexpected disconnection. Attempting to reconnect...")
 
+
 # Start communication with the MQTT broker
-def start_communication_via_broker():
+async def start_communication_via_broker():
     global aimtec_sensors, team_ids, timestamp_dict
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
@@ -326,9 +329,9 @@ def start_communication_via_broker():
             print("Attempting to connect to MQTT Broker...")
             mqtt_client.connect(BROKER_IP, BROKER_PORT, 60)
             mqtt_client.subscribe(TOPIC, qos = QOS)
-            aimtec_sensors = aimtec.get_aimtec_sensor_dicts()
-            team_ids = fetch_team_ids_from_db()
-            timestamp_dict = create_timestamp_dict()
+            aimtec_sensors = await aimtec.get_aimtec_sensor_dicts()
+            team_ids = await fetch_team_ids_from_db()
+            timestamp_dict = await create_timestamp_dict()
             break  # Exit the loop if connected successfully
         except Exception as e:
             print(f"Connection failed: {e}. Retrying in 5 seconds...")
@@ -340,4 +343,4 @@ def start_communication_via_broker():
     
 if __name__ == "__main__":
     #start_local_host_client()
-    start_communication_via_broker()
+    asyncio.run(start_communication_via_broker())
