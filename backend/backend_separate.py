@@ -344,6 +344,7 @@ class AlertDataHandler(RequestHandler):
                     "is_temperature_out_of_range": outlier.is_temperature_out_of_range,
                     "is_humidity_out_of_range": outlier.is_humidity_out_of_range,
                     "is_illumination_out_of_range": outlier.is_illumination_out_of_range,
+                    "timestamp": self.get_timestamp_by_record_id(outlier.sensor_data_id, session)
                 }
                 for outlier in latest_alert_data
             ]
@@ -355,7 +356,14 @@ class AlertDataHandler(RequestHandler):
             # Handle any exceptions by sending a 500 error
             self.set_status(500)
             self.write({"error": str(e)})
-
+    
+    def get_timestamp_by_record_id(self, record_id, session):
+    # Query only the timestamp column for the record with the given id
+        timestamp = session.query(SensorData.timestamp).filter(SensorData.id == record_id).first()
+        # print(timestamp[0].strftime("%Y-%m-%dT%H:%M:%S.%f"))
+        # print(timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f"))
+        # return timestamp[0]
+        return timestamp[0].strftime("%Y-%m-%dT%H:%M:%S.%f")
 
 
 class LatestDataHandler(RequestHandler):  # zaručuje loadovani dat pri refreshi
