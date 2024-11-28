@@ -471,7 +471,7 @@ class WebWSApp(TornadoApplication):
                     "timestamp": convert_to_local_time(d.timestamp.isoformat()).isoformat(),
                     "temperature": d.temperature,
                     "humidity": d.humidity,
-                    "illumination": d.illumination
+                    "illumination": d.illumination ## TODO: pridej sem i info o alertech
                 }
                 for d in data
             ]
