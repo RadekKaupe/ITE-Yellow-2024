@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base, Session
 from dotenv import load_dotenv
 import os
@@ -24,6 +24,20 @@ class SensorData(Base):
     humidity = Column(Float, nullable=True) # mohou byt NU::
     illumination = Column(Float, nullable=True) # mohou byt NU::
     team = relationship("Teams", back_populates="sensor_data")
+    outliers = relationship("SensorDataOutliers", back_populates="sensor_data")
+
+
+
+class SensorDataOutliers(Base):
+    __tablename__ = "sensor_data_outliers"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    sensor_data_id = Column(Integer, ForeignKey("sensor_data.id"), nullable=False)
+    is_temperature_out_of_range = Column(Boolean, nullable=False, default=False)
+    is_humidity_out_of_range = Column(Boolean, nullable=False, default=False)
+    is_illumination_out_of_range = Column(Boolean, nullable=False, default=False)
+    sensor_data = relationship("SensorData", back_populates="outliers")
+
+
 
 class SensorDataTest(Base):
     __tablename__ = "sensor_data_test"
