@@ -231,7 +231,7 @@ def save_alert_to_db(session, payload, sensor_data, aimtec_sensors):
     is_temperature_out_of_range = not aimtec.check_if_value_in_range(payload, aimtec_sensors[0])
     is_humidity_out_of_range = not aimtec.check_if_value_in_range(payload, aimtec_sensors[1])
     is_illumination_out_of_range = not aimtec.check_if_value_in_range(payload, aimtec_sensors[2])
-    print(f"Saving alert to database: {is_temperature_out_of_range}, {is_humidity_out_of_range}, {is_temperature_out_of_range}")
+    print(f"Saving alert to database: {is_temperature_out_of_range}, {is_humidity_out_of_range}, {is_illumination_out_of_range}")
 
     outlier_data = SensorDataOutliers(
         sensor_data_id=sensor_data.id,
