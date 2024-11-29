@@ -228,7 +228,7 @@ async def post_loop(ep, body):
         return {}
 
 
-async def login_loop() -> dict | None:
+async def login_loop():
     try:
         json_file = await post_loop(EP_LOGIN, payload_login)
         print(f"Login loop finished succesfully.")
