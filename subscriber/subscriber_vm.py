@@ -56,7 +56,7 @@ error_scheme = {
         "timestamp": {"type": "string", "format": "date-time"},
         "error": {"type": "string"}
     },
-    "required": ["team_name", "temperature", "timestamp"],
+    "required": ["team_name", "error", "timestamp"],
     "additionalProperties": False
 }
 
