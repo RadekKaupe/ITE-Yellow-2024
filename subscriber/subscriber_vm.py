@@ -147,7 +147,7 @@ def save_dict_to_file(error_dict):
 # MQTT message handling
 def on_message(client, userdata, msg) -> None:
     try:
-        global aimtec_sensors, team_ids, timestamp_dict
+        global aimtec_sensors, team_ids, timestamp_dict, login_json
         payload = json.loads(msg.payload.decode())
         if check_json(payload, error_scheme):
             save_dict_to_file(payload)
@@ -178,7 +178,7 @@ def check_and_post_alerts_all(payload, aimtec_sensors):
 def save_sensor_data_to_db(payload):
     try:
         print("Saving sensor data to database.")
-        global team_ids, timestamp_dict
+        global team_ids, timestamp_dict, login_json
         team_name = payload.get("team_name")
         
         if team_name not in team_ids:
@@ -198,12 +198,17 @@ def save_sensor_data_to_db(payload):
             # print(f"Timestamp dictionary: {timestamp_dict}")
             session.add(new_data)
             session.commit()
-    
-            if team_name == "yellow":
-                check_and_post_alerts_all(payload, aimtec_sensors)
-                save_alert_to_db(session, payload, new_data, aimtec_sensors)
-                print(f"Data saved to test db: {new_data}")
-                
+            print(f"Data saved to real db: {new_data}")
+            try:
+                if team_name == "yellow" and login_json is not None:
+                    print("IN THE MF IF")
+                    send_to_aimtec(payload, aimtec_sensors)
+                    save_alert_to_db(session, payload, new_data, aimtec_sensors)
+                    
+            except NameError:
+                print("'login_json' is probably not defined. Failed to send data to aimtec and save the alerts to db.")
+            except Exception as e:
+                print(f"A error {e} occured when trying to send data to aimtec and save the alerts to db. ")    
         else:   
             print("New payload has the same timestamp as the last one. Saving to test db only.")
         local_timestamp = convert_to_local_time(utc_timestamp)
@@ -220,7 +225,8 @@ def save_sensor_data_to_db(payload):
         session.add(new_data)
         session.commit()
         session.close()
-        print(f"Data saved to real db: {new_data}")
+        print(f"Data saved to test db: {new_data}")
+
         print("Saving sensor data to database finished.\n")
 
     except Exception as e:
@@ -303,7 +309,7 @@ def on_disconnect(client, userdata, rc):
 
 # Start communication with the MQTT broker
 async def start_communication_via_broker():
-    global aimtec_sensors, team_ids, timestamp_dict
+    global aimtec_sensors, team_ids, timestamp_dict, login_json
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
     print(f"BROKER_UNAME = {BROKER_UNAME}")
@@ -332,6 +338,7 @@ async def start_communication_via_broker():
             aimtec_sensors = await aimtec.get_aimtec_sensor_dicts()
             team_ids = await fetch_team_ids_from_db()
             timestamp_dict = await create_timestamp_dict()
+            login_json = await aimtec.login_loop()
             break  # Exit the loop if connected successfully
         except Exception as e:
             print(f"Connection failed: {e}. Retrying in 5 seconds...")

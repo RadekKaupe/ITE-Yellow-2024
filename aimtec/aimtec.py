@@ -123,7 +123,8 @@ def post_measurement_payload(payload, aimtec_sensor):
         "status": status
     }
     print(f"Measurement payload: {measurement_payload}")
-    # post_(EP_MEASUREMENTS, measurement_payload)
+    post_(EP_MEASUREMENTS, measurement_payload)
+    # await post_loop(EP_MEASUREMENTS, measurement_payload)
 
 
 def post_measurement_all(payload, aimtec_sensors):
@@ -204,39 +205,77 @@ async def get_aimtec_sensor_dicts():
     return temperature, humidity, illumination
 
 
+async def post_loop(ep, body):
+    resp_code = -1
+    try:
+        print("Trying to login.")
+        response = post(ep, dumps(body), headers=HEADERS)
+        resp_code = response.status_code
+
+        while resp_code != 200:
+            print("Post not executed succesfully. See next message for error.")
+            print(
+                f"ERROR: THE STATUS CODE IS: {response.status_code}. Retrying in 10 seconds.")
+            time.sleep(10)
+        print("Post succeeded. Extracting JSON.")
+        try:
+            return response.json()
+        except JSONDecodeError:
+            print(
+                "ERROR: THIS FILE IS NOT IN A JSON FORMAT! ABORT MISSION! I REPEAT: ABORT MISSION!")
+            return {}
+
+    except HTTPError as http_err:
+        print(
+            f"ERROR: A HTTP ERROR OCURRED, THIS IS WHAT IS GOING ON:{http_err} ")
+        return {}
+
+
+async def login_loop() -> dict | None:
+    try:
+        json_file = await post_loop(EP_LOGIN, payload_login)
+        print(f"Login loop finished succesfully.")
+        return json_file
+    except Exception as e:
+        print(f"Login Failed, error code: {e}")
+        return None
+
 if __name__ == "__main__":
 
-    json_file = post_(EP_LOGIN, payload_login)
+    # json_file = post_(EP_LOGIN, payload_login)
+    # pp(f"json file: {json_file} \n")
+
+    json_file = asyncio.run(post_loop(EP_LOGIN, payload_login))
     pp(f"json file: {json_file} \n")
 
     # read the sensors
-    response = get_(EP_SENSORS)
-    # pp(response) # pretty-print the response to see what we got
-    # save the first sensor UUID for later
-    SENSOR_UUID = response[0]['sensorUUID']
-    pp(f"SENSOR_UUID: {SENSOR_UUID} \n")
+    # response = get_(EP_SENSORS)
+    # # pp(response) # pretty-print the response to see what we got
+    # # save the first sensor UUID for later
+    # SENSOR_UUID = response[0]['sensorUUID']
+    # pp(f"SENSOR_UUID: {SENSOR_UUID} \n")
 
-    sensor_uuid_list = [json['sensorUUID'] for json in response]
-    print(sensor_uuid_list)
-    temperature = {"type": "temperature"}
-    humidity = {"type": "humidity"}
-    illumination = {"type": "illumination"}
+    # sensor_uuid_list = [json['sensorUUID'] for json in response]
+    # print(sensor_uuid_list)
+    # temperature = {"type": "temperature"}
+    # humidity = {"type": "humidity"}
+    # illumination = {"type": "illumination"}
 
-    for dict_ in response:
-        if dict_['name'].endswith("temperature"):
-            temperature.update(dict_)
+    # for dict_ in response:
+    #     if dict_['name'].endswith("temperature"):
+    #         temperature.update(dict_)
 
-        elif dict_['name'].endswith("humidity"):
-            humidity.update(dict_)
+    #     elif dict_['name'].endswith("humidity"):
+    #         humidity.update(dict_)
 
-        elif dict_['name'].endswith("illumination"):
-            illumination.update(dict_)
+    #     elif dict_['name'].endswith("illumination"):
+    #         illumination.update(dict_)
 
-    pp(temperature)
-    pp(humidity)
-    pp(illumination)
+    # pp(temperature)
+    # pp(humidity)
+    # pp(illumination)
 
-    response = get_(EP_ALERTS)
-    pp(response)
-    t = check_if_value_in_range(test_sensor_data, temperature)
-    print(t)
+    # response = get_(EP_ALERTS)
+    # pp(response)
+    # t = check_if_value_in_range(test_sensor_data, temperature)
+    # print(t)
