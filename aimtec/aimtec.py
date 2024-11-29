@@ -22,7 +22,7 @@ HEADERS = {
 }
 
 LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
-
+STATUS = "TEST"
 
 def convert_to_local_time(utc_timestamp: str):
     try:
@@ -85,25 +85,6 @@ payload_login = {
 }
 
 
-##
-# Momentalne si to delam slozitejsi a pocitam s tim,
-# ze muze byt vice senzoru jednoho typu
-# To mi ale bude komplikovat ukladani do db, protoze si nemuzu ukladat jednodusse True/Null
-##
-##
-print()
-
-# # create a new measurement
-# measurement_payload = {
-#     "createdOn": "2023-09-20T13:00:00.000+01:00",
-#     "sensorUUID": SENSOR_UUID,
-#     "temperature": "92.1",
-#     "status": "TEST"
-# }
-# json_file = post_(EP_MEASUREMENTS, measurement_payload)
-# pp(json_file)
-
-
 def post_measurement_payload(payload, aimtec_sensor):
     utc_timestamp = payload.get("timestamp")
     local_timestamp = convert_to_local_time(utc_timestamp)
@@ -112,7 +93,6 @@ def post_measurement_payload(payload, aimtec_sensor):
     local_timestamp_str = local_timestamp_str[:-
                                               2] + ":" + local_timestamp_str[-2:]
     sensorUUID = aimtec_sensor["sensorUUID"]
-    status = "TEST"
     value_key = aimtec_sensor["type"]  # Toto nefuguje, protoze Aimtec
     print(f"\nReal information: {value_key}")
     value = payload[value_key]
@@ -122,7 +102,7 @@ def post_measurement_payload(payload, aimtec_sensor):
         "createdOn": local_timestamp_str,
         "sensorUUID": sensorUUID,
         value_key: value,
-        "status": status
+        "status": STATUS
     }
     print(f"Measurement payload: {measurement_payload}")
     json = post_(EP_MEASUREMENTS, measurement_payload)
@@ -183,15 +163,6 @@ def try_to_get_msg_from_json(json: dict):
         print(
             f"A error occured when trying to get the message from a json: {e}")
         return None
-
-
-test_sensor_data = {"team_name": "orange", "timestamp": "2024-11-27T11:25:25.508795",
-                    "temperature": 25.77, "humidity": 55.27, "illumination": 754.88}
-
-# {"team_name": "pink", "timestamp": "2024-11-27T11:25:25.508795", "temperature": 21.77, "humidity": 55.27, "illumination": 754.88}
-# {"team_name": "green", "timestamp": "2024-11-27T11:25:26.509872", "temperature": 18.17, "humidity": 35.21, "illumination": 441.03}
-# {"team_name": "pink", "timestamp": "2024-11-27T11:25:27.510298", "temperature": 23.02, "humidity": 67.59, "illumination": 403.88}
-
 
 def check_if_value_in_range(sensor_data: dict, aimtec_sensor_dict: dict):
     type_ = aimtec_sensor_dict["type"]
