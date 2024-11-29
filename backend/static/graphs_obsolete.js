@@ -2,24 +2,12 @@ let graphDataArry = [];
 
 async function fetchGraphData(endpoint){
     try {
+        
         // const response = await fetch('/graph-data/one-day');
-        console.log(endpoint)
+        console.log(spinner.style.display)
         const response = await fetch(endpoint);
         let data = await response.json();
-        // data = {
-        //     "2024-11-09T10:00:00": [
-        //         { "team_id": 1, "mean_temp": 22.5, "mean_humi": 60, "mean_illu": 300 }
-        //     ],
-        //     "2024-11-10T10:00:00": [
-        //         { "team_id": 1, "mean_temp": 22.5, "mean_humi": 60, "mean_illu": 300 }
-        //     ],
-        //     "2024-11-10T19:00:00": [
-        //         { "team_id": 1, "mean_temp": 22.245, "mean_humi": 54.22, "mean_illu": 284.08 },
-        //         { "team_id": 2, "mean_temp": 23.74, "mean_humi": 50.46, "mean_illu": 482.632 }
-        //     ]
-        // };
         graphDataArry = data; // Save the fetched data
-        // console.log(graphDataArry);
         const temp_data = prepareChartData(graphDataArry, 'mean_temp'); 
         const humi_data = prepareChartData(graphDataArry, 'mean_humi'); 
         const illu_data = prepareChartData(graphDataArry, 'mean_illu'); 
@@ -35,7 +23,10 @@ async function fetchGraphData(endpoint){
         createChart('illuminationChart', illu_data, 'Illumination [lx]');
     } catch (error) {
         console.error('Error fetching graph data:', error);
-    }
+    } finally {
+      // Hide the spinner after data is fetched and charts are created
+      spinner.style.display = 'none';
+  }
 }
 
 

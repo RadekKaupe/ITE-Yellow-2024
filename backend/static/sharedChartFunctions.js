@@ -1,12 +1,18 @@
 // sharedChartFunctions.js
 
 export async function fetchGraphData(endpoint, callback) {
+    const spinner = document.getElementById('loadingSpinner');
     try {
+        spinner.style.display = 'block';
+        console.log(spinner.style.display)
         const response = await fetch(endpoint);
         const data = await response.json();
         callback(data); // Pass the data to a callback function for further processing
     } catch (error) {
         console.error('Error fetching graph data:', error);
+    } finally {
+        // Hide the spinner after data is fetched and charts are created
+        spinner.style.display = 'none';
     }
 }
 

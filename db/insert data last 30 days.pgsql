@@ -2,7 +2,7 @@ WITH time_series AS (
     SELECT generate_series(
         now(), -- starting point (current time)
         now() - interval '30 days', -- ending point (30 days ago)
-        -interval '12 hours' -- negative interval for descending order
+        -interval '10 minutes' -- negative interval for descending order
     ) AS timestamp
 )
 INSERT INTO sensor_data (team_id, timestamp, temperature, humidity, illumination)

@@ -17,17 +17,21 @@
     <header>
         <h1>Sensor Data Graphs for the last month </h1>
     </header>
-    <div>
+    
+    <div id="loadingSpinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+    <div class="chart">
         <h2>Temperature</h2>
         <canvas id="tempChart"></canvas>
     </div>
     
-    <div>
+    <div class="chart">
         <h2>Humidity</h2>
         <canvas id="humidityChart"></canvas>
     </div>
     
-    <div>
+    <div class="chart">
         <h2>Illumination</h2>
         <canvas id="illuminationChart"></canvas>
     </div>
