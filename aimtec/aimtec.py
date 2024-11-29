@@ -113,9 +113,11 @@ def post_measurement_payload(payload, aimtec_sensor):
                                               2] + ":" + local_timestamp_str[-2:]
     sensorUUID = aimtec_sensor["sensorUUID"]
     status = "TEST"
-    value_key = aimtec_sensor["type"]
+    value_key = aimtec_sensor["type"]  # Toto nefuguje, protoze Aimtec
+    print(f"\nReal information: {value_key}")
     value = payload[value_key]
 
+    value_key = "temperature"
     measurement_payload = {
         "createdOn": local_timestamp_str,
         "sensorUUID": sensorUUID,
@@ -123,8 +125,10 @@ def post_measurement_payload(payload, aimtec_sensor):
         "status": status
     }
     print(f"Measurement payload: {measurement_payload}")
-    post_(EP_MEASUREMENTS, measurement_payload)
-    # await post_loop(EP_MEASUREMENTS, measurement_payload)
+    json = post_(EP_MEASUREMENTS, measurement_payload)
+    msg = try_to_get_msg_from_json(json)
+    if msg is not None:
+        print(f"The message we recieved from AIMTEC is: {msg}")
 
 
 def post_measurement_all(payload, aimtec_sensors):
@@ -140,8 +144,11 @@ def post_alert(payload, aimtec_sensor):
     local_timestamp_str = local_timestamp_str[:-
                                               2] + ":" + local_timestamp_str[-2:]
     sensorUUID = aimtec_sensor["sensorUUID"]
-    value_key = aimtec_sensor["type"]
+    value_key = aimtec_sensor["type"]  # Toto nefunguje, protoze Aimtec
+    print(f"\nReal information: {value_key}")
     value = payload[value_key]
+
+    value_key = "temperature"
     capitalized_value_key = value_key[0].upper() + value_key[1:]
     lower_limit_key = "low" + capitalized_value_key
     upper_limit_key = "high" + capitalized_value_key
@@ -156,7 +163,26 @@ def post_alert(payload, aimtec_sensor):
         upper_limit_key: upper_limit_value
     }
     print(f"Alert payload: {alert_payload}")
-    # post_(EP_ALERTS, alert_payload)
+    json = post_(EP_ALERTS, alert_payload)
+    msg = try_to_get_msg_from_json(json)
+    if msg is not None:
+        print(f"The message we recieved from AIMTEC is: {msg}")
+
+
+def try_to_get_msg_from_json(json: dict):
+    if json is None:
+        print("No json was returned. An error probably happened somewhere earlier.")
+        return None
+    if len(json) == 0:
+        print("A empty json was returned. An error probably happened somewhere earlier.")
+        return None
+    try:
+        msg = json["message"]
+        return msg
+    except Exception as e:
+        print(
+            f"A error occured when trying to get the message from a json: {e}")
+        return None
 
 
 test_sensor_data = {"team_name": "orange", "timestamp": "2024-11-27T11:25:25.508795",
