@@ -52,6 +52,7 @@ function updateTeamData(sensorDataArray=[]) {
     } 
     // console.log(sensorDataArray)
     sensorDataArray.forEach((sensor) => {
+        let outliers = sensor.outliers
         let team_name = sensor.team_name;
         let dateAndTime;
         
@@ -87,9 +88,30 @@ function updateTeamData(sensorDataArray=[]) {
             timeElement.textContent = localTime; 
         }
         if (tempElement) {
+            
             tempElement.textContent = sensor.temperature + " °C";
+            if (outliers.is_temperature_out_of_range === true) {
+                tempElement.style.color = "#ecf0f1";
+                tempElement.style.backgroundColor = "#e74c3c";
+                if (team_name === "red"){
+                    tempElement.style.backgroundColor = "#333333";
+                } 
+                tempElement.style.fontWeight = "bold";
+            } else{
+                tempElement.style.textDecoration = "underline";
+            }
         }
         if (humidityElement) {
+            if (outliers.is_humidity_out_of_range === true) {
+                humidityElement.style.color = "#ecf0f1";
+                humidityElement.style.backgroundColor = "#e74c3c";
+                if (team_name === "red"){
+                    humidityElement.style.backgroundColor = "#333333";
+                } 
+                humidityElement.style.fontWeight = "bold";
+            } else{
+                humidityElement.style.textDecoration = "underline";
+            }
             let text = "This team doesn't measure humidity. ";
             if ( sensor.humidity != null ){
                     text = sensor.humidity + " %";
@@ -97,6 +119,16 @@ function updateTeamData(sensorDataArray=[]) {
             humidityElement.textContent = text;
         }
         if (illuminationElement) {
+            if (outliers.is_illumination_out_of_range === true) {
+                illuminationElement.style.color = "#ecf0f1";
+                illuminationElement.style.backgroundColor = "#e74c3c";
+                if (team_name === "red"){
+                    illuminationElement.style.backgroundColor = "#333333";
+                } 
+                illuminationElement.style.fontWeight = "bold";
+            } else{
+                illuminationElement.style.textDecoration = "underline";
+            }
             let text = "This team doesn't measure illumination. ";
             if ( sensor.illumination != null){
                     text = sensor.illumination + " lx";
