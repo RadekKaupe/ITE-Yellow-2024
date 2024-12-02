@@ -117,6 +117,7 @@ def reconnect():
             MQclient.connect()
             connBroker = True
             print("connected to broker")
+            syncTime()
         except:
             print("connecting to broker failed")
 
