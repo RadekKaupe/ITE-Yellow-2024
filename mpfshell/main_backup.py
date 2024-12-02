@@ -1,13 +1,11 @@
-# from machine import Timer
-from machine import Pin, Timer, reset
+
+from machine import Pin, reset, RTC
 import json
 import network
 import time
 import ntptime
 from machine import I2C
 import umqtt
-import ntptime
-import math
 
 from light_sensor import BH1750
 import dht
@@ -22,11 +20,13 @@ led.on()
 tempOnline = True
 try: tempSens = tempSensorDS(pin_nb=5)
 except: tempOnline = False
-humiSens = dht.DHT11(Pin(4))
+try: humiSens = dht.DHT11(Pin(4))
+except: print("humidity unavailable")
 sda = Pin(0)
 scl = Pin(14)
 i2c = I2C(scl, sda, freq = 200000) # komunikace s light senzorem
-lightSens = BH1750(i2c)
+try: lightSens = BH1750(i2c)
+except: print("light unavailable")
 
 sta_if = network.WLAN(network.STA_IF)
 try: sta_if.disconnect()
@@ -44,46 +44,58 @@ RECON_PERIOD = 4500 # ms
 # SLEEP_TIME = 2
 MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
 
-global temp;        temp = 999     # if these get sent, then we have a problem
-global tempH;       tempH = 999
-global humi;        humi = 999 
+rtc = RTC()
+
+global temp;        temp = 99     # if these get sent, then we have a problem
+global tempH;       tempH = 99
+global humi;        humi = 99
 global light;       light = 999
 global t;           t = 999
+global t_tuple;     t_tuple = rtc.datetime()
 global payload
 
-def newTimeStamp(secs):
-    tmp = time.localtime(secs) 
-    return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:09.6f}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])  ) # (year, month, day, hour, min, sec)
 
 ntptime.host = "clock1.zcu.cz"
-#rtc = RTC()
+rtc = RTC()
 def syncTime():
-    try:
-        ntptime.settime()   # make sure to have internet connection
-        #t = time.time() + 3600 # offset because settime gives time - 1 hour
-        #(year, month, mday, hour, minute, second, weekday, yearday) = time.localtime(t)
-        #rtc.datetime((year, month, mday, 0, hour, minute, second, 0))
-    except:
-        print("Error syncing time")
+    try: ntptime.settime()   # make sure to have internet connection
+    except: print("Error syncing time")
+   
+# RTC.datetime() gives (year, month, day, weekday, hours, minutes, seconds, subseconds)
+def newTimeStamp(tmp):
+    print(tmp)
+    return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02}.{6:06}".format(tmp[0], tmp[1], tmp[2], tmp[4], tmp[5], tmp[6], tmp[7]*1000)  ) # (year, month, day, hour, min, sec, millisecs)
+ 
+# for sending from archive   
+def newTimeStampArchive(secs, millis):
+    tmp = time.localtime(secs) 
+    return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02}.{6:06}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5], millis*1000)  ) # (year, month, day, hour, min, sec)
     
+
 def measure():
     global temp
     global tempH
     global humi
     global light
     global t
+    global t_tuple
     
+    t_tuple = rtc.datetime()
     t = time.time()
+    
     if(tempOnline): temp = round(tempSens.measure_temp(), 2)
-    light = int(round(lightSens.luminance(BH1750.ONCE_HIRES_1)))
+    try: light = int(round(lightSens.luminance(BH1750.ONCE_HIRES_1)))
+    except: light = 999
     try:
         humiSens.measure()
         tempH = round(float(humiSens.temperature()), 2)
         if(not tempOnline): temp = tempH
         humi = round(float(humiSens.humidity()), 1)
     except:
-        tempH = 999     # if these get sent, then we have a problem
-        humi = 999
+        tempH = 99     # if these get sent, then we have a problem
+        humi = 99
+        
+    if(time.localtime(t)[5] != t_tuple[6]): t -= 1
   
 global connBroker;  connBroker = False
 def reconnect():
@@ -113,7 +125,7 @@ def publish():
     global payload
     global connBroker
     global recPrev
-    payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'temperature': temp, 'humidity': humi, 'illumination': light})
+    payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t_tuple), 'temperature': temp, 'humidity': humi, 'illumination': light})
     print(payload)
     try:
         MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
@@ -121,20 +133,20 @@ def publish():
         connBroker = False
         recPrev = time.ticks_ms()
         if len(archive) == 0:
-            archive.append([t, 0, temp, humi, light])   # index [1] is number of measurements same as this one
+            archive.append([t, 0, temp, humi, light, t_tuple[7]])   # index [1] is number of measurements same as this one
         else:
             if(archive[-1][2] == temp and archive[-1][3] == humi and archive[-1][4] == light): archive[-1][1] += 1
             else:
-                archive.append([t, 0, temp, humi, light])
+                archive.append([t, 0, temp, humi, light, t_tuple[7]])   # index [5] are milliseconds
         
 
 def archiveAppend():
     if len(archive) == 0:
-            archive.append([t, 0, temp, humi, light])   # index [1] is number of measurements same as this one
+            archive.append([t, 0, temp, humi, light, t_tuple[7]])   # index [1] is number of measurements same as this one
     else:
         if(archive[-1][2] == temp and archive[-1][3] == humi and archive[-1][4] == light): archive[-1][1] += 1
         else:
-            archive.append([t, 0, temp, humi, light])
+            archive.append([t, 0, temp, humi, light, t_tuple[7]])
     print("log archived")
 
 def sendArchive():  
@@ -145,7 +157,7 @@ def sendArchive():
     for i in range(0, len(archive)):
         log = archive.pop()
         if(log[1] == 0):
-            payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
+            payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStampArchive(log[0], log[5]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
             try:
                 MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
             except:
@@ -157,7 +169,7 @@ def sendArchive():
                 
         else:   
             for j in range(0, log[1]+1): # send log[1]+1 same logs with timestamps offset by j*period
-                payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(log[0]+j*(period/1000)), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
+                payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStampArchive(log[0]+j*(period/1000), log[5]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
                     MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
                 except:
@@ -189,8 +201,8 @@ try:
         
         if(time.ticks_diff(now, previous) >= period): 
             ledIn.value(not ledIn.value())
-            if sta_if.isconnected(): syncTime()
             measure()
+            if sta_if.isconnected(): syncTime()
             if(connBroker and len(archive) > 0): sendArchive() 
             if(connBroker): publish()
             else: archiveAppend()
@@ -199,8 +211,8 @@ try:
 except Exception as e:
     
     print("Fatal Error")
-    t = time.time()
-    tmp = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t), 'error': str(e)})
+    t_tuple = rtc.datetime()
+    tmp = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t_tuple), 'error': str(e)})
     
     try: sta_if.disconnect()
     except: print("Already disconnected")
