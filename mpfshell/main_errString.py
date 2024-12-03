@@ -6,15 +6,12 @@ import time
 import ntptime
 from machine import I2C
 import umqtt
-from io import StringIO
-import sys
-
 
 from light_sensor import BH1750
 import dht
 from temp_sensor import tempSensorDS
 
-errStream = StringIO()
+
 
 ledIn = Pin(2, Pin.OUT)
 led = Pin(16, Pin.OUT)
@@ -61,6 +58,7 @@ global light;       light = 999
 global t;           t = 999
 global t_tuple;     t_tuple = rtc.datetime()
 global payload
+global errString
 
 
 ntptime.host = "clock1.zcu.cz"
@@ -94,6 +92,8 @@ def newTimeStamp(tmp):
  
 # for sending from archive   
 def newTimeStampArchive(secs, millis):
+    global errString
+    errString = "time_millis"
     tmp = time.localtime(secs) 
     return (    "{0}-{1:02}-{2:02}T{3:02}:{4:02}:{5:02}.{6:06}".format(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5], millis*1000)  ) # (year, month, day, hour, min, sec)
     
@@ -105,7 +105,9 @@ def measure():
     global light
     global t
     global t_tuple
+    global errString
     
+    errString = "rtc_get"
     t_tuple = rtc.datetime()
     t = time.time()
     
@@ -121,13 +123,17 @@ def measure():
         tempH = 99     # if these get sent, then we have a problem
         if(not tempOnline): temp = tempH
         humi = 99
-        
+    
+    errString = "secs_adjust"   
     if(time.localtime(t)[5] != t_tuple[6]): t -= 1
   
 
 def reconnect():
     global connBroker
     global recPrev
+    global errString
+    
+    errString = "recon"
     recPrev = time.ticks_ms()
     if not sta_if.isconnected():
         sta_if.active(True)
@@ -152,6 +158,9 @@ def publish():
     global payload
     global connBroker
     global recPrev
+    global errString
+    
+    errString = "publish"
     payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t_tuple), 'temperature': temp, 'humidity': humi, 'illumination': light})
     print(payload)
     try:
@@ -159,6 +168,7 @@ def publish():
     except:
         connBroker = False
         recPrev = time.ticks_ms()
+        errString = "append_p"
         if len(archive) == 0:
             archive.append([t, 0, temp, humi, light, t_tuple[7]])   # index [1] is number of measurements same as this one
         else:
@@ -168,6 +178,8 @@ def publish():
         
 
 def archiveAppend():
+    global errString
+    errString = "append"
     if len(archive) == 0:
             archive.append([t, 0, temp, humi, light, t_tuple[7]])   # index [1] is number of measurements same as this one
     else:
@@ -180,8 +192,12 @@ def sendArchive():
     global connBroker
     global payload
     global recPrev
+    global errString
+    
+    
     archive.reverse()   # older logs last now
     for i in range(0, len(archive)):
+        errString = "send"
         log = archive.pop()
         if(log[1] == 0):
             payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStampArchive(log[0], log[5]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
@@ -190,6 +206,7 @@ def sendArchive():
             except:
                 connBroker = False
                 recPrev = time.ticks_ms()
+                errString = "send_e1"
                 archive.append(log)
                 archive.reverse()   # newer logs last now
                 break
@@ -202,6 +219,7 @@ def sendArchive():
                 except:
                     connBroker = False
                     recPrev = time.ticks_ms()
+                    errString = "send_e2"
                     log[0] += j*(period/1000)
                     log[1] -= j
                     archive.append(log)
@@ -239,10 +257,7 @@ except Exception as e:
     
     print("Fatal Error")
     t_tuple = rtc.datetime()
-    sys.print_exception(e, errStream)
-    msg = errStream.getvalue()
-    print(msg)
-    tmp = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t_tuple), 'error': msg})
+    tmp = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t_tuple), 'error': errString})
     
     try: sta_if.disconnect()
     except: print("Already disconnected")

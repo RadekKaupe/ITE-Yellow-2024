@@ -6,12 +6,15 @@ import time
 import ntptime
 from machine import I2C
 import umqtt
+from io import StringIO
+import sys
+
 
 from light_sensor import BH1750
 import dht
 from temp_sensor import tempSensorDS
 
-
+errStream = StringIO()
 
 ledIn = Pin(2, Pin.OUT)
 led = Pin(16, Pin.OUT)
@@ -236,7 +239,10 @@ except Exception as e:
     
     print("Fatal Error")
     t_tuple = rtc.datetime()
-    tmp = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t_tuple), 'error': str(e)})
+    sys.print_exception(e, errStream)
+    msg = errStream.getvalue()
+    print(msg)
+    tmp = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStamp(t_tuple), 'error': msg})
     
     try: sta_if.disconnect()
     except: print("Already disconnected")
