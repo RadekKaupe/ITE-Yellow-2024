@@ -32,6 +32,8 @@ sta_if = network.WLAN(network.STA_IF)
 try: sta_if.disconnect()
 except: print("Already disconnected")
 
+
+
 BROKER_IP = '147.228.124.47'
 BROKER_PORT = 1883
 BROKER_UNAME = 'student'
@@ -43,6 +45,23 @@ RECON_PERIOD = 4500 # ms
 
 # SLEEP_TIME = 2
 MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
+
+print('connecting to network...')
+sta_if.active(True)
+sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+print("connencting to ui-hub")
+while not sta_if.isconnected():
+    pass
+print('network config:', sta_if.ifconfig())
+
+global connBroker;  connBroker = False
+while not connBroker:
+    try:
+        MQclient.connect()
+        connBroker = True
+        print("connected to broker")
+    except:
+        print("connecting to broker failed")
 
 rtc = RTC()
 
@@ -93,11 +112,12 @@ def measure():
         humi = round(float(humiSens.humidity()), 1)
     except:
         tempH = 99     # if these get sent, then we have a problem
+        if(not tempOnline): temp = tempH
         humi = 99
         
     if(time.localtime(t)[5] != t_tuple[6]): t -= 1
   
-global connBroker;  connBroker = False
+
 def reconnect():
     global connBroker
     global recPrev
@@ -117,7 +137,6 @@ def reconnect():
             MQclient.connect()
             connBroker = True
             print("connected to broker")
-            syncTime()
         except:
             print("connecting to broker failed")
 
