@@ -46,22 +46,8 @@ RECON_PERIOD = 4500 # ms
 # SLEEP_TIME = 2
 MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
 
-print('connecting to network...')
-sta_if.active(True)
-sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
-print("connencting to ui-hub")
-while not sta_if.isconnected():
-    pass
-print('network config:', sta_if.ifconfig())
 
-global connBroker;  connBroker = False
-while not connBroker:
-    try:
-        MQclient.connect()
-        connBroker = True
-        print("connected to broker")
-    except:
-        print("connecting to broker failed")
+
 
 rtc = RTC()
 
@@ -79,7 +65,25 @@ rtc = RTC()
 def syncTime():
     try: ntptime.settime()   # make sure to have internet connection
     except: print("Error syncing time")
-   
+
+print('connecting to network...')
+sta_if.active(True)
+sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+print("connencting to ui-hub")
+while not sta_if.isconnected():
+    pass
+print('network config:', sta_if.ifconfig())
+syncTime()
+
+global connBroker;  connBroker = False
+while not connBroker:
+    try:
+        MQclient.connect()
+        connBroker = True
+        print("connected to broker")
+    except:
+        print("connecting to broker failed")
+
 # RTC.datetime() gives (year, month, day, weekday, hours, minutes, seconds, subseconds)
 def newTimeStamp(tmp):
     print(tmp)
