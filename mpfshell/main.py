@@ -22,7 +22,7 @@ led.on()
 
 tempOnline = True
 try: tempSens = tempSensorDS(pin_nb=5)
-except: tempOnline = False
+except: tempOnline = False; print("temperature unavailable")
 try: humiSens = dht.DHT11(Pin(4))
 except: print("humidity unavailable")
 sda = Pin(0)
@@ -79,6 +79,7 @@ print('network config:', sta_if.ifconfig())
 syncTime()
 
 global connBroker;  connBroker = False
+led.value(not connBroker)
 while not connBroker:
     try:
         MQclient.connect()

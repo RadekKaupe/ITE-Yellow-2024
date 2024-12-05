@@ -12,10 +12,10 @@ class tempSensorDS:
         self.ds_sensor = self.scan()
 
     def scan(self):
-        try:
+        #try:
             return self.ow.scan()[0]
-        except IndexError:
-            print('ERR: No DS sensors found.')
+        #except IndexError:
+            #print('ERR: No DS sensors found.')
             #exit(0)
 
     def measure_temp(self, delay=0.75):
