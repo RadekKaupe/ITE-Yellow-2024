@@ -54,8 +54,8 @@ MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, 
 
 rtc = RTC()
 
-global temp;        temp = -1.0     # if these get sent, then we have a problem
-global tempH;       tempH = -1.0
+global temp;        temp = -999.0     # if these get sent, then we have a problem
+global tempH;       tempH = -999.0
 global humi;        humi = -1.0
 global light;       light = -1
 global t;           t = 999
@@ -119,7 +119,7 @@ def measure():
         if(not tempOnline): temp = tempH
         humi = round(float(humiSens.humidity()), 1)
     except:
-        tempH = -1.0     # if these get sent, then we have a problem
+        tempH = -999.0     # if these get sent, then we have a problem
         if(not tempOnline): temp = tempH
         humi = -1.0
         
