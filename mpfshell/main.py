@@ -54,10 +54,10 @@ MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, 
 
 rtc = RTC()
 
-global temp;        temp = 99     # if these get sent, then we have a problem
-global tempH;       tempH = 99
-global humi;        humi = 99
-global light;       light = 999
+global temp;        temp = -1.0     # if these get sent, then we have a problem
+global tempH;       tempH = -1.0
+global humi;        humi = -1.0
+global light;       light = -1
 global t;           t = 999
 global t_tuple;     t_tuple = rtc.datetime()
 global payload
@@ -112,16 +112,16 @@ def measure():
     
     if(tempOnline): temp = round(tempSens.measure_temp(), 2)
     try: light = int(round(lightSens.luminance(BH1750.ONCE_HIRES_1)))
-    except: light = 999
+    except: light = -1
     try:
         humiSens.measure()
         tempH = round(float(humiSens.temperature()), 2)
         if(not tempOnline): temp = tempH
         humi = round(float(humiSens.humidity()), 1)
     except:
-        tempH = 99     # if these get sent, then we have a problem
+        tempH = -1.0     # if these get sent, then we have a problem
         if(not tempOnline): temp = tempH
-        humi = 99
+        humi = -1.0
         
     if(time.localtime(t)[5] != t_tuple[6]): t -= 1
   
