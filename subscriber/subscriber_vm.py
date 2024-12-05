@@ -187,7 +187,6 @@ def check_and_post_alerts_all(payload, aimtec_sensors):
         if not aimtec.check_if_value_in_range(payload, aimtec_sensor):
             aimtec.post_alert(payload, aimtec_sensor)
 
-
 def save_sensor_data_to_db(payload):
     try:
         print("Saving sensor data to database.")
@@ -201,30 +200,45 @@ def save_sensor_data_to_db(payload):
         utc_timestamp = payload.get("timestamp")
         # pripad, že timestampy jsou ruzne
         if not check_timestamp(payload, timestamp_dict, team_ids):
-            new_data = SensorData(
-                team_id=team_ids[team_name],
-                temperature=payload.get("temperature"),
-                humidity=payload.get("humidity"),
-                illumination=payload.get("illumination"),
-                timestamp=utc_timestamp
-            )
-            timestamp_dict[team_ids[team_name]] = utc_timestamp
-            # print(f"Timestamp dictionary: {timestamp_dict}")
-            session.add(new_data)
-            session.commit()
-            print(f"Data saved to real db: {new_data}")
-            try:
-                if team_name == "yellow" and login_json is not None:
-                    send_to_aimtec(payload, aimtec_sensors)
-                    save_alert_to_db(session, payload,
-                                     new_data, aimtec_sensors)
+            
+            temperature = payload.get("temperature")
+            if temperature > -200:  ## Teplota je asi v pohodě
+                humidity = payload.get("humidity")  
+                illumination = payload.get("illumination")
+                if humidity < 0:
+                    print("Humidity is negative, saving Null/None to real db. ")
+                    humidity = None
+                if illumination < 0:
+                    print("Illumination is negative, saving Null/None to real db.")
+                    illumination = None
+                
+                new_data = SensorData(
+                    team_id=team_ids[team_name],
+                    temperature=temperature,
+                    humidity=humidity,
+                    illumination=illumination,
+                    timestamp=utc_timestamp
+                )
+                timestamp_dict[team_ids[team_name]] = utc_timestamp
+                # print(f"Timestamp dictionary: {timestamp_dict}")
+                session.add(new_data)
+                session.commit()
+                print(f"Data saved to real db: {new_data}")
+                try:
+                    if team_name == "yellow" and login_json is not None:
+                        send_to_aimtec(payload, aimtec_sensors)
+                        save_alert_to_db(session, payload,
+                                        new_data, aimtec_sensors)
 
-            except NameError:
-                print(
-                    "'login_json' is probably not defined. Failed to send data to aimtec and save the alerts to db.")
-            except Exception as e:
-                print(
-                    f"A error {e} occured when trying to send data to aimtec and save the alerts to db. ")
+                except NameError:
+                    print(
+                        "'login_json' is probably not defined. Failed to send data to aimtec and save the alerts to db.")
+                except Exception as e:
+                    print(
+                        f"A error {e} occured when trying to send data to aimtec and save the alerts to db. ")
+            else: 
+                print("We got a non-valid temperature. Not saving to real db.")
+
         else:
             print(
                 "New payload has the same timestamp as the last one. Saving to test db only.")
