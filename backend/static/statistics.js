@@ -4,9 +4,7 @@ function fetchLatestData() {
         .then(data => {
             // Assuming data has the same format as WebSocket data
             // console.log(data)
-            let total_data = data.total_data
-            console.log(total_data)
-            updateStatisticsEl(total_data)
+            updateElements(data)
         })
         .catch(error => console.error("Error fetching latest data:", error));
 }
@@ -26,8 +24,24 @@ function onSocketOpen() {
     console.log("WS client: Websocket opened.")
 }
 
-function updateStatisticsEl(total_data){
-    document.getElementById('total-data').textContent = total_data;
+function updateElements(data){
+    // console.log(data)
+    totalDataEL = document.getElementById('total-data')
+    avgTmpEl = document.getElementById('avg-tmp')
+    avgHumEl = document.getElementById('avg-hum')
+    avgIllEl = document.getElementById('avg-ill')
+    if (totalDataEL && data.total_data){
+        totalDataEL.textContent = data.total_data;
+    }
+    if (avgTmpEl && data.average_temperature){
+        avgTmpEl.textContent = data.average_temperature.toFixed(2);
+    }
+    if (avgHumEl && data.average_humidity){
+        avgHumEl.textContent = data.average_humidity.toFixed(2);
+    }        
+    if (avgIllEl && data.average_illumination){
+        avgIllEl.textContent = data.average_illumination.toFixed(2);
+    }
 }
 
 function onSocketClose() {
@@ -43,7 +57,6 @@ function onSocketMessage(message) {
     } catch(e) {
         data = message.data
     }
-    let total_data = data.total_data
     // sensorDataArr.forEach((sensor) => {
         // console.log(`Team Name: ${sensor.team_name}`);
         // console.log(`ID: ${sensor.id}`);
@@ -54,6 +67,6 @@ function onSocketMessage(message) {
         // console.log(`Illumination: ${sensor.illumination}`);
         // console.log("---------------"); 
     // });
-    updateStatisticsEl(total_data)
+    updateElements(data)
 }
 
