@@ -200,7 +200,6 @@ def save_sensor_data_to_db(payload):
         utc_timestamp = payload.get("timestamp")
         # pripad, že timestampy jsou ruzne
         if not check_timestamp(payload, timestamp_dict, team_ids):
-            
             temperature = payload.get("temperature")
             if temperature > -200:  ## Teplota je asi v pohodě
                 humidity = payload.get("humidity")  
@@ -294,21 +293,24 @@ def check_timestamp(payload: dict, current_timestamps: dict, team_ids) -> bool:
 
 async def create_timestamp_dict():
     session = SessionLocal()
+    old_timestamp = datetime(2000, 1, 1, 0, 0, 0)
 
     # Query to get the latest timestamp for each team
     latest_timestamps = (
         session.query(
-            SensorData.team_id,  # Team ID
-            func.max(SensorData.timestamp).label(
-                "latest_timestamp")  # Latest timestamp
+            Teams.id,  # Team ID
+            func.max(SensorData.timestamp).label("latest_timestamp")  # Latest timestamp
         )
-        .group_by(SensorData.team_id)  # Group by team_id
+        .outerjoin(SensorData, Teams.id == SensorData.team_id)  # LEFT JOIN with SensorData
+        .group_by(Teams.id)  # Group by team_id
         .all()  # Execute the query
     )
+
     latest_timestamps_dict = {
         team_id: (
             latest_timestamp.strftime(
-                "%Y-%m-%dT%H:%M:%S.%f") if latest_timestamp else None
+                "%Y-%m-%dT%H:%M:%S.%f") if latest_timestamp else old_timestamp.strftime(
+                "%Y-%m-%dT%H:%M:%S.%f")
         )
         for team_id, latest_timestamp in latest_timestamps
     }
@@ -378,6 +380,7 @@ async def start_communication_via_broker():
             aimtec_sensors = await aimtec.get_aimtec_sensor_dicts()
             team_ids = await fetch_team_ids_from_db()
             timestamp_dict = await create_timestamp_dict()
+            print(timestamp_dict)
             login_json = await aimtec.login_loop()
             break  # Exit the loop if connected successfully
         except Exception as e:
