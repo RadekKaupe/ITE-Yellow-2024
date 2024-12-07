@@ -26,10 +26,12 @@ function onSocketOpen() {
 
 function updateElements(data){
     // console.log(data)
-    totalDataEL = document.getElementById('total-data')
-    avgTmpEl = document.getElementById('avg-tmp')
-    avgHumEl = document.getElementById('avg-hum')
-    avgIllEl = document.getElementById('avg-ill')
+    totalDataEL = document.getElementById('total-data');
+    avgTmpEl = document.getElementById('avg-tmp');
+    avgHumEl = document.getElementById('avg-hum');
+    avgIllEl = document.getElementById('avg-ill');
+    latestTimesEl = document.getElementById('time')
+    latestDateEl = document.getElementById('date')
     if (totalDataEL && data.total_data){
         totalDataEL.textContent = data.total_data;
     }
@@ -41,6 +43,21 @@ function updateElements(data){
     }        
     if (avgIllEl && data.average_illumination){
         avgIllEl.textContent = data.average_illumination.toFixed(2);
+    }
+    if (latestTimesEl && latestDateEl && data.latest_yellow_timestamp){
+        let date =  new Date(data.latest_yellow_timestamp);
+            // console.log(date)
+            formattedDate = date.toLocaleDateString('en-US', {
+                weekday: 'long',  // Full day name (e.g., "Tuesday")
+                month: 'short',   // Abbreviated month name (e.g., "Nov")
+                day: 'numeric',   // Day of the month (e.g., "26")
+                year: 'numeric'   // Full year (e.g., "2024")
+              });
+            localTime = date.toLocaleTimeString('en-GB', { hour12: false });
+        latestTimesEl.textContent = localTime
+        latestDateEl.textContent = formattedDate
+        // avgIllEl.textContent = data.average_illumination.toFixed(2);
+        
     }
 }
 

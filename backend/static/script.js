@@ -114,7 +114,7 @@ function updateTeamData(sensorDataArray=[]) {
             } else{
                 humidityElement.style.textDecoration = "underline";
             }
-            let text = "This team doesn't measure humidity. ";
+            let text = "This team probably doesn't measure humidity right now. ";
             if ( sensor.humidity != null ){
                     text = sensor.humidity + " %";
             }
@@ -131,7 +131,7 @@ function updateTeamData(sensorDataArray=[]) {
             } else{
                 illuminationElement.style.textDecoration = "underline";
             }
-            let text = "This team doesn't measure illumination. ";
+            let text = "This team probably doesn't measure illumination right now. ";
             if ( sensor.illumination != null){
                     text = sensor.illumination + " lx";
             }
@@ -141,13 +141,13 @@ function updateTeamData(sensorDataArray=[]) {
     });
 }
 
-function extractDateAndTime(dateObj){
-    dateAndTime = String(dateObj);
-    let [dateStr, time] = dateAndTime.split("T");
-    var parts = dateStr.split('-');
-    var date = new Date(parts[0], parts[1] - 1, parts[2]); 
-    return {date, time}
-}
+// function extractDateAndTime(dateObj){
+//     dateAndTime = String(dateObj);
+//     let [dateStr, time] = dateAndTime.split("T");
+//     var parts = dateStr.split('-');
+//     var date = new Date(parts[0], parts[1] - 1, parts[2]); 
+//     return {date, time}
+// }
 
 function onSocketClose() {
     console.log("WS client: Websocket closed.")

@@ -184,15 +184,123 @@ section p {
 }
 
 /* Highlighted Data */
-#total-data {
+#total-data, #avg-tmp, #avg-hum, #avg-ill, #time, #date {
     color: #f1c40f; /* Yellow color matching the header */
     font-size: 2rem; /* Larger size to make it prominent */
     font-weight: bold; /* Bold text for emphasis */
     transition: color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
 }
+#time, #date {
+    color: #f1c40f; /* Yellow color matching the header */
+    font-size: 1.8rem; /* Larger size to make it prominent */
+    font-weight: bold; /* Bold text for emphasis */
+    transition: color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+}
 
-/* Optional: Hover effect for data (if interactive) */
+/* Container for grouped statistics */
+#team-statistics {
+    background-color: #ffffff; /* White background for contrast */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px; /* Space inside the container */
+    margin: 20px; /* Space outside the container */
+    width: 80%; /* Relative width */
+    max-width: 800px; /* Limit maximum width */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    text-align: center; /* Center align text */
+}
+
+/* Title of grouped stats */
+#team-statistics h2 {
+    font-size: 2rem; /* Slightly larger font for the heading */
+    color: #333; /* Dark color for readability */
+    margin-bottom: 20px; /* Space between the heading and the content */
+}
+
+/* Group for individual statistics (temperature, humidity, illumination) */
+.stat-group {
+    display: flex; /* Use flexbox to display stats side-by-side */
+    justify-content: space-around; /* Even space between stats */
+    gap: 20px; /* Add some space between items */
+}
+
+/* Styling for individual stat boxes */
+.stat-box {
+    background-color: #f9f9f9; /* Light background for each stat */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px; /* Space inside the box */
+    width: 30%; /* Make each stat box occupy a third of the width */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+
+.stat-box h3 {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    color: #333; /* Dark color for readability */
+}
+
+.stat-box p {
+    font-size: 1.5rem;
+    color: #555; /* Neutral dark grey for text */
+    font-weight: bold; /* Make text stand out */
+}
+
+.stat-box-datetime {
+    background-color: #f9f9f9; /* Light background for each stat */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px; /* Space inside the box */
+    width: 40%; /* Make each stat box occupy a third of the width */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+
+    display: flex; /* Enable flexbox */
+    flex-direction: column; /* Stack content vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    text-align: center; /* Center text horizontally */
+}
+
+
+.stat-box-datetime h3 {
+    font-size: 1.6rem;
+    margin-bottom: 5px;
+    color: #333; /* Dark color for readability */
+}
+
+.stat-box-datetime p {
+    font-size: 1.5rem;
+    color: #555; /* Neutral dark grey for text */
+    font-weight: bold; /* Make text stand out */
+}
+
+/* Styling for statistics data (e.g., total-data) */
+#total-data {
+    color: #f1c40f; /* Yellow color matching the header */
+    font-size: 2rem;
+    font-weight: bold;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* Optional: Hover effect for data */
 #total-data:hover {
     color: #e67e22; /* Slightly darker yellow on hover */
     transform: scale(1.1); /* Enlarge the data slightly */
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 768px) {
+    .stat-group {
+        flex-direction: column; /* Stack stats vertically on smaller screens */
+        align-items: center;
+    }
+
+    .stat-box {
+        width: 80%; /* Make each stat box occupy 80% of the container width */
+        margin-bottom: 20px; /* Add space between stacked elements */
+    }
+}
+
+@media (max-width: 480px) {
+    #team-statistics {
+        width: 90%; /* Adjust width for smaller screens */
+    }
 }

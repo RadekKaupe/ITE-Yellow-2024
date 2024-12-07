@@ -372,71 +372,70 @@ class LatestDataHandler(RequestHandler):  # zaručuje loadovani dat pri refreshi
         latest_data = self.application.fetch_sensor_data()
         self.write(latest_data)
 
-class StatisticsDataHandler(RequestHandler):
-    def get(self):
-        try:
-            # Fetch and process data for the last 24 hours (default behavior)
-            averages = self.fetch_avg_data()
-            self.set_header("Content-Type", "application/json")
-            if averages is not None:
-                self.write(dumps_json(averages))
-        except Exception as e:
-            self.set_status(500)
-            self.write({"error": str(e)})
+# class StatisticsDataHandler(RequestHandler):
+#     def get(self):
+#         try:
+#             # Fetch and process data for the last 24 hours (default behavior)
+#             averages = self.fetch_avg_data()
+#             self.set_header("Content-Type", "application/json")
+#             if averages is not None:
+#                 self.write(dumps_json(averages))
+#         except Exception as e:
+#             self.set_status(500)
+#             self.write({"error": str(e)})
 
-    def fetch_avg_data(self):
-        session = SessionLocal()
-        try:
-            now = datetime.now()
-            time_interval = now - timedelta(days=1)
+#     def fetch_avg_data(self):
+#         session = SessionLocal()
+#         try:
+#             now = datetime.now()
+#             time_interval = now - timedelta(days=1)
 
-            # Fetch all data, ordered by team_id and timestamp
-            query = (
-                session.query(SensorData)
-                # Adjust the time range here
-                .filter(SensorData.timestamp >= time_interval)
-                # Order by team_id and timestamp
-                .filter(SensorData.team_id == next((key for key, value in team_dict.items() if value == 'yellow'), None))
-                .order_by(SensorData.team_id,SensorData.timestamp)
-            )
+#             # Fetch all data, ordered by team_id and timestamp
+#             query = (
+#                 session.query(SensorData)
+#                 # Adjust the time range here
+#                 .filter(SensorData.timestamp >= time_interval)
+#                 # Order by team_id and timestamp
+#                 .filter(SensorData.team_id == next((key for key, value in team_dict.items() if value == 'yellow'), None))
+#                 .order_by(SensorData.team_id,SensorData.timestamp)
+#             )
 
-            # Get all the data for all teams
-            all_data = query.all()
-            results = [
-                {
-                    # "team_id": data.team_id,
-                    "temperature" : data.temperature,
-                    "humidity" : data.humidity,
-                    "illumination" : data.illumination,
-                    "timestamp": data.timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f")
-                }
-                for data in all_data
-                ]
-            print(results)
-            temperatures = [data["temperature"] for data in results if data["temperature"] is not None]
-            humidities = [data["humidity"] for data in results if data["humidity"] is not None]
-            illuminations = [data["illumination"] for data in results if data["illumination"] is not None]
+#             # Get all the data for all teams
+#             all_data = query.all()
+#             results = [
+#                 {
+#                     # "team_id": data.team_id,
+#                     "temperature" : data.temperature,
+#                     "humidity" : data.humidity,
+#                     "illumination" : data.illumination,
+#                     "timestamp": data.timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f")
+#                 }
+#                 for data in all_data
+#                 ]
+#             temperatures = [data["temperature"] for data in results if data["temperature"] is not None]
+#             humidities = [data["humidity"] for data in results if data["humidity"] is not None]
+#             illuminations = [data["illumination"] for data in results if data["illumination"] is not None]
 
-            # Calculate averages
-            average_temperature = np.mean(temperatures) if temperatures else None
-            average_humidity = np.mean(humidities) if humidities else None
-            average_illumination = np.mean(illuminations) if illuminations else None
-            averages ={
-                "average_temperature": average_temperature,
-                "average_humidity": average_humidity,
-                "average_illumination": average_illumination
+#             # Calculate averages
+#             average_temperature = np.mean(temperatures) if temperatures else None
+#             average_humidity = np.mean(humidities) if humidities else None
+#             average_illumination = np.mean(illuminations) if illuminations else None
+#             averages ={
+#                 "average_temperature": average_temperature,
+#                 "average_humidity": average_humidity,
+#                 "average_illumination": average_illumination
                    
-            }
-            return averages
+#             }
+#             return averages
 
-        except Exception as e:
-            # Handle any errors during the data fetch
-            self.set_status(500)
-            self.write({"error": str(e)})
+#         except Exception as e:
+#             # Handle any errors during the data fetch
+#             self.set_status(500)
+#             self.write({"error": str(e)})
 
-        finally:
-            # Close the session
-            session.close()
+#         finally:
+#             # Close the session
+#             session.close()
 
 
 
@@ -496,7 +495,7 @@ class WebWSApp(TornadoApplication):
             (r'/graphs-one-day', GraphsHandler),
             (r'/graphs-one-month', Graphs30DaysHandler),
             (r'/statistics', StatisicsHandler),
-            (r'/statistics-data', StatisticsDataHandler),
+            # (r'/statistics-data', StatisticsDataHandler),
             (r'/(.*)', StaticFileHandler,
              {'path': join_path(dirname(__file__), 'static')})
         ]
@@ -522,7 +521,7 @@ class WebWSApp(TornadoApplication):
         session = SessionLocal()
         try:
             # Subquery to fetch the latest sensor data for each team
-            subquery = (
+            latest_timestamp_subquery = (
                 session.query(
                     SensorData.team_id,
                     func.max(SensorData.timestamp).label("latest_timestamp")
@@ -534,7 +533,7 @@ class WebWSApp(TornadoApplication):
             # Main query to fetch sensor data that corresponds to the latest timestamp for each team
             query = (
                 session.query(SensorData)
-                .join(subquery, (SensorData.team_id == subquery.c.team_id) & (SensorData.timestamp == subquery.c.latest_timestamp))
+                .join(latest_timestamp_subquery, (SensorData.team_id == latest_timestamp_subquery.c.team_id) & (SensorData.timestamp == latest_timestamp_subquery.c.latest_timestamp))
             )
 
             # Fetch the sensor data
@@ -591,14 +590,14 @@ class WebWSApp(TornadoApplication):
             total_data_count = session.query(func.count(SensorData.id)).scalar()
             now = datetime.now()
             time_interval = now - timedelta(days=1)
-
+            yellow_id = next((key for key, value in team_dict.items() if value == 'yellow'), None)
             # Fetch all data, ordered by team_id and timestamp
             query = (
                 session.query(SensorData)
                 # Adjust the time range here
                 .filter(SensorData.timestamp >= time_interval)
                 # Order by team_id and timestamp
-                .filter(SensorData.team_id == next((key for key, value in team_dict.items() if value == 'yellow'), None))
+                .filter(SensorData.team_id == yellow_id)
                 .order_by(SensorData.team_id,SensorData.timestamp)
             )
 
@@ -622,13 +621,17 @@ class WebWSApp(TornadoApplication):
             average_temperature = np.mean(temperatures) if temperatures else None
             average_humidity = np.mean(humidities) if humidities else None
             average_illumination = np.mean(illuminations) if illuminations else None
+            
+            sensor_data_yellow = sensor_data_list[yellow_id-1]
+            latest_yellow_timestamp = sensor_data_yellow["timestamp"] 
         # Prepare the final result dictionary
             result = {
                 "sensor_data": sensor_data_list,
                 "total_data": total_data_count,
                 "average_temperature": average_temperature,
                 "average_humidity": average_humidity,
-                "average_illumination": average_illumination
+                "average_illumination": average_illumination,
+                "latest_yellow_timestamp" : latest_yellow_timestamp
             }
 
             return result
