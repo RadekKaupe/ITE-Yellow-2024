@@ -370,8 +370,11 @@ class LatestDataHandler(RequestHandler):  # zaručuje loadovani dat pri refreshi
     def get(self) -> None:
         # Fetch the most recent data for each team (or however you aggregate it)
         latest_data = self.application.fetch_sensor_data()
-        self.write({"sensor_data": latest_data})
+        self.write(latest_data)
 
+class StatisicsHandler(RequestHandler):
+    def get(self) -> None:
+        self.render("static/statistics.html")
 
 class MainHandler(RequestHandler):
     def get(self) -> None:
@@ -424,6 +427,7 @@ class WebWSApp(TornadoApplication):
             (r'/latest-data', LatestDataHandler),
             (r'/graphs-one-day', GraphsHandler),
             (r'/graphs-one-month', Graphs30DaysHandler),
+            (r'/statistics', StatisicsHandler),
             (r'/(.*)', StaticFileHandler,
              {'path': join_path(dirname(__file__), 'static')})
         ]
@@ -515,7 +519,15 @@ class WebWSApp(TornadoApplication):
                 for d in data
             ]
 
-            return sensor_data_list
+            total_data_count = session.query(func.count(SensorData.id)).scalar()
+
+        # Prepare the final result dictionary
+            result = {
+                "sensor_data": sensor_data_list,
+                "total_data": total_data_count
+            }
+
+            return result
 
         finally:
             session.close()
@@ -564,7 +576,7 @@ class WebWSApp(TornadoApplication):
         # print("Fetching latest sensor data for broadcast.")
         # Fetch all data; can be modified to fetch specific teams
         sensor_data = self.fetch_sensor_data()
-        message = {"sensor_data": sensor_data}
+        message = sensor_data
         self.send_ws_message(message)
 
     def send_ws_message(self, message) -> None:

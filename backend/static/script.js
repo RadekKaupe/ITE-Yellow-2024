@@ -3,8 +3,9 @@ function fetchLatestData() {
         .then(response => response.json())
         .then(data => {
             // Assuming data has the same format as WebSocket data
-            // console.log(data.sensor_data)
-            updateTeamData(data.sensor_data);
+            // console.log(data)
+            let just_sensor_data = data.sensor_data
+            updateTeamData(just_sensor_data);
             
         })
         .catch(error => console.error("Error fetching latest data:", error));
@@ -31,6 +32,7 @@ function onSocketMessage(message) {
     } catch(e) {
         data = message.data
     }
+    // console.log(data.sensor_data)
     let sensorDataArr = data.sensor_data
     // sensorDataArr.forEach((sensor) => {
         // console.log(`Team Name: ${sensor.team_name}`);

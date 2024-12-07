@@ -157,3 +157,42 @@ a:focus {
         grid-template-columns: 1fr; /* Single column on small screens */
     }
 }
+
+section {
+    background-color: #ffffff; /* White background for contrast */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px; /* Space inside the container */
+    margin: 20px; /* Space outside the container */
+    width: 80%; /* Relative width */
+    max-width: 600px; /* Limit maximum width */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    text-align: center; /* Center align text */
+}
+
+/* Statistics Header */
+section h2 {
+    font-size: 2rem; /* Slightly larger font for the heading */
+    color: #333; /* Dark color for readability */
+    margin-bottom: 15px; /* Space between the heading and the text */
+}
+
+/* Statistics Content */
+section p {
+    font-size: 1.5rem; /* Larger text for emphasis */
+    color: #555; /* Neutral dark grey for the text */
+    font-weight: bold; /* Make the text stand out */
+}
+
+/* Highlighted Data */
+#total-data {
+    color: #f1c40f; /* Yellow color matching the header */
+    font-size: 2rem; /* Larger size to make it prominent */
+    font-weight: bold; /* Bold text for emphasis */
+    transition: color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+}
+
+/* Optional: Hover effect for data (if interactive) */
+#total-data:hover {
+    color: #e67e22; /* Slightly darker yellow on hover */
+    transform: scale(1.1); /* Enlarge the data slightly */
+}
