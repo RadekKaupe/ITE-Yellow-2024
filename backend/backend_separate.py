@@ -621,9 +621,10 @@ class WebWSApp(TornadoApplication):
             average_temperature = np.mean(temperatures) if temperatures else None
             average_humidity = np.mean(humidities) if humidities else None
             average_illumination = np.mean(illuminations) if illuminations else None
-            
-            sensor_data_yellow = sensor_data_list[yellow_id-1]
-            latest_yellow_timestamp = sensor_data_yellow["timestamp"] 
+            latest_yellow_timestamp = None
+            for sensor_data in sensor_data_list:
+                if sensor_data["team_id"] == yellow_id:
+                    latest_yellow_timestamp = sensor_data["timestamp"] 
         # Prepare the final result dictionary
             result = {
                 "sensor_data": sensor_data_list,
