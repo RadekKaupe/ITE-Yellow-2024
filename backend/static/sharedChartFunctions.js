@@ -21,7 +21,7 @@ export function prepareChartData(sensorData, metric, options = {}) {
     const fullTimestamps = Object.keys(sensorData);
     const labels = fullTimestamps.map((timestamp, index) => {
         const date = new Date(timestamp);
-        if(options.oneMonth){
+        if(options.oneWeek){
             const month = String(date.getMonth() + 1).padStart(2, '0'); // months are zero-based
             const day = String(date.getDate()).padStart(2, '0');
             const formattedDate = `${day}.${month}.`;

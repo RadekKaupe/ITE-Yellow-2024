@@ -217,11 +217,10 @@ class GraphsHandler(RequestHandler):
         self.render("static/graphs_one_day.html")
 
 
-class GraphData30DaysHandler(GraphDataHandler):
+class GraphData1WeekHandler(GraphDataHandler):
     def get(self):
         try:
-            # Fetch and process data for the last 30 days
-            averages = self.fetch_data(days=30)
+            averages = self.fetch_data(days=7)
             self.set_header("Content-Type", "application/json")
             if averages is not None:
                 self.write(dumps_json(averages))
@@ -306,9 +305,9 @@ class GraphData30DaysHandler(GraphDataHandler):
         return daily_averages
 
 
-class Graphs30DaysHandler(RequestHandler):
+class Graphs1WeekHandler(RequestHandler):
     def get(self):
-        self.render("static/graphs_one_month.html")
+        self.render("static/graphs_one_week.html")
 
 class AlertDataHandler(RequestHandler):
     def get(self):
@@ -488,12 +487,12 @@ class WebWSApp(TornadoApplication):
         self.tornado_handlers = [
             (r'/', MainHandler),
             (r"/graph-data/one-day", GraphDataHandler),
-            (r"/graph-data/one-month", GraphData30DaysHandler),
+            (r"/graph-data/one-week", GraphData1WeekHandler),
             (r"/alert-data", AlertDataHandler),
             (r'/websocket', WSHandler),
             (r'/latest-data', LatestDataHandler),
             (r'/graphs-one-day', GraphsHandler),
-            (r'/graphs-one-month', Graphs30DaysHandler),
+            (r'/graphs-one-week', Graphs1WeekHandler),
             (r'/statistics', StatisicsHandler),
             # (r'/statistics-data', StatisticsDataHandler),
             (r'/(.*)', StaticFileHandler,
