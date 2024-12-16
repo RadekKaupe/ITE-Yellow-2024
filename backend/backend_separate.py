@@ -1,4 +1,3 @@
-
 from tornado.web import StaticFileHandler, RequestHandler, Application as TornadoApplication
 from tornado.websocket import WebSocketHandler
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -16,16 +15,14 @@ from datetime import datetime, time, timedelta
 import pytz
 from datetime import datetime, timezone
 
-
+# Import of db.py for classes, which are the columns in the database tables
 db_foler_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'db'))
 
-
-# Add db_foler_path to sys.path
 sys.path.insert(0, db_foler_path)
 from db import SensorData, Teams, SensorDataOutliers
 
-
+# Connecting to the database
 load_dotenv()
 db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")
@@ -41,6 +38,7 @@ SessionLocal = sessionmaker(bind=engine)
 
 
 def convert_to_local_time(utc_timestamp: str):
+    """Convert a utc timestamp to the LOCAL_TIMEZONE, which is needed for the testing table in the db"""
     try:
         # Attempt to parse with fractional seconds
         utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
@@ -58,20 +56,23 @@ def convert_to_local_time(utc_timestamp: str):
 
 
 def extract_teams_dict() -> dict[int:str]:
+    """Fetches all the team names and team ids from the database itself, for better control and manipulation"""
     session = SessionLocal()
     teams = session.query(Teams).all()
     teams_dict = dict()
     for team in teams:
         teams_dict[team.id] = team.name
-    # print(teams_ids)
     session.close()
     return teams_dict
 
-
 class GraphDataHandler(RequestHandler):
+    """
+    This Handler fetches data from the last X days and processes it 
+    
+    """
     def get(self):
+        """Writes the data into a dummy page, so the front end can fetch it and use it for the graph display"""
         try:
-            # Fetch and process data for the last 24 hours (default behavior)
             averages = self.fetch_data(days=1)
             self.set_header("Content-Type", "application/json")
             if averages is not None:
@@ -81,7 +82,44 @@ class GraphDataHandler(RequestHandler):
             self.write({"error": str(e)})
 
     def fetch_data(self, days: int = 1):
-        # Create a new session
+        """
+        Connects to the database, fetches data from the last X days and restructures it
+        The restrucutred format:
+        
+        {
+            "timestamp": [
+                {
+                    "team_id": INT,
+                    "mean_temp": FLOAT,
+                    "mean_humi": FLOAT,
+                    "mean_illu": FLOAT
+                },
+                {
+                    "team_id": INT,
+                    "mean_temp": FLOAT,
+                    "mean_humi": FLOAT,
+                    "mean_illu": FLOAT
+                }
+            ], ...
+            "timestamp": [ 
+                {
+                    "team_id": INT,
+                    "mean_temp": FLOAT,
+                    "mean_humi": FLOAT,
+                    "mean_illu": FLOAT
+                },
+                {
+                    "team_id": INT,
+                    "mean_temp": FLOAT,
+                    "mean_humi": FLOAT,
+                    "mean_illu": FLOAT
+                }
+            ], ...            
+            "timestamp": [ ... ]
+            
+        }
+        
+        """
         session = SessionLocal()
 
         try:
@@ -116,6 +154,7 @@ class GraphDataHandler(RequestHandler):
                 })
 
             restructured_data = self.restructure_data(result)
+            print(restructured_data)
             averages = self.calculate_averages(restructured_data)
             self.set_header("Content-Type", "application/json")
             # self.write(dumps_json(averages))
@@ -131,6 +170,10 @@ class GraphDataHandler(RequestHandler):
             session.close()
 
     def calculate_averages(self, data):
+        """
+        This data calculates the averages for the time interval of one hour
+        the timestamp that it returns is a string: "YYYY-MM-DDTXX:00:00" where XX are all the calculated hours
+        """
         averages = {}
         for timestamp, readings in data.items():
             team_data = {}
@@ -166,6 +209,37 @@ class GraphDataHandler(RequestHandler):
         return averages
 
     def restructure_data(self, data: dict[int:list[dict]]) -> dict:
+        """
+        Restructures the data fetch from the database, into this format:
+        {
+            "timestamp_key_1": [
+                {
+                    "team_id": team_id_1,
+                    "temp": temp_1,
+                    "humi": humi_1,
+                    "illu": illu_1
+                },
+                {
+                    "team_id": team_id_2,
+                    "temp": temp_2,
+                    "humi": humi_2,
+                    "illu": illu_2
+                },
+                # More records for timestamp_key_1
+            ],
+            "timestamp_key_2": [
+                {
+                    "team_id": team_id_3,
+                    "temp": temp_3,
+                    "humi": humi_3,
+                    "illu": illu_3
+                },
+                # More records for timestamp_key_2
+            ],
+            # More timestamps
+        }
+        The key has the already mentioned format:"YYYY-MM-DDTXX:00:00" 
+        """
         timestamp_dict = {}
         timestamp_dict = self.fill_dict_with_timestamp_keys(
             timestamp_dict, data)
@@ -188,6 +262,9 @@ class GraphDataHandler(RequestHandler):
         return timestamp_dict
 
     def key_based_on_time_string(self, timestamp: str) -> str:
+        """
+        Crates the key: "YYYY-MM-DDTXX:00:00" based on the inputed timestamp, so it creates only new one
+        """
         dt = datetime.fromisoformat(timestamp)
         date = dt.date()
         hour = dt.hour
@@ -195,6 +272,9 @@ class GraphDataHandler(RequestHandler):
         return timestamp_key.isoformat()
 
     def fill_dict_with_timestamp_keys(self, timestamp_dict: dict, data: dict):
+        """
+        Fills a dictionary with the already mentioned timestamp key, for easier manipulation during the averages calculation
+        """
         # Use a set to collect all unique timestamp keys
         timestamp_keys = set()
 
@@ -213,11 +293,54 @@ class GraphDataHandler(RequestHandler):
 
 
 class GraphsHandler(RequestHandler):
+    """Displays the html for one day graphs"""
     def get(self) -> None:
         self.render("static/graphs_one_day.html")
 
 
 class GraphData1WeekHandler(GraphDataHandler):
+    """
+    
+    This Handler fetches data from the last 7 days and processes it 
+    It inherits the GraphDataHandler Class and alters some functions a little bit, so the data it returns is like this:
+        
+        {
+            "date": [
+                {
+                    "team_id": INT,
+                    "mean_temp": FLOAT,
+                    "mean_humi": FLOAT,
+                    "mean_illu": FLOAT
+                },
+                {
+                    "team_id": INT,
+                    "mean_temp": FLOAT,
+                    "mean_humi": FLOAT,
+                    "mean_illu": FLOAT
+                }
+            ], ...
+            "date": [ 
+                {
+                    "team_id": INT,
+                    "mean_temp": FLOAT,
+                    "mean_humi": FLOAT,
+                    "mean_illu": FLOAT
+                },
+                {
+                    "team_id": INT,
+                    "mean_temp": FLOAT,
+                    "mean_humi": FLOAT,
+                    "mean_illu": FLOAT
+                }
+            ], ...            
+            "date": [ ... ]
+            
+        }
+        It's very similiar, but with no time only dates.
+        The handler could and probably should be more optimised, right now it still works with data, that is restructured by the Hours of the timestamps, instead of days.
+        However, it works and I dont want to break it, so I ain't touching anything.
+
+    """
     def get(self):
         try:
             averages = self.fetch_data(days=7)
@@ -229,9 +352,10 @@ class GraphData1WeekHandler(GraphDataHandler):
             self.write({"error": str(e)})
 
     def calculate_averages(self, data):
-        # Debug message to confirm function is being called.
-        # print("Function `calculate_averages` called.")
-
+        """
+        Calculates daily averages, based on the restructured data (which is formated by hours, still)
+        the key it returns is the date WITHOUT time: YYYY-MM-DD
+        """
         # Dictionary to store intermediate data for averages calculation.
         averages = {}
 
@@ -263,11 +387,6 @@ class GraphData1WeekHandler(GraphDataHandler):
                 if record['illu'] is not None:
                     averages[date][team_id]['illu'].append(record['illu'])
 
-        # Print the intermediate aggregation for verification.
-        # print("Aggregated Data for Averages Calculation:")
-        # for date, team_data in averages.items():
-        #     print(f"Date: {date}, Data: {team_data}")
-
         # Prepare the output with averages.
         daily_averages = {}
 
@@ -284,11 +403,6 @@ class GraphData1WeekHandler(GraphDataHandler):
                 avg_illu = sum(
                     metrics['illu']) / len(metrics['illu']) if metrics['illu'] else None
 
-                # # Debug each average calculation.
-                # print(f"Date: {date}, Team: {team_id}, Temp: {metrics['temp']}, Avg Temp: {avg_temp}")
-                # print(f"Date: {date}, Team: {team_id}, Humi: {metrics['humi']}, Avg Humi: {avg_humi}")
-                # print(f"Date: {date}, Team: {team_id}, Illu: {metrics['illu']}, Avg Illu: {avg_illu}")
-
                 # Append the team's daily average data to the results for the date.
                 daily_averages[date].append({
                     'team_id': team_id,
@@ -297,15 +411,11 @@ class GraphData1WeekHandler(GraphDataHandler):
                     'mean_illu': avg_illu
                 })
 
-        # Final debug print of daily averages.
-        # print("Final Calculated Daily Averages:")
-        # for date, data in daily_averages.items():
-        #     print(f"Date: {date}, Data: {data}")
-
         return daily_averages
 
 
 class Graphs1WeekHandler(RequestHandler):
+    """Renders the weekly graphs webpage"""
     def get(self):
         self.render("static/graphs_one_week.html")
 
@@ -333,7 +443,6 @@ class AlertDataHandler(RequestHandler):
                 .filter(sdo.id == subquery)
             )
             latest_alert_data = query.all()
-            # print(latest_outliers)
             # Prepare the data to send as JSON response
             outliers_data = [
                 {
@@ -359,83 +468,13 @@ class AlertDataHandler(RequestHandler):
     def get_timestamp_by_record_id(self, record_id, session):
     # Query only the timestamp column for the record with the given id
         timestamp = session.query(SensorData.timestamp).filter(SensorData.id == record_id).first()
-        # print(timestamp[0].strftime("%Y-%m-%dT%H:%M:%S.%f"))
-        # print(timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f"))
-        # return timestamp[0]
         return timestamp[0].strftime("%Y-%m-%dT%H:%M:%S.%f")
 
 
 class LatestDataHandler(RequestHandler):  # zaručuje loadovani dat pri refreshi
     def get(self) -> None:
-        # Fetch the most recent data for each team (or however you aggregate it)
         latest_data = self.application.fetch_sensor_data()
         self.write(latest_data)
-
-# class StatisticsDataHandler(RequestHandler):
-#     def get(self):
-#         try:
-#             # Fetch and process data for the last 24 hours (default behavior)
-#             averages = self.fetch_avg_data()
-#             self.set_header("Content-Type", "application/json")
-#             if averages is not None:
-#                 self.write(dumps_json(averages))
-#         except Exception as e:
-#             self.set_status(500)
-#             self.write({"error": str(e)})
-
-#     def fetch_avg_data(self):
-#         session = SessionLocal()
-#         try:
-#             now = datetime.now()
-#             time_interval = now - timedelta(days=1)
-
-#             # Fetch all data, ordered by team_id and timestamp
-#             query = (
-#                 session.query(SensorData)
-#                 # Adjust the time range here
-#                 .filter(SensorData.timestamp >= time_interval)
-#                 # Order by team_id and timestamp
-#                 .filter(SensorData.team_id == next((key for key, value in team_dict.items() if value == 'yellow'), None))
-#                 .order_by(SensorData.team_id,SensorData.timestamp)
-#             )
-
-#             # Get all the data for all teams
-#             all_data = query.all()
-#             results = [
-#                 {
-#                     # "team_id": data.team_id,
-#                     "temperature" : data.temperature,
-#                     "humidity" : data.humidity,
-#                     "illumination" : data.illumination,
-#                     "timestamp": data.timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f")
-#                 }
-#                 for data in all_data
-#                 ]
-#             temperatures = [data["temperature"] for data in results if data["temperature"] is not None]
-#             humidities = [data["humidity"] for data in results if data["humidity"] is not None]
-#             illuminations = [data["illumination"] for data in results if data["illumination"] is not None]
-
-#             # Calculate averages
-#             average_temperature = np.mean(temperatures) if temperatures else None
-#             average_humidity = np.mean(humidities) if humidities else None
-#             average_illumination = np.mean(illuminations) if illuminations else None
-#             averages ={
-#                 "average_temperature": average_temperature,
-#                 "average_humidity": average_humidity,
-#                 "average_illumination": average_illumination
-                   
-#             }
-#             return averages
-
-#         except Exception as e:
-#             # Handle any errors during the data fetch
-#             self.set_status(500)
-#             self.write({"error": str(e)})
-
-#         finally:
-#             # Close the session
-#             session.close()
-
 
 
 class StatisicsHandler(RequestHandler):
@@ -509,10 +548,6 @@ class WebWSApp(TornadoApplication):
 
         TornadoApplication.__init__(
             self, self.tornado_handlers, **self.tornado_settings)
-        ####
-        # self.incrementer = PeriodicCallback(self.increment_and_broadcast, 1000)  # Every 1000ms (1 second)
-        # self.incrementer.start()
-        # Toto fungovalo, od chatbota
 
 
     def fetch_sensor_data(self) -> list:
@@ -639,49 +674,9 @@ class WebWSApp(TornadoApplication):
         finally:
             session.close()
 
-    # def fetch_sensor_data(self) -> list:
-    #     """Fetches the latest sensor data from the database"""
-    #     session = SessionLocal()
-    #     try:
-    #         subquery = (
-    #             session.query(
-    #                 SensorData.team_id,
-    #                 func.max(SensorData.timestamp).label("latest_timestamp")
-    #             )
-    #             .group_by(SensorData.team_id)
-    #             .subquery()
-    #         )
-
-    #         query = (
-    #             session.query(SensorData)
-    #             .join(subquery, (SensorData.team_id == subquery.c.team_id) & (SensorData.timestamp == subquery.c.latest_timestamp))
-    #         )
-
-    #         data = query.all()
-    #         # Convert query result to a list of dictionaries for JSON serialization
-    #         sensor_data_list = [
-    #             {
-    #                 "id": d.id,
-    #                 "team_id": d.team_id,
-    #                 "team_name": team_dict[d.team_id],
-    #                 "timestamp": convert_to_local_time(d.timestamp.isoformat()).isoformat(),
-    #                 "temperature": d.temperature,
-    #                 "humidity": d.humidity,
-    #                 "illumination": d.illumination 
-    #             }
-    #             for d in data
-    #         ]
-    #         # print(sensor_data_list)
-    #         return sensor_data_list
-
-    #     finally:
-    #         session.close()
-            
             
     def fetch_and_broadcast_data(self) -> None:
         """Fetches all sensor data and broadcasts to all connected WebSocket clients."""
-        # print("Fetching latest sensor data for broadcast.")
-        # Fetch all data; can be modified to fetch specific teams
         sensor_data = self.fetch_sensor_data()
         message = sensor_data
         self.send_ws_message(message)
@@ -689,15 +684,6 @@ class WebWSApp(TornadoApplication):
     def send_ws_message(self, message) -> None:
         for client in self.ws_clients:
             iol.spawn_callback(client.write_message, dumps_json(message))
-
-    # def increment_and_broadcast(self):
-    #     # sleep(5)
-    #     print("incremention initialized")
-    #     for _ in range(1000):
-    #         sleep(1)
-    #         self.counter += 1
-    #         print("Counter:", int(self.counter))
-    #         self.send_ws_message({"counter": int(self.counter)})
 
 
 if __name__ == '__main__':
