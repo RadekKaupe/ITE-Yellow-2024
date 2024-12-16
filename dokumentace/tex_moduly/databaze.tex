@@ -1,2 +1,12 @@
 \subsection{Databáze}
-Obsah sekce "Databáze".
+\label{ssec:db}
+K realizaci projektu bude třeba založit PostgreSQL databázi na stroji, kde chcete nechat běžet pythonvské skripty. Uživatele, heslo, hosta a název databáze je třeba napsat do \verb|.env| složky tímto způsobem:
+\begin{verbatim}
+    DB_USER=uzivatel
+    DB_PASSWORD=heslo
+    DB_HOST=host
+    DB_NAME=nazev_databáze
+\end{verbatim}
+Po tomto kroku můžete spustit skript \verb|db.py|, který vytvoří potřebné tabulky: \verb|sensor_data|, \verb|teams|,\verb|sensor_data_outliers|,\verb|sensor_data_test|.
+Tabulka \verb|sensor_data| je hlavní tabulka, kde se ukládájí veškerá validní data. V tabulce \verb|teams| jsou uložená jména a ID jednotlivých týmů a do tabulky \verb|sensor_data_outliers| se ukládá informace, zda záznamy přesahují Aimtecem vymezené hranice.
+Tabulka \verb|sensor_data_test| je určena pro debuggovací a testovací účely. Ukládají se zde například i záznamy z budoucnosti či se zápornou illuminací, aby se tyto případy mohli identifikovat a na straně ESP8266 opravit. 
