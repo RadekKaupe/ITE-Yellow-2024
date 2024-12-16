@@ -1,0 +1,75 @@
+\documentclass{article}
+
+\usepackage[czech]{babel} 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage[IL2]{fontenc} % Different type of font for wierdos
+\usepackage{graphicx} % Required for the inclusion of images
+\usepackage{natbib} % Required to change bibliography style to APA
+\usepackage{amsmath} % Required for some math elements 
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{epstopdf}
+\usepackage{multicol}
+\usepackage{color}
+\usepackage{float}
+\usepackage[total={15.5cm,23.5cm}, top=2.5cm, left=3cm, includefoot]{geometry}
+\usepackage[colorlinks=true,linkcolor = black, urlcolor = black, citecolor = black]{hyperref}
+\usepackage{enumitem}
+\usepackage{subfig}
+\usepackage[toc,page]{appendix}
+\usepackage{hyperref} 
+\usepackage{matlab-prettifier}
+\usepackage{datetime}
+\usepackage{mathtools}
+\usepackage[thinc]{esdiff}
+
+
+\begin{document}
+	
+	
+	\begin{titlepage}
+		
+		\centering
+		
+		{\scshape\LARGE Západočeská univerzita\par}
+		{\scshape\Large Fakulta aplikovaných věd \par}
+		{\scshape\Large Katerdra Kybernetiky \par}
+	%	{\begin{center}
+%				\includegraphics[width=0.7\textwidth]{pic/fav.jpg} 
+	%	\end{center}}
+		
+		{\huge\bfseries Dokumentace k projektu ITE-YELLOW\par} % TODO: lepsi nazev
+		
+		\vspace{2cm}
+		
+		{\Large\itshape Martin Hamar, Radek Kaupe, Samuel Kokoška\par}
+		
+		\vfill
+		
+		\vspace{1cm}
+		
+		\hskip -1 cm{KKY/ITE} \hfill {Datum: \today }
+		
+		
+		
+	\end{titlepage}
+	
+	\section{Úvod}
+	
+	
+	\subsection{Zadání}
+	
+	
+	\section{Jednotlivé moduly}
+		Projekt je rozdělen na několik modulů, které spolu přirozeně spolupracují. Tyto moduly se dají hrubě rozdělit na hardwarovou část a na softwarouvou část.
+		Hardwarová část zahrnuje krabičku a mikropočítač ESP8266 a jeho nastavení. Softwarovou část zahrnuje nastavení databáze, subscribera a spuštění backendu a webové stránky.
+	
+	\input{tex_moduly/krabicka.tex}
+	\input{tex_moduly/esp.tex}
+	\input{tex_moduly/databaze.tex}
+	\input{tex_moduly/subscriber.tex}
+	\input{tex_moduly/backend.tex}	
+	\section{Závěr}
+\end{document}
