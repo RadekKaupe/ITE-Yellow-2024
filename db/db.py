@@ -4,10 +4,7 @@ from sqlalchemy.orm import sessionmaker, relationship, declarative_base, Session
 from dotenv import load_dotenv
 import os
 
-# Define SQLAlchemy Base
-
 Base = declarative_base()
-
 
 class Teams(Base):
     __tablename__ = "teams"
@@ -77,22 +74,18 @@ class SensorDataTest(Base):
 
 
 def create_teams() -> None:
+    """Function creates teams into the 'teams' table"""
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow']
-
-    # Start a new session
     with Session(engine) as session:
-        # Iterate over the team names and add them to the database
         for team_name in teams:
-            # Replace 'name' with the correct column name if it's different
             team = Teams(name=team_name)
             session.add(team)
-
-        # Commit the transaction to save changes
         session.commit()
         session.close()
 
 
 def choose_action() -> int:
+    """Fucntion is a layer of validation in the user interaction when creating tables"""
     valid_answers = [0, 1, 2, 9]
     print("Please enter a number based on your decision. ")
     print(f"Press {valid_answers[0]} if you want to create the tables.")
@@ -109,6 +102,7 @@ def choose_action() -> int:
 
 
 def validate_deletion() -> bool:
+    """Function is just a layer of protection, when trying to delete the database, so the user, doesn't delete accidentally."""
     phrase = f"Yes, I'm sure"
     print("Are you sure you want to drop the tables?")
     print(f"If you are sure, type: {phrase} ")
@@ -116,9 +110,9 @@ def validate_deletion() -> bool:
     return validation == phrase
 
 
-#
-if __name__ == "__main__":
 
+if __name__ == "__main__":
+    """The main function, serves for creating the db tables at the deployment of the application."""
     load_dotenv()
     db_user = os.getenv("DB_USER")
     db_password = os.getenv("DB_PASSWORD")
