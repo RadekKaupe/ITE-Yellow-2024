@@ -22,7 +22,7 @@ aimtec_foler_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'aimtec'))
 
 
-# Add db_foler_path to sys.path
+# Add aimtec_foler_path to sys.path
 sys.path.insert(0, aimtec_foler_path)
 import aimtec
 
@@ -38,7 +38,8 @@ connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{d
 engine = create_engine(connection_string)
 SessionLocal = sessionmaker(bind=engine)
 
-# Define schema
+# Define schemes
+# Valid payload scheme
 valid_schema = {
     "type": "object",
     "properties": {
@@ -52,6 +53,7 @@ valid_schema = {
     "required": ["team_name", "temperature", "timestamp"],
     "additionalProperties": False
 }
+# The error scheme, for sending errors
 error_scheme = {
     "type": "object",
     "properties": {
@@ -84,6 +86,7 @@ TOPIC = os.getenv("TOPIC")
 
 
 def convert_to_local_time(utc_timestamp: str):
+    """Convert a utc timestamp to the LOCAL_TIMEZONE, which is needed for the testing table in the db"""
     try:
         # Attempt to parse with fractional seconds
         utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
@@ -102,6 +105,7 @@ def convert_to_local_time(utc_timestamp: str):
 
 # Helper functions
 def extract_team_ids(teams):
+    """Gets all team names and ids into a dictionary"""
     teams_ids = dict()
     for team in teams:
         teams_ids[str(team.name)] = team.id
@@ -110,6 +114,7 @@ def extract_team_ids(teams):
 
 
 async def fetch_team_ids_from_db():
+    """Fetches the teams from the database and returns their names and ids."""
     session = SessionLocal()
     team_ids = extract_team_ids(session.query(Teams).all())
     session.close()
@@ -117,6 +122,7 @@ async def fetch_team_ids_from_db():
 
 
 def extract_team_names(teams):
+    """Gets team names."""
     team_names = set()
     for team in teams:
         team_names.add(team.name)
@@ -124,6 +130,7 @@ def extract_team_names(teams):
 
 
 def check_json(data, schema):
+    """Checks if a json is valid or not."""
     try:
         validate(data, schema)
     except ValidationError as e:
@@ -136,7 +143,11 @@ def check_json(data, schema):
     return True
 
 
-def save_dict_to_file(error_dict):
+def save_err_dict_to_file(error_dict):
+    """
+    Saves a error dictionary as a file. 
+    The file is named as the timestamp it came as, to ensure little 'overlap'.
+    """
     # Create the folder named 'err' if it does not exist
     filename = error_dict["timestamp"]
     folder_name = "err"
@@ -154,14 +165,13 @@ def save_dict_to_file(error_dict):
     print(f"Dictionary saved to {file_path}")
 
 # MQTT message handling
-
-
 def on_message(client, userdata, msg) -> None:
+    """Mqtt message handling. Checks if the sent payload is a error/valid scheme and reacts accordingly."""
     try:
         global aimtec_sensors, team_ids, timestamp_dict, login_json
         payload = json.loads(msg.payload.decode())
         if check_json(payload, error_scheme):
-            save_dict_to_file(payload)
+            save_err_dict_to_file(payload)
             print("Error payload scheme.\n")
             return
         print("Scheme is not a error scheme, continuing.\n")
@@ -176,6 +186,10 @@ def on_message(client, userdata, msg) -> None:
 
 
 def send_to_aimtec(payload, aimtec_sensors):
+    """
+    Uses the aimtec.py methods to send measurements and alerts.
+    The structure is different because Measurements are always sent, while Alerts are not.
+    """
     print("Posting measurements and alerts.")
     aimtec.post_measurement_all(payload, aimtec_sensors)
     check_and_post_alerts_all(payload, aimtec_sensors)
@@ -183,12 +197,17 @@ def send_to_aimtec(payload, aimtec_sensors):
 
 
 def check_and_post_alerts_all(payload, aimtec_sensors):
+    """Sends an alert to the selected aimtec sensor, if the values are not in the defined range."""
     for aimtec_sensor in aimtec_sensors:
         if not aimtec.check_if_value_in_range(payload, aimtec_sensor):
             aimtec.post_alert(payload, aimtec_sensor)
 
 
 def check_if_future_timestamp(utc_timestamp_string: str):
+    """
+    Checks if the incoming timestamp is from the future.
+    If the timestamp is more than one hour from the future (to have some wiggle room), it returns False.
+    """
     utc_timestamp = datetime.strptime(utc_timestamp_string, "%Y-%m-%dT%H:%M:%S.%f")
     utc_timestamp = utc_timestamp.replace(tzinfo=timezone.utc)
     one_hour_from_now = datetime.now(timezone.utc) + timedelta(hours=1)
@@ -202,6 +221,7 @@ def check_if_future_timestamp(utc_timestamp_string: str):
         return False
     
 def save_and_send_alerts_and_measurments(payload, aimtec_sensors, new_data, session):
+    """A wrapper function, to handle errors when sending data to Aimtec."""
     try:
         if payload.get("team_name")== "yellow" and login_json is not None:
             send_to_aimtec(payload, aimtec_sensors)
@@ -216,6 +236,11 @@ def save_and_send_alerts_and_measurments(payload, aimtec_sensors, new_data, sess
             f"A error {e} occured when trying to send data to aimtec and save the alerts to db. ")
 
 def save_sensor_data_to_db(payload):
+    """
+    Probably too complicated, but I'm afraid, that if i took it apart, it would break.
+    This fucntion saves data to the two tables: One for testing, the other the "real" one
+    It handles: wrong team names, invalid temperature/humidity/illumination values, if the timestamp is the same as the last one
+    """
     try:
         print("Saving sensor data to database.")
         global team_ids, timestamp_dict, login_json
@@ -226,7 +251,7 @@ def save_sensor_data_to_db(payload):
             return
         session = SessionLocal()
         utc_timestamp = payload.get("timestamp")
-        # pripad, že timestampy jsou ruzne
+        # case that, the timestamps are different
         if not check_timestamp_against_latest(payload, timestamp_dict, team_ids):
             if check_if_future_timestamp(utc_timestamp_string=utc_timestamp):
                 return
@@ -285,6 +310,7 @@ def save_sensor_data_to_db(payload):
 
 
 def save_alert_to_db(session, payload, sensor_data, aimtec_sensors):
+    """Saves alert data to the database."""
     is_temperature_out_of_range = not aimtec.check_if_value_in_range(
         payload, aimtec_sensors[0])
     is_humidity_out_of_range = not aimtec.check_if_value_in_range(
@@ -307,11 +333,13 @@ def save_alert_to_db(session, payload, sensor_data, aimtec_sensors):
 
 
 def check_timestamp_against_latest(payload: dict, current_timestamps: dict, team_ids) -> bool:
+    """Checks if the current timestamp and the timestamp in the payload are the same or not."""
     team_name = payload["team_name"]
     return payload["timestamp"] == current_timestamps[team_ids[team_name]]
 
 
 async def create_timestamp_dict():
+    """Creates a dummy timestamp dictionary, to have something for comparison, when the payload comes."""
     session = SessionLocal()
     old_timestamp = datetime(2000, 1, 1, 0, 0, 0)
 
@@ -339,19 +367,6 @@ async def create_timestamp_dict():
     return latest_timestamps_dict
 
 
-# Initialize and start MQTT client
-def start_local_host_client():  # LOCAL HOST
-    print("Broker:" + str(MQTT_BROKER))
-    print("Port: " + str(MQTT_PORT))  # Broker port
-    print("topic: " + TOPIC + "\n")
-    mqtt_client = mqtt.Client()
-    mqtt_client.on_message = on_message
-    mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
-    mqtt_client.subscribe(TOPIC, qos=QOS)
-    mqtt_client.loop_forever()
-    print("Loop not started")
-
-
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to MQTT Broker!")
@@ -371,6 +386,11 @@ def on_disconnect(client, userdata, rc):
 
 # Start communication with the MQTT broker
 async def start_communication_via_broker():
+    """
+    Starts the communication with the broker. Subscribes, starts a loop.
+    Also, creates the timestamp dictionary, logins into the Aimtec AWS to establish connection (or try to atleast) and fetches the Aimtec sensors
+    
+    """
     global aimtec_sensors, team_ids, timestamp_dict, login_json
     print(f"BROKER_IP = {BROKER_IP}")
     print(f"BROKER_PORT = {BROKER_PORT}")
