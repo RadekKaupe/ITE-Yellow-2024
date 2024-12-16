@@ -25,6 +25,7 @@ LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 STATUS = "TEST"
 
 def convert_to_local_time(utc_timestamp: str):
+    """Convert a utc timestamp to the LOCAL_TIMEZONE, which is needed for the testing table in the db"""
     try:
         # Attempt to parse with fractional seconds
         utc_time = datetime.strptime(utc_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
@@ -42,6 +43,9 @@ def convert_to_local_time(utc_timestamp: str):
 
 
 def post_(ep, body):
+    """
+    Wrapper function that posts data to somewhere.(in our case Aimtec)
+    """
     try:
         response = post(ep, dumps(body), headers=HEADERS)
         if response.status_code == 200:
@@ -60,6 +64,7 @@ def post_(ep, body):
 
 
 def get_(ep):
+    """Wrapper function that handels getting data from somewhere (in our case Aimtec)"""
     try:
         response = get(ep, headers=HEADERS)
         if response.status_code == 200:
@@ -86,6 +91,7 @@ payload_login = {
 
 
 def post_measurement_payload(payload, aimtec_sensor):
+    """Posts alert data to Aimtec servers in a valid format and prints the response message."""
     utc_timestamp = payload.get("timestamp")
     local_timestamp = convert_to_local_time(utc_timestamp)
     local_timestamp_str = local_timestamp.strftime(
@@ -112,11 +118,13 @@ def post_measurement_payload(payload, aimtec_sensor):
 
 
 def post_measurement_all(payload, aimtec_sensors):
+    """Post measurments for all the sensors we get."""
     for aimtec_sensor in aimtec_sensors:
         post_measurement_payload(payload, aimtec_sensor)
 
 
 def post_alert(payload, aimtec_sensor):
+    """Posts alert data to Aimtec servers in a valid format and prints the response message."""
     utc_timestamp = payload.get("timestamp")
     local_timestamp = convert_to_local_time(utc_timestamp)
     local_timestamp_str = local_timestamp.strftime(
@@ -150,6 +158,7 @@ def post_alert(payload, aimtec_sensor):
 
 
 def try_to_get_msg_from_json(json: dict):
+    """Wrapper function, that handles error, when fetching the response message."""
     if json is None:
         print("No json was returned. An error probably happened somewhere earlier.")
         return None
@@ -165,17 +174,15 @@ def try_to_get_msg_from_json(json: dict):
         return None
 
 def check_if_value_in_range(sensor_data: dict, aimtec_sensor_dict: dict):
+    """Just checks is a value is in range for the payload type it gets. Handles all payload types (temperature, humidity, illumination)"""
     type_ = aimtec_sensor_dict["type"]
     value = sensor_data[type_]
     lower_limit, upper_limit = fetch_lower_and_upper_limit(aimtec_sensor_dict)
-    # print(type_)
-    # print(f"Value: {value}")
-    # print(f"Lower limit: {lower_limit}")
-    # print(f"Upper limit: {upper_limit}")
     return value >= lower_limit and value <= upper_limit
 
 
 def fetch_lower_and_upper_limit(aimtec_sensor_dict):
+    """Gets the lower and upper limit values from the Aimtec sensors dict."""
     for key, _ in aimtec_sensor_dict.items():
         if key.startswith("min"):
             lower_limit = aimtec_sensor_dict[key]
@@ -184,7 +191,8 @@ def fetch_lower_and_upper_limit(aimtec_sensor_dict):
     return lower_limit, upper_limit
 
 
-async def get_aimtec_sensor_dicts():
+async def get_aimtec_sensor_dicts()-> tuple:
+    """Fetches the Sensor dictionaries and sorts them into three new ones, for better usage."""
     response = get_(EP_SENSORS)
     temperature = {"type": "temperature"}
     humidity = {"type": "humidity"}
@@ -203,6 +211,7 @@ async def get_aimtec_sensor_dicts():
 
 
 async def post_loop(ep, body):
+    """The post method but in a loop, used for the login function."""
     resp_code = -1
     try:
         print("Trying to login.")
@@ -229,6 +238,20 @@ async def post_loop(ep, body):
 
 
 async def login_loop():
+    """
+    Tries to periodically login into the Aimtec AWS. I tries to until it succeeds (or sth unexpected happens).
+    Right now the whole subscriber and aimtec connection works as follows:
+    1. At the launch of the subsriber script, the login loop starts
+    2. If it doesn't connect right away, the subscriber works without it, but fails to send the data to Aimtec (its handled in the save_and_send_alerts_and_measurments function)
+    3. When the login loop finishes, everything should work from that point, but the data that was not sent during the loop is NOT SENT in any way after the connection. It is lost.
+    4. If we login succesfully, but during the Aimtec AWS server fall during production, the subscriber works fine, still saves the data into the db and all that jazz. However the data isn't sent again after connection. 
+    As in the case described above in 3., the data IS LOST.
+    
+    The scenarios that is most probable are:
+    - Aimtec servers work normally, everything is Ok.
+    - Aimtec servers dont are sleeping -> we try to login -> Subscriber still works and saves data to db -> when we login, we start sending data to Aimtec as if nothing happened -> server doesn't go to sleep anymore, because we send data every minute.
+        - We lose a few minutes of data, at most.
+    """
     try:
         json_file = await post_loop(EP_LOGIN, payload_login)
         print(f"Login loop finished succesfully.")
@@ -238,41 +261,5 @@ async def login_loop():
         return None
 
 if __name__ == "__main__":
-
-    # json_file = post_(EP_LOGIN, payload_login)
-    # pp(f"json file: {json_file} \n")
-
     json_file = asyncio.run(post_loop(EP_LOGIN, payload_login))
     pp(f"json file: {json_file} \n")
-
-    # read the sensors
-    # response = get_(EP_SENSORS)
-    # # pp(response) # pretty-print the response to see what we got
-    # # save the first sensor UUID for later
-    # SENSOR_UUID = response[0]['sensorUUID']
-    # pp(f"SENSOR_UUID: {SENSOR_UUID} \n")
-
-    # sensor_uuid_list = [json['sensorUUID'] for json in response]
-    # print(sensor_uuid_list)
-    # temperature = {"type": "temperature"}
-    # humidity = {"type": "humidity"}
-    # illumination = {"type": "illumination"}
-
-    # for dict_ in response:
-    #     if dict_['name'].endswith("temperature"):
-    #         temperature.update(dict_)
-
-    #     elif dict_['name'].endswith("humidity"):
-    #         humidity.update(dict_)
-
-    #     elif dict_['name'].endswith("illumination"):
-    #         illumination.update(dict_)
-
-    # pp(temperature)
-    # pp(humidity)
-    # pp(illumination)
-
-    # response = get_(EP_ALERTS)
-    # pp(response)
-    # t = check_if_value_in_range(test_sensor_data, temperature)
-    # print(t)
