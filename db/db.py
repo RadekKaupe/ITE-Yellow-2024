@@ -54,7 +54,7 @@ class SensorDataTest(Base):
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
 
     # Default UTC timestamp
-    timestamp = Column(
+    local_timestamp = Column(
         DateTime, default=datetime.datetime.now(datetime.timezone.utc))
 
     # Required temperature value

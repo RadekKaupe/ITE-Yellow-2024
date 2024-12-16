@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from jsonschema import validate, ValidationError, SchemaError
 import paho.mqtt.client as mqtt
 import pytz
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import time
 import asyncio
 
@@ -187,6 +187,34 @@ def check_and_post_alerts_all(payload, aimtec_sensors):
         if not aimtec.check_if_value_in_range(payload, aimtec_sensor):
             aimtec.post_alert(payload, aimtec_sensor)
 
+
+def check_if_future_timestamp(utc_timestamp_string: str):
+    utc_timestamp = datetime.strptime(utc_timestamp_string, "%Y-%m-%dT%H:%M:%S.%f")
+    utc_timestamp = utc_timestamp.replace(tzinfo=timezone.utc)
+    one_hour_from_now = datetime.now(timezone.utc) + timedelta(hours=1)
+
+    # Check if the timestamp is more than one hour into the future
+    if utc_timestamp > one_hour_from_now:
+        print("The timestamp is more than one hour into the future.")
+        return True
+    else:
+        print("The timestamp is not more than one hour into the future.") 
+        return False
+    
+def save_and_send_alerts_and_measurments(payload, aimtec_sensors, new_data, session):
+    try:
+        if payload.get("team_name")== "yellow" and login_json is not None:
+            send_to_aimtec(payload, aimtec_sensors)
+            save_alert_to_db(session, payload,
+                            new_data, aimtec_sensors)
+
+    except NameError:
+        print(
+            "'login_json' is probably not defined. Failed to send data to aimtec and save the alerts to db.")
+    except Exception as e:
+        print(
+            f"A error {e} occured when trying to send data to aimtec and save the alerts to db. ")
+
 def save_sensor_data_to_db(payload):
     try:
         print("Saving sensor data to database.")
@@ -199,7 +227,9 @@ def save_sensor_data_to_db(payload):
         session = SessionLocal()
         utc_timestamp = payload.get("timestamp")
         # pripad, že timestampy jsou ruzne
-        if not check_timestamp(payload, timestamp_dict, team_ids):
+        if not check_timestamp_against_latest(payload, timestamp_dict, team_ids):
+            if check_if_future_timestamp(utc_timestamp_string=utc_timestamp):
+                return
             temperature = payload.get("temperature")
             if temperature > -200:  ## Teplota je asi v pohodě
                 humidity = payload.get("humidity")  
@@ -223,21 +253,11 @@ def save_sensor_data_to_db(payload):
                 session.add(new_data)
                 session.commit()
                 print(f"Data saved to real db: {new_data}")
-                try:
-                    if team_name == "yellow" and login_json is not None:
-                        send_to_aimtec(payload, aimtec_sensors)
-                        save_alert_to_db(session, payload,
-                                        new_data, aimtec_sensors)
-
-                except NameError:
-                    print(
-                        "'login_json' is probably not defined. Failed to send data to aimtec and save the alerts to db.")
-                except Exception as e:
-                    print(
-                        f"A error {e} occured when trying to send data to aimtec and save the alerts to db. ")
+                save_and_send_alerts_and_measurments(payload=payload, aimtec_sensors=aimtec_sensors, new_data=new_data, session=session) 
             else: 
                 print("We got a non-valid temperature. Not saving to real db.")
-
+            
+        
         else:
             print(
                 "New payload has the same timestamp as the last one. Saving to test db only.")
@@ -247,7 +267,7 @@ def save_sensor_data_to_db(payload):
             temperature=payload.get("temperature"),
             humidity=payload.get("humidity"),
             illumination=payload.get("illumination"),
-            timestamp=local_timestamp,
+            local_timestamp=local_timestamp,
             utc_timestamp=utc_timestamp,
             my_timestamp=convert_to_local_time(datetime.now(
                 timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f"))
@@ -286,7 +306,7 @@ def save_alert_to_db(session, payload, sensor_data, aimtec_sensors):
     print("Finished saving alert to database.")
 
 
-def check_timestamp(payload: dict, current_timestamps: dict, team_ids) -> bool:
+def check_timestamp_against_latest(payload: dict, current_timestamps: dict, team_ids) -> bool:
     team_name = payload["team_name"]
     return payload["timestamp"] == current_timestamps[team_ids[team_name]]
 
