@@ -420,6 +420,19 @@ class Graphs1WeekHandler(RequestHandler):
         self.render("static/graphs_one_week.html")
 
 class AlertDataHandler(RequestHandler):
+    """
+    Fetches the alert data from the database. It's made to handle multiple teams having alerts, not only one.
+    The format:
+    {
+        "id": <outlier.id>,
+        "sensor_data_id": <outlier.sensor_data_id>,
+        "team_id": <outlier.sensor_data.team_id>,
+        "is_temperature_out_of_range": <outlier.is_temperature_out_of_range>,
+        "is_humidity_out_of_range": <outlier.is_humidity_out_of_range>,
+        "is_illumination_out_of_range": <outlier.is_illumination_out_of_range>,
+        "timestamp": <timestamp> 
+    }   
+    """
     def get(self):
         # Fetch all the outlier data from the sensor_data_outliers table
         try:
@@ -465,30 +478,33 @@ class AlertDataHandler(RequestHandler):
             self.set_status(500)
             self.write({"error": str(e)})
     
-    def get_timestamp_by_record_id(self, record_id, session):
-    # Query only the timestamp column for the record with the given id
+    def get_timestamp_by_record_id(self, record_id, session) -> str:
+        """Fetches a timestamp based on the id and returns it as a string."""
         timestamp = session.query(SensorData.timestamp).filter(SensorData.id == record_id).first()
         return timestamp[0].strftime("%Y-%m-%dT%H:%M:%S.%f")
 
 
-class LatestDataHandler(RequestHandler):  # zaručuje loadovani dat pri refreshi
+class LatestDataHandler(RequestHandler):
+    """This handler fetches the latest data when loading the main page for the first time."""
     def get(self) -> None:
         latest_data = self.application.fetch_sensor_data()
         self.write(latest_data)
 
 
 class StatisicsHandler(RequestHandler):
+    """Renders the statistcs page"""
     def get(self) -> None:
         self.render("static/statistics.html")
 
 class MainHandler(RequestHandler):
+    """Renders the main page."""
     def get(self) -> None:
         # self.render("static/index_css_js_ws.html")
         self.render("static/index.html")
 
 
 class WSHandler(WebSocketHandler):
-
+    """Handles some WebSocket Communication, not really used."""
     def initialize(self) -> None:
         self.application.ws_clients.append(self)
         print('Webserver: New WS Client. Connected clients:',
@@ -518,7 +534,7 @@ class WSHandler(WebSocketHandler):
 
 
 class WebWSApp(TornadoApplication):
-
+    """The main handler. Handles the start of the application as well as sending the data periodically via WebSockets."""
     def __init__(self):
         self.ws_clients = []
         self.counter = 0
@@ -533,7 +549,6 @@ class WebWSApp(TornadoApplication):
             (r'/graphs-one-day', GraphsHandler),
             (r'/graphs-one-week', Graphs1WeekHandler),
             (r'/statistics', StatisicsHandler),
-            # (r'/statistics-data', StatisticsDataHandler),
             (r'/(.*)', StaticFileHandler,
              {'path': join_path(dirname(__file__), 'static')})
         ]
@@ -541,7 +556,8 @@ class WebWSApp(TornadoApplication):
             "debug": True,
             "autoreload": True
         }
-        # Periodically fetch and broadcast sensor data to WebSocket clients
+        # IMPORTANT
+        # Periodically fetches and broadcast sensor data to WebSocket clients
         self.periodic_fetch = PeriodicCallback(
             self.fetch_and_broadcast_data, 5000)  # 5000ms = 5 seconds !!!!!
         self.periodic_fetch.start()
@@ -682,11 +698,13 @@ class WebWSApp(TornadoApplication):
         self.send_ws_message(message)
 
     def send_ws_message(self, message) -> None:
+        """Sends the message to all clients."""
         for client in self.ws_clients:
             iol.spawn_callback(client.write_message, dumps_json(message))
 
 
 if __name__ == '__main__':
+    """Starts the backend application."""
     PORT = 8881
     app = WebWSApp()
     print('Webserver: Initialized. Listening on', PORT)
