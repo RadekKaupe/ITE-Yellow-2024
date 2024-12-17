@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1734430373.47737 "s:/FAV/obsidian_school_vaults/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex" "document.pdf" "document" 1734430374.58995 0
+["pdflatex"] 1734431895.01469 "s:/FAV/obsidian_school_vaults/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex" "document.pdf" "document" 1734431896.17001 0
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1734348414 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1000.pk" 1702292364 25420 96051d5bed7c7f28b9fa9043779b70fa ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1200.pk" 1702292365 31952 09ce049129404f018ec54766219bc489 ""
@@ -118,11 +118,11 @@
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1656236890 56148 51a9a8571c07b9921892ae11063ae853 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "document.aux" 1734430374 2737 c698c539e603f774b5e7d93041ab812b "pdflatex"
-  "document.out" 1734430374 1437 dbb604457023c9a36e1f5118e1fc59ef "pdflatex"
+  "document.aux" 1734431895 2737 c698c539e603f774b5e7d93041ab812b "pdflatex"
+  "document.out" 1734431895 1437 dbb604457023c9a36e1f5118e1fc59ef "pdflatex"
   "document.tex" 1734430338 2210 35235907fe562dae61c2736c3c2eb0a8 ""
   "s:/FAV/obsidian_school_vaults/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex" 1734430338 2210 35235907fe562dae61c2736c3c2eb0a8 ""
-  "tex_moduly/backend.tex" 1734351028 46 a00da8fd7920471a29c169a92b6dc1f7 ""
+  "tex_moduly/backend.tex" 1734431894 1088 a953dff923aebc077c8126a1b960677e ""
   "tex_moduly/databaze.tex" 1734369152 1087 3933a2ddbaefed1c136e13880f2ce14e ""
   "tex_moduly/esp.tex" 1734350985 46 03524fa44eb00a7dfb0a154cef82fabe ""
   "tex_moduly/krabicka.tex" 1734351003 48 0649c1ccf41c3ed62923e9aaf4a95125 ""
