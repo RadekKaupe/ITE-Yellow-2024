@@ -30,4 +30,32 @@ Po provedení úprav v sekcích \ref{ssec:db}, \ref{sssec:aimtec} a \ref{sssec:s
     BROKER_PASSWD =heslo
     TOPIC=topic
 \end{verbatim}
-Pokud ano, nyní můžete spustit skript \verb|subscriber_vm.py|. %TODO: popiš jak funguje a jak řeší aimtec.
+Pokud ano, nyní můžete spustit skript \verb|subscriber_vm.py|. 
+\subsubsection{Funkce samotného subscribera}
+Subscriber má několik funckí:
+\begin{enumerate}
+    \item Validace příchozích dat
+    \item Příjímání chyb z ESP8266
+    \item Ukládání dat do databáze
+    \item Posílání dat na Aimtec AWS
+\end{enumerate}
+\myparagraph{Validace dat} 
+Momentálně subscriber validuje:
+\begin{enumerate}
+    \item správný formát příchozího JSONu
+    \item správný název týmu
+    \item smysluplné hodnoty teploty, osvětlení a vlhkosti
+    \item zda má zpráva jiný \verb|timestamp|, než ta poslední (kvůli použití QoS 1)
+    \item zda \verb|timestamp| není více jak hodinu z budoucnosti
+\end{enumerate}
+\myparagraph{Příjímání chyb z ESP8266} 
+U příjímání chyb je třeba zmínit, že je ukládá do složky \verb|subscriber\err\|, kde názvy souborů jsou \verb|timestamp|y, které se v chybové zprávě vyskytují.
+
+\myparagraph{Ukládaní do databáze}
+Do "ostré"\ databáze se ukládájí pouze validní data. Pro validační a testovací účely se většina dat (ve správném formátu) uloží do testovací tabulky.
+Je to z důvodu možnosti zjištění případných chyb, ať už na straně ESPčka nebo subscribera. Také lze beztrestně manipulovat s daty, aniž by se změny projevili na webové stránce.
+\myparagraph{Posílání dat na Aimtec} 
+Funkčnost se dá popsat následovně:
+Při spuštění skriptu se pokusí přihlásit na Aimtec AWS. Pokud server nespí, proběhne všechno v pořádku a data se budou posílat na Aimtec každou minutu.
+V případě, že AWS nefunguje, skript se bude o login pokoušet každých deset vteřin, dokud se mu to nepodaří. V pozadí vše ostatní bude probíhat tak jak má (především samozřejmě ukládání dat do databáze), ale data se na AWS nepošlou. 
+Momentálně nefunguje žádné zpětné posílání dat, takže v případě výpadku/spánku AWS serveru, data jsou ztracena.  
