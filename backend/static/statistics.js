@@ -13,7 +13,8 @@ function fetchLatestData() {
 
 function onBodyLoad() {
     fetchLatestData();
-    ws = new WebSocket('ws://localhost:8881/websocket')     // ws is a global variable (index.html)
+    const hostname = window.location.hostname;  
+    ws = new WebSocket(`ws://${hostname}:8881/websocket`);
     ws.onopen = onSocketOpen
     ws.onmessage = onSocketMessage
     ws.onclose = onSocketClose
