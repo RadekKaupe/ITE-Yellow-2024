@@ -1,2 +1,40 @@
 \subsection{ESP8266}
-Obsah sekce "ESP8266".
+\subsubsection{Funkce}
+Kompletní zařízení disponuje funkcemi:
+\begin{itemize}
+    \item Měření teploty. vlhkosti a osvětlení.
+    \item Možnost zastoupení dedikovaného senzoru teploty v případě jeho poruchy méně přesným senzorem vlhkosti.
+    \item Posílání hodnot indikujících poruchu senzorů.
+    \item Synchronizace času s NTP serverem.
+    \item Posílání naměřených dat přes MQTT s Quality Of Service 1 - zpráva je doručena alespoň jednou.
+    \item Detekce selhání zaslání zprávy a tedy ztráty spojení.
+    \item Znovupřipojení se k Wi-Fi a MQTT brokeru v případě ztráty spojení.
+    \item Archivace naměřených dat v případě ztráty spojení a jejich znovuposlání po obnovení spojení.
+    \item Poslání tracebacku a samovolný reset v případě chyby v hlavní smyčce.
+\end{itemize}
+\subsubsection{Setup}
+Pro použití na Vašem pracovišti je potřeba změnit v souboru main.py konstanty
+\begin{itemize}
+    \item NET\textunderscore NAME - název Vaší Wi-Fi sítě
+    \item NET\textunderscore PASS - heslo k této síti
+    \item NTP\textunderscore HOST - adresa serveru pro synchronizaci času
+    \item BROKER\textunderscore IP - IP adresa MQTT brokera
+    \item BROKER\textunderscore UNAME - uživatelské jméno pro připojení k brokeru
+    \item BROKER\textunderscore PASSWD - heslo pro připojení k brokeru
+    \item TOPIC - topic, na který budou zprávy zasílány
+\end{itemize}
+Volitelně je zde možnost měnit parametry
+\begin{itemize}
+    \item PERIOD\textunderscore SEC - perioda měření a posílání v sekundách
+    \item TIMEOUT - maximální doba čekání na potvrzení přijetí zprávy od brokera v sekundách - po jejím uplynutí začne archivace a pokusy o znovupřipojení
+    \item RECON\textunderscore PERIOD - perioda pokusů o znovupřipojení se na Wi-Fi a brokera v milisekundách
+    \item doporučuje se změnit/vymazat ze struktury zprávy položku team\textunderscore name
+\end{itemize}
+Společně s main.py je potřeba nahrát do zařízení následující knihovny, pokud tak již nebylo učiněno:
+\begin{itemize}
+    \item temp\textunderscore sensor.py
+    \item light\textunderscore sensor.py
+    \item umqtt.py
+\end{itemize}
+Dále stačí jen zapojit zařízení do napájení. Pokud je vše v pořádku, tak by po připojení se na brokera měla zhasnout LED na pinu 16 (D0 na fyzickém zařízení) a měly by se začít posílat zprávy na daný topic.
+\end{document}
