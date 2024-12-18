@@ -35,22 +35,24 @@ sta_if = network.WLAN(network.STA_IF)
 try: sta_if.disconnect()
 except: print("Already disconnected")
 
+NET_NAME = 'zcu-hub-ui'
+NET_PASS = 'IoT4ZCU-ui'
+NTP_HOST = "clock1.zcu.cz"
 
-
+CLIENT_ID = "yellow_esp"
 BROKER_IP = '147.228.124.47'
 BROKER_PORT = 1883
 BROKER_UNAME = 'student'
 BROKER_PASSWD = 'pivotecepomqtt'
 TOPIC = 'ite/yellow'
 QOS = 1
+
+PERIOD_SEC = 60
 TIMEOUT = 0.5   # sec
 RECON_PERIOD = 4500 # ms
 
 # SLEEP_TIME = 2
-MQclient = umqtt.MQTTClient("yellow_esp", BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
-
-
-
+MQclient = umqtt.MQTTClient(CLIENT_ID, BROKER_IP, BROKER_PORT, BROKER_UNAME, BROKER_PASSWD)  
 
 rtc = RTC()
 
@@ -62,8 +64,7 @@ global t;           t = 999
 global t_tuple;     t_tuple = rtc.datetime()
 global payload
 
-
-ntptime.host = "clock1.zcu.cz"
+ntptime.host = NTP_HOST
 rtc = RTC()
 def syncTime():
     try: ntptime.settime()   # make sure to have internet connection
@@ -71,7 +72,7 @@ def syncTime():
 
 print('connecting to network...')
 sta_if.active(True)
-sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+sta_if.connect(NET_NAME, NET_PASS)
 print("connencting to ui-hub")
 while not sta_if.isconnected():
     pass
@@ -133,7 +134,7 @@ def reconnect():
     if not sta_if.isconnected():
         sta_if.active(True)
         try:
-            sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+            sta_if.connect(NET_NAME, NET_PASS)
             #time.sleep_ms(500)
         except:
             print("connecting to network failed")
@@ -197,13 +198,13 @@ def sendArchive():
                 
         else:   
             for j in range(0, log[1]+1): # send log[1]+1 same logs with timestamps offset by j*period
-                payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStampArchive(log[0]+j*periodSec, log[5]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
+                payload = json.dumps({'team_name': 'yellow', 'timestamp': newTimeStampArchive(log[0]+j*PERIOD_SEC, log[5]), 'temperature': log[2], 'humidity': log[3], 'illumination': log[4]})
                 try:
                     MQclient.publish(TOPIC, payload, qos=QOS, timeout=TIMEOUT)
                 except:
                     connBroker = False
                     recPrev = time.ticks_ms()
-                    log[0] += j*periodSec
+                    log[0] += j*PERIOD_SEC
                     log[1] -= j
                     archive.append(log)
                     archive.reverse()   # newer logs last now
@@ -215,8 +216,8 @@ def sendArchive():
 #def setFlagMeas(timer):  minPassed = True
 #timer1.init(mode=Timer.PERIODIC, period=1000*1, callback=setFlagMeas) 
 
-periodSec = 60
-period = periodSec*1000    # m/s
+PERIOD_SEC = 60
+period = PERIOD_SEC*1000    # m/s
 previous = time.ticks_ms()
 now = previous + 1
 
@@ -256,7 +257,7 @@ except Exception as e:
             sta_if.active(True)
             try:
                 while(not sta_if.isconnected()):
-                    sta_if.connect('zcu-hub-ui', 'IoT4ZCU-ui')
+                    sta_if.connect(NET_NAME, NET_PASS)
                     print('connecting to network...')
                     time.sleep_ms(RECON_PERIOD)
             except:
