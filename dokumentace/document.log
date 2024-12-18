@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10) (preloaded format=pdflatex 2023.12.11)  17 DEC 2024 11:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10) (preloaded format=pdflatex 2023.12.11)  18 DEC 2024 15:14
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**s:/FAV/obsidian_school_vaults/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex
-(s:/FAV/obsidian_school_vaults/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex
+**s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex
+(s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-08-29>
 (C:\Users\samko\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -656,7 +656,12 @@ Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count367
  [1
 
-{C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] (tex_moduly/krabicka.tex) (tex_moduly/esp.tex) (tex_moduly/databaze.tex
+{C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] (tex_moduly/krabicka.tex) (tex_moduly/esp.tex
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.31     \item d
+                oporuƒçuje se zmƒõnit/vymazat ze struktury zpr√°vy polo≈æku ... [1]) (tex_moduly/databaze.tex
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 3.
  (C:\Users\samko\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
@@ -665,31 +670,26 @@ Overfull \hbox (175.47618pt too wide) in paragraph at lines 10--1
 \T1/cmr/m/n/10 Po tomto kroku m∑-∫ete spus-tit skript [][]\T1/cmtt/m/n/10 db.py[]\T1/cmr/m/n/10 , kter˝ vy-tvo∞Ì po-t∞ebnÈ ta-bulky: [][]\T1/cmtt/m/n/10 sensor_data[]\T1/cmr/m/n/10 , [][]\T1/cmtt/m/n/10 teams[]\T1/cmr/m/n/10 ,[][]\T1/cmtt/m/n/10 sensor_data_outliers[]\T1/cmr/m/n/10 ,[][]\T1/cmtt/m/n/10 sensor_data_test[]\T1/cmr/m/n/10 .
  []
 
-
-pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.17 \end{verbatim}
-                    [1]) (tex_moduly/backend.tex [2]) [3] (document.aux)
+[2]) (tex_moduly/backend.tex [3]) [4] (document.aux)
  ***********
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-08-29>
  ***********
 Package rerunfilecheck Info: File `document.out' has not changed.
-(rerunfilecheck)             Checksum: DBB604457023C9A36E1F5118E1FC59EF;1437.
+(rerunfilecheck)             Checksum: AEDB83334BCEF2E7E33BBABB65D85B38;1628.
  ) 
 Here is how much of TeX's memory you used:
- 17661 strings out of 475248
- 283492 string characters out of 5757812
+ 17672 strings out of 475248
+ 283617 string characters out of 5757812
  1929785 words of memory out of 5000000
- 38887 multiletter control sequences out of 15000+600000
- 567264 words of font info for 49 fonts, out of 8000000 for 9000
+ 38894 multiletter control sequences out of 15000+600000
+ 567599 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 72i,5n,79p,1139b,597s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
-Output written on document.pdf (4 pages, 126867 bytes).
+ 72i,5n,79p,1134b,564s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
+Output written on document.pdf (5 pages, 132092 bytes).
 PDF statistics:
- 431 PDF objects out of 1000 (max. 8388607)
- 29 named destinations out of 1000 (max. 500000)
- 97 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 453 PDF objects out of 1000 (max. 8388607)
+ 32 named destinations out of 1000 (max. 500000)
+ 113 words of extra memory for PDF output out of 10000 (max. 10000000)
 
