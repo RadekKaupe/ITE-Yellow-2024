@@ -1,2 +1,28 @@
 \subsection{Krabička}
-Obsah sekce "Krabička".
+\subsubsection{Součástky}
+Fyzické provedení projektu se skládá z pěti částí
+\begin{itemize}
+    \item Samotná deska ESP8266
+    \item Přední část krabičky se senzory
+    \item Zadní část krabičky
+    \item Napájecí kabel
+    \item Okénko
+\end{itemize}
+\subsubsection{Sestavení}
+Pro přípravu zařízení, případně jeho opravu po výměně součástky, je třeba provést následující kroky
+\begin{enumerate}
+    \item Ujistěte se, že žádný kabel není volný, tedy že všechny vedou od senzoru k liště
+    \item Napojte větší lištu (datovou) na desku tak, aby drátek na koncovém pinu vedl na pin D0 (v rohu desky na opačné straně od microUSB portu)
+    \item Napojte menší lištu (napájecí) na desku tak, aby červený drátek vedl na pin 3v3 (v rohu desky u microUSB portu) a černý na pin GND
+    \item Vložte desku do zadní části krabičky tak, aby microUSB port byl na straně díry pro napájení
+    \item Složte krabičku
+    \item Připojte napájecí kabel
+    \item Zapojte napájení do zásuvky
+    \item Diody na krabičce se rozblikají, po jejich zhasnutí přístroj měří
+\end{enumerate}
+\subsubsection{Okénko}
+Okénko slouží k ochraně světelného senzoru a tedy i prodloužení jeho životnosti. Je tedy doporučeno ho použít ve velmi prašných prostředích, či kdekoli jinde, kde hrozí mechanické poškození či zašpinění.
+
+Jelikož okénko není perfektně průhledné, snižuje naměřenou hodnotu osvětlení o zhruba 5\%, což je důležité zohlednit při stanovování hranic pro odeslání varování. Jelikož okénko není třeba pro celkovou funkci přístroje, je možné ho nepoužít pro lepší přesnost měření.
+
+Pro přidání okénka stačí zasunout jeho kolíky do připravených direk na přední straně přístroje.
