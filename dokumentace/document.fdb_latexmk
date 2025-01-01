@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1734531261.58002 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex" "document.pdf" "document" 1734531262.74516 0
-  "C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1734348414 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
+["pdflatex"] 1735744455.7541 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex" "document.pdf" "document" 1735744456.99133 0
+  "C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1735573721 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1000.pk" 1702292364 25420 96051d5bed7c7f28b9fa9043779b70fa ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1200.pk" 1702292365 31952 09ce049129404f018ec54766219bc489 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1440.pk" 1702292366 40136 da124e6bd9dbb821e7325d1ea95aa20e ""
@@ -120,14 +120,14 @@
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1656236890 56148 51a9a8571c07b9921892ae11063ae853 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "document.aux" 1734531262 2982 6632c8ad8b80aa64d530b934bb279e7a "pdflatex"
-  "document.out" 1734531262 1628 aedb83334bcef2e7e33bbabb65d85b38 "pdflatex"
+  "document.aux" 1735744456 3361 bdb4703ee44334d658b0c718bb401706 "pdflatex"
+  "document.out" 1735744456 1964 062d5a4787958b10c738ad880cf858fe "pdflatex"
   "document.tex" 1734531003 2210 35235907fe562dae61c2736c3c2eb0a8 ""
   "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex" 1734531003 2210 35235907fe562dae61c2736c3c2eb0a8 ""
   "tex_moduly/backend.tex" 1734514803 1088 a953dff923aebc077c8126a1b960677e ""
   "tex_moduly/databaze.tex" 1734514803 1087 3933a2ddbaefed1c136e13880f2ce14e ""
   "tex_moduly/esp.tex" 1734531259 2534 07b61551b464791ae8705a226f65e1aa ""
-  "tex_moduly/krabicka.tex" 1734514803 48 0649c1ccf41c3ed62923e9aaf4a95125 ""
+  "tex_moduly/krabicka.tex" 1735744455 1885 fef871cfbbd3349665f81cd1da14e0c9 ""
   "tex_moduly/subscriber.tex" 1734514803 3390 05e2c1e430e4a854965fef40ead101e5 ""
   (generated)
   "document.aux"

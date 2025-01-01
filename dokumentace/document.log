@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10) (preloaded format=pdflatex 2023.12.11)  18 DEC 2024 15:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10) (preloaded format=pdflatex 2023.12.11)  1 JAN 2025 16:14
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -660,36 +660,36 @@ Package caption Info: End \AtBeginDocument code.
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.31     \item d
-                oporuƒçuje se zmƒõnit/vymazat ze struktury zpr√°vy polo≈æku ... [1]) (tex_moduly/databaze.tex
+l.5     \item M
+               ƒõ≈ôen√≠ teploty. vlhkosti a osvƒõtlen√≠. [1]) (tex_moduly/databaze.tex
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 3.
  (C:\Users\samko\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-)) (tex_moduly/subscriber.tex
+) [2]) (tex_moduly/subscriber.tex
 Overfull \hbox (175.47618pt too wide) in paragraph at lines 10--1
 \T1/cmr/m/n/10 Po tomto kroku m∑-∫ete spus-tit skript [][]\T1/cmtt/m/n/10 db.py[]\T1/cmr/m/n/10 , kter˝ vy-tvo∞Ì po-t∞ebnÈ ta-bulky: [][]\T1/cmtt/m/n/10 sensor_data[]\T1/cmr/m/n/10 , [][]\T1/cmtt/m/n/10 teams[]\T1/cmr/m/n/10 ,[][]\T1/cmtt/m/n/10 sensor_data_outliers[]\T1/cmr/m/n/10 ,[][]\T1/cmtt/m/n/10 sensor_data_test[]\T1/cmr/m/n/10 .
  []
 
-[2]) (tex_moduly/backend.tex [3]) [4] (document.aux)
+[3]) (tex_moduly/backend.tex) [4] [5] (document.aux)
  ***********
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-08-29>
  ***********
 Package rerunfilecheck Info: File `document.out' has not changed.
-(rerunfilecheck)             Checksum: AEDB83334BCEF2E7E33BBABB65D85B38;1628.
+(rerunfilecheck)             Checksum: 062D5A4787958B10C738AD880CF858FE;1964.
  ) 
 Here is how much of TeX's memory you used:
- 17672 strings out of 475248
- 283617 string characters out of 5757812
+ 17685 strings out of 475248
+ 283773 string characters out of 5757812
  1929785 words of memory out of 5000000
- 38894 multiletter control sequences out of 15000+600000
+ 38895 multiletter control sequences out of 15000+600000
  567599 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 72i,5n,79p,1134b,564s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,5n,79p,1134b,556s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
-Output written on document.pdf (5 pages, 132092 bytes).
+Output written on document.pdf (6 pages, 138036 bytes).
 PDF statistics:
- 453 PDF objects out of 1000 (max. 8388607)
- 32 named destinations out of 1000 (max. 500000)
- 113 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 486 PDF objects out of 1000 (max. 8388607)
+ 44 named destinations out of 1000 (max. 500000)
+ 137 words of extra memory for PDF output out of 10000 (max. 10000000)
 

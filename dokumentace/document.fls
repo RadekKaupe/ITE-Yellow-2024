@@ -228,11 +228,11 @@ INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx120
 INPUT .\tex_moduly\krabicka.tex
 INPUT .\tex_moduly\krabicka.tex
 INPUT tex_moduly\krabicka.tex
+INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx1000.tfm
+INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\tcrm1000.tfm
 INPUT .\tex_moduly\esp.tex
 INPUT .\tex_moduly\esp.tex
 INPUT tex_moduly\esp.tex
-INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx1000.tfm
-INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\tcrm1000.tfm
 INPUT .\tex_moduly\databaze.tex
 INPUT .\tex_moduly\databaze.tex
 INPUT tex_moduly\databaze.tex
