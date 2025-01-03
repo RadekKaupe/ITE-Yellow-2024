@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10) (preloaded format=pdflatex 2023.12.11)  3 JAN 2025 10:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10) (preloaded format=pdflatex 2023.12.11)  3 JAN 2025 10:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex
-(s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/document.tex
+**s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/ite/document.tex
+(s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/ite/document.tex
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-08-29>
 (C:\Users\samko\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -685,12 +685,12 @@ Package rerunfilecheck Info: File `document.out' has not changed.
  ) 
 Here is how much of TeX's memory you used:
  17692 strings out of 475248
- 283924 string characters out of 5757812
+ 283984 string characters out of 5757812
  1929785 words of memory out of 5000000
  38903 multiletter control sequences out of 15000+600000
  567599 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 72i,5n,79p,1134b,556s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,5n,79p,1138b,556s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
 Output written on document.pdf (6 pages, 156548 bytes).
 PDF statistics:

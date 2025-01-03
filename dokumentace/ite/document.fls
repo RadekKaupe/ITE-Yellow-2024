@@ -1,6 +1,6 @@
-PWD s:\FAV\my-obsidian-vault\03-School\ite_bsoi_vault\semestralni_prace\ITE-Yellow-2024\dokumentace
+PWD s:\FAV\my-obsidian-vault\03-School\ite_bsoi_vault\semestralni_prace\ITE-Yellow-2024\dokumentace\ite
 INPUT C:\Users\samko\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT s:\FAV\my-obsidian-vault\03-School\ite_bsoi_vault\semestralni_prace\ITE-Yellow-2024\dokumentace\document.tex
+INPUT s:\FAV\my-obsidian-vault\03-School\ite_bsoi_vault\semestralni_prace\ITE-Yellow-2024\dokumentace\ite\document.tex
 OUTPUT document.log
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
