@@ -1,4 +1,8 @@
+from psycopg2 import IntegrityError
+import psycopg2
+import tornado
 from tornado.web import StaticFileHandler, RequestHandler, Application as TornadoApplication
+from tornado.web import RedirectHandler
 from tornado.websocket import WebSocketHandler
 from tornado.ioloop import IOLoop, PeriodicCallback
 from os.path import dirname, join as join_path
@@ -8,19 +12,22 @@ from time import sleep
 import numpy as np
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, func, inspect, select
 from sqlalchemy.orm import sessionmaker, Session, aliased
 import sys
 from datetime import datetime, time, timedelta
 import pytz
 from datetime import datetime, timezone
-
+from tornado.web import HTTPError
+import jwt
+import bcrypt
+from psycopg2.errors import UniqueViolation
 # Import of db.py for classes, which are the columns in the database tables
 db_foler_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'db'))
 
 sys.path.insert(0, db_foler_path)
-from db import SensorData, Teams, SensorDataOutliers
+from db import SensorData, Teams, SensorDataOutliers, User
 
 # Connecting to the database
 load_dotenv()
@@ -36,6 +43,24 @@ LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
 SessionLocal = sessionmaker(bind=engine)
 
+
+# Authentication decoratord
+def require_auth(handler_class):
+    def wrapper(method):
+        def wrapper(self, *args, **kwargs):
+            user = self.get_secure_cookie('user')  # Check for the secure cookie
+            if not user:
+                raise HTTPError(403, "Authentication required")  # Deny access if user is not authenticated
+            
+            # Check if the wrapped method is asynchronous
+            if inspect.iscoroutinefunction(method):
+                # Await the method if it's asynchronous
+                return method(self, *args, **kwargs)
+            else:
+                # Call the method directly if it's synchronous
+                return method(self, *args, **kwargs)
+        return wrapper
+    return wrapper
 
 def convert_to_local_time(utc_timestamp: str):
     """Convert a utc timestamp to the LOCAL_TIMEZONE, which is needed for the testing table in the db"""
@@ -65,11 +90,90 @@ def extract_teams_dict() -> dict[int:str]:
     session.close()
     return teams_dict
 
+
+class LoginHandler(RequestHandler):
+    async def post(self):
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+        # print(username)
+        # print(password)
+        # Get user from database
+        
+        session = SessionLocal()
+
+        user = session.execute(
+            select(User).where(User.username == username)
+            ).scalar_one_or_none()
+        if not user:
+            self.write({"error": "Invalid credentials"})
+            return
+        
+        # Verify password
+        if bcrypt.checkpw(password.encode(), user.password_hash):
+            # Create session
+            token = jwt.encode(
+                {"user_id": user.id, "exp": datetime.utcnow() + timedelta(days=1)},
+                self.settings["secret_key"]
+            )
+            self.set_secure_cookie("auth_token", token)
+            self.redirect("/index")
+        else:
+            self.write({"error": "Invalid credentials"})
+    def get(self):
+        self.render("static/login.html")
+            # self.write('<html><body><form action="/login" method="post">'
+            #        'Name: <input type="text" name="name">'
+            #        '<input type="submit" value="Sign in">'
+            #        '</form></body></html>')
+
+
+class RegisterHandler(RequestHandler):
+    async def post(self):
+        # Get the username and password from the request
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+        
+        # Hash the password securely
+        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+        
+        # Create a new User instance
+        new_user = User(username=username, password_hash=password_hash)
+        
+        # Create a session
+        session = SessionLocal()
+        
+        try:
+            # Add the user to the session
+            session.add(new_user)
+            
+            # Commit the session
+            session.commit()
+            
+            # Respond with success
+            self.write({"success": "User Registered"})
+        
+        
+        except Exception as e:
+            # Rollback for other exceptions
+            session.rollback()
+            print(e)
+            if "UniqueViolation" in str(e):
+                self.write({"error": "Username is already taken. Please choose another one."})
+            else:
+                self.write({"error": "An unknown error occurred. Please try again."})
+            # self.write({"error": f"An error occurred: {str(e)}"})
+        
+        finally:
+            # Close the session
+            session.close()
+    def get(self):
+        self.render("static/register.html")    
 class GraphDataHandler(RequestHandler):
     """
     This Handler fetches data from the last X days and processes it 
-    
+
     """
+
     def get(self):
         """Writes the data into a dummy page, so the front end can fetch it and use it for the graph display"""
         try:
@@ -85,7 +189,7 @@ class GraphDataHandler(RequestHandler):
         """
         Connects to the database, fetches data from the last X days and restructures it
         The restrucutred format:
-        
+
         {
             "timestamp": [
                 {
@@ -116,9 +220,9 @@ class GraphDataHandler(RequestHandler):
                 }
             ], ...            
             "timestamp": [ ... ]
-            
+
         }
-        
+
         """
         session = SessionLocal()
 
@@ -300,10 +404,10 @@ class GraphsHandler(RequestHandler):
 
 class GraphData1WeekHandler(GraphDataHandler):
     """
-    
+
     This Handler fetches data from the last 7 days and processes it 
     It inherits the GraphDataHandler Class and alters some functions a little bit, so the data it returns is like this:
-        
+
         {
             "date": [
                 {
@@ -334,13 +438,14 @@ class GraphData1WeekHandler(GraphDataHandler):
                 }
             ], ...            
             "date": [ ... ]
-            
+
         }
         It's very similiar, but with no time only dates.
         The handler could and probably should be more optimised, right now it still works with data, that is restructured by the Hours of the timestamps, instead of days.
         However, it works and I dont want to break it, so I ain't touching anything.
 
     """
+
     def get(self):
         try:
             averages = self.fetch_data(days=7)
@@ -419,6 +524,7 @@ class Graphs1WeekHandler(RequestHandler):
     def get(self):
         self.render("static/graphs_one_week.html")
 
+
 class AlertDataHandler(RequestHandler):
     """
     Fetches the alert data from the database. It's made to handle multiple teams having alerts, not only one.
@@ -433,6 +539,7 @@ class AlertDataHandler(RequestHandler):
         "timestamp": <timestamp> 
     }   
     """
+
     def get(self):
         # Fetch all the outlier data from the sensor_data_outliers table
         try:
@@ -469,7 +576,7 @@ class AlertDataHandler(RequestHandler):
                 }
                 for outlier in latest_alert_data
             ]
-            
+
             # Respond with the list of outliers in JSON format
             self.write({"outliers": outliers_data})
             session.close()
@@ -477,10 +584,11 @@ class AlertDataHandler(RequestHandler):
             # Handle any exceptions by sending a 500 error
             self.set_status(500)
             self.write({"error": str(e)})
-    
+
     def get_timestamp_by_record_id(self, record_id, session) -> str:
         """Fetches a timestamp based on the id and returns it as a string."""
-        timestamp = session.query(SensorData.timestamp).filter(SensorData.id == record_id).first()
+        timestamp = session.query(SensorData.timestamp).filter(
+            SensorData.id == record_id).first()
         return timestamp[0].strftime("%Y-%m-%dT%H:%M:%S.%f")
 
 
@@ -496,8 +604,10 @@ class StatisicsHandler(RequestHandler):
     def get(self) -> None:
         self.render("static/statistics.html")
 
+
 class MainHandler(RequestHandler):
     """Renders the main page."""
+    @tornado.web.authenticated
     def get(self) -> None:
         # self.render("static/index_css_js_ws.html")
         self.render("static/index.html")
@@ -505,6 +615,7 @@ class MainHandler(RequestHandler):
 
 class WSHandler(WebSocketHandler):
     """Handles some WebSocket Communication, not really used."""
+
     def initialize(self) -> None:
         self.application.ws_clients.append(self)
         print('Webserver: New WS Client. Connected clients:',
@@ -535,12 +646,13 @@ class WSHandler(WebSocketHandler):
 
 class WebWSApp(TornadoApplication):
     """The main handler. Handles the start of the application as well as sending the data periodically via WebSockets."""
+
     def __init__(self):
         self.ws_clients = []
         self.counter = 0
-
         self.tornado_handlers = [
-            (r'/', MainHandler),
+            (r'/', RedirectHandler, {"url": "/login"}),
+            (r'/dashboard', MainHandler),
             (r"/graph-data/one-day", GraphDataHandler),
             (r"/graph-data/one-week", GraphData1WeekHandler),
             (r"/alert-data", AlertDataHandler),
@@ -549,12 +661,16 @@ class WebWSApp(TornadoApplication):
             (r'/graphs-one-day', GraphsHandler),
             (r'/graphs-one-week', Graphs1WeekHandler),
             (r'/statistics', StatisicsHandler),
+            (r"/login", LoginHandler),
+            (r"/register", RegisterHandler),
             (r'/(.*)', StaticFileHandler,
              {'path': join_path(dirname(__file__), 'static')})
         ]
         self.tornado_settings = {
             "debug": True,
-            "autoreload": True
+            "autoreload": True,
+            "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
+            "login_url": "/login",
         }
         # IMPORTANT
         # Periodically fetches and broadcast sensor data to WebSocket clients
@@ -564,7 +680,6 @@ class WebWSApp(TornadoApplication):
 
         TornadoApplication.__init__(
             self, self.tornado_handlers, **self.tornado_settings)
-
 
     def fetch_sensor_data(self) -> list:
         """Fetches the latest sensor data from the database, along with outlier information"""
@@ -627,20 +742,24 @@ class WebWSApp(TornadoApplication):
                 {
                     "id": d.id,
                     "team_id": d.team_id,
-                    "team_name": team_dict[d.team_id],  # Assuming team_dict is available elsewhere
+                    # Assuming team_dict is available elsewhere
+                    "team_name": team_dict[d.team_id],
                     "timestamp": convert_to_local_time(d.timestamp.isoformat()).isoformat(),
                     "temperature": d.temperature,
                     "humidity": d.humidity,
                     "illumination": d.illumination,
-                    "outliers": outlier_dict.get(d.id, {})  # Add outlier data if available
+                    # Add outlier data if available
+                    "outliers": outlier_dict.get(d.id, {})
                 }
                 for d in data
             ]
 
-            total_data_count = session.query(func.count(SensorData.id)).scalar()
+            total_data_count = session.query(
+                func.count(SensorData.id)).scalar()
             now = datetime.now()
             time_interval = now - timedelta(days=1)
-            yellow_id = next((key for key, value in team_dict.items() if value == 'yellow'), None)
+            yellow_id = next(
+                (key for key, value in team_dict.items() if value == 'yellow'), None)
             # Fetch all data, ordered by team_id and timestamp
             query = (
                 session.query(SensorData)
@@ -648,7 +767,7 @@ class WebWSApp(TornadoApplication):
                 .filter(SensorData.timestamp >= time_interval)
                 # Order by team_id and timestamp
                 .filter(SensorData.team_id == yellow_id)
-                .order_by(SensorData.team_id,SensorData.timestamp)
+                .order_by(SensorData.team_id, SensorData.timestamp)
             )
 
             # Get all the data for all teams
@@ -656,25 +775,30 @@ class WebWSApp(TornadoApplication):
             results = [
                 {
                     # "team_id": data.team_id,
-                    "temperature" : data.temperature,
-                    "humidity" : data.humidity,
-                    "illumination" : data.illumination,
+                    "temperature": data.temperature,
+                    "humidity": data.humidity,
+                    "illumination": data.illumination,
                     "timestamp": data.timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f")
                 }
                 for data in all_data
-                ]
-            temperatures = [data["temperature"] for data in results if data["temperature"] is not None]
-            humidities = [data["humidity"] for data in results if data["humidity"] is not None]
-            illuminations = [data["illumination"] for data in results if data["illumination"] is not None]
+            ]
+            temperatures = [data["temperature"]
+                            for data in results if data["temperature"] is not None]
+            humidities = [data["humidity"]
+                          for data in results if data["humidity"] is not None]
+            illuminations = [data["illumination"]
+                             for data in results if data["illumination"] is not None]
 
             # Calculate averages
-            average_temperature = np.mean(temperatures) if temperatures else None
+            average_temperature = np.mean(
+                temperatures) if temperatures else None
             average_humidity = np.mean(humidities) if humidities else None
-            average_illumination = np.mean(illuminations) if illuminations else None
+            average_illumination = np.mean(
+                illuminations) if illuminations else None
             latest_yellow_timestamp = None
             for sensor_data in sensor_data_list:
                 if sensor_data["team_id"] == yellow_id:
-                    latest_yellow_timestamp = sensor_data["timestamp"] 
+                    latest_yellow_timestamp = sensor_data["timestamp"]
         # Prepare the final result dictionary
             result = {
                 "sensor_data": sensor_data_list,
@@ -682,7 +806,7 @@ class WebWSApp(TornadoApplication):
                 "average_temperature": average_temperature,
                 "average_humidity": average_humidity,
                 "average_illumination": average_illumination,
-                "latest_yellow_timestamp" : latest_yellow_timestamp
+                "latest_yellow_timestamp": latest_yellow_timestamp
             }
 
             return result
@@ -690,7 +814,6 @@ class WebWSApp(TornadoApplication):
         finally:
             session.close()
 
-            
     def fetch_and_broadcast_data(self) -> None:
         """Fetches all sensor data and broadcasts to all connected WebSocket clients."""
         sensor_data = self.fetch_sensor_data()
