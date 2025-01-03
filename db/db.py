@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from sqlalchemy import LargeBinary, create_engine, Column, Integer, String, Float, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base, Session
 from dotenv import load_dotenv
 import os
@@ -85,7 +85,7 @@ class User(Base):
     username = Column(String, nullable=False, unique=True)
 
     # Define a column for the password hash
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(LargeBinary, nullable=False)
 
     approved = Column(Boolean, default=False)
 

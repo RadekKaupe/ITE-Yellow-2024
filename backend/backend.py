@@ -91,8 +91,21 @@ def extract_teams_dict() -> dict[int:str]:
     session.close()
     return teams_dict
 
+class BaseHandler(RequestHandler):
+    def get_current_user(self):
+        auth_token = self.get_secure_cookie("auth_token")
+        if not auth_token:
+            return None
+        try:
+            # Decode the JWT token and verify it
+            payload = jwt.decode(auth_token, self.settings["secret_key"], algorithms=["HS256"])
+            return payload.get("user_id")
+        except jwt.ExpiredSignatureError:
+            return None
+        except jwt.InvalidTokenError:
+            return None
 
-class LoginHandler(RequestHandler):
+class LoginHandler(BaseHandler):
     async def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
@@ -113,12 +126,16 @@ class LoginHandler(RequestHandler):
         if bcrypt.checkpw(password.encode(), user.password_hash):
             # Create session
             token = jwt.encode(
-                {"user_id": user.id, "exp": datetime.utcnow() + timedelta(days=1)},
+                {"user_id": user.id, "exp": datetime.now() + timedelta(hours=1)},
                 self.settings["secret_key"]
             )
+            print(token)
             self.set_secure_cookie("auth_token", token)
-            self.redirect("/index")
+            self.set_status(200)
+            # self.redirect("/dashboard")
+            self.write({"redirect": "/dashboard"}) 
         else:
+            self.set_status(401)
             self.write({"error": "Invalid credentials"})
     def get(self):
         self.render("static/login.html")
@@ -128,14 +145,14 @@ class LoginHandler(RequestHandler):
             #        '</form></body></html>')
 
 
-class RegisterHandler(RequestHandler):
+class RegisterHandler(BaseHandler):
     async def post(self):
         # Get the username and password from the request
         username = self.get_argument("username")
         password = self.get_argument("password")
         
         # Hash the password securely
-        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         
         # Create a new User instance
         new_user = User(username=username, password_hash=password_hash)
@@ -167,7 +184,7 @@ class RegisterHandler(RequestHandler):
             session.close()
     def get(self):
         self.render("static/register.html")    
-class GraphDataHandler(RequestHandler):
+class GraphDataHandler(BaseHandler):
     """
     This Handler fetches data from the last X days and processes it 
 
@@ -395,8 +412,9 @@ class GraphDataHandler(RequestHandler):
         return timestamp_dict
 
 
-class GraphsHandler(RequestHandler):
+class GraphsHandler(BaseHandler):
     """Displays the html for one day graphs"""
+    @tornado.web.authenticated
     def get(self) -> None:
         self.render("static/graphs_one_day.html")
 
@@ -518,13 +536,14 @@ class GraphData1WeekHandler(GraphDataHandler):
         return daily_averages
 
 
-class Graphs1WeekHandler(RequestHandler):
+class Graphs1WeekHandler(BaseHandler):
     """Renders the weekly graphs webpage"""
+    @tornado.web.authenticated
     def get(self):
         self.render("static/graphs_one_week.html")
 
 
-class AlertDataHandler(RequestHandler):
+class AlertDataHandler(BaseHandler):
     """
     Fetches the alert data from the database. It's made to handle multiple teams having alerts, not only one.
     The format:
@@ -591,20 +610,21 @@ class AlertDataHandler(RequestHandler):
         return timestamp[0].strftime("%Y-%m-%dT%H:%M:%S.%f")
 
 
-class LatestDataHandler(RequestHandler):
+class LatestDataHandler(BaseHandler):
     """This handler fetches the latest data when loading the main page for the first time."""
     def get(self) -> None:
         latest_data = self.application.fetch_sensor_data()
         self.write(latest_data)
 
 
-class StatisicsHandler(RequestHandler):
+class StatisicsHandler(BaseHandler):
     """Renders the statistcs page"""
+    @tornado.web.authenticated
     def get(self) -> None:
         self.render("static/statistics.html")
 
 
-class MainHandler(RequestHandler):
+class MainHandler(BaseHandler):
     """Renders the main page."""
     @tornado.web.authenticated
     def get(self) -> None:
@@ -668,8 +688,9 @@ class WebWSApp(TornadoApplication):
         self.tornado_settings = {
             "debug": True,
             "autoreload": True,
-            "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
+            "cookie_secret": "your-secret-key",# TODO: add a real secret ke
             "login_url": "/login",
+            "secret_key": "your-jwt-secret" ## TODO: add a real secret key
         }
         # IMPORTANT
         # Periodically fetches and broadcast sensor data to WebSocket clients
