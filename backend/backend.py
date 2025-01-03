@@ -1,3 +1,4 @@
+import json
 from psycopg2 import IntegrityError
 import psycopg2
 import tornado
@@ -152,11 +153,9 @@ class RegisterHandler(RequestHandler):
             # Respond with success
             self.write({"success": "User Registered"})
         
-        
         except Exception as e:
             # Rollback for other exceptions
             session.rollback()
-            print(e)
             if "UniqueViolation" in str(e):
                 self.write({"error": "Username is already taken. Please choose another one."})
             else:
