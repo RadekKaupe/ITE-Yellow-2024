@@ -27,49 +27,47 @@
 \newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
 
 \begin{document}
-	
-	
-	\begin{titlepage}
-		
-		\centering
-		
-		{\scshape\LARGE Západočeská univerzita\par}
-		{\scshape\Large Fakulta aplikovaných věd \par}
-		{\scshape\Large Katerdra Kybernetiky \par}
-	%	{\begin{center}
-%				\includegraphics[width=0.7\textwidth]{pic/fav.jpg} 
-	%	\end{center}}
-		
-		{\huge\bfseries Dokumentace k projektu ITE-YELLOW\par} % TODO: lepsi nazev
-		
-		\vspace{2cm}
-		
-		{\Large\itshape Martin Hamar, Radek Kaupe, Samuel Kokoška\par}
-		
-		\vfill
-		
-		\vspace{1cm}
-		
-		\hskip -1 cm{KKY/ITE} \hfill {Datum: \today }
-		
-		
-		
-	\end{titlepage}
-	
-	\section{Úvod}
-	
-	
-	\subsection{Zadání}
-	
-	
-	\section{Jednotlivé moduly}
-		Projekt je rozdělen na několik modulů, které spolu přirozeně spolupracují. Tyto moduly se dají hrubě rozdělit na hardwarovou část a na softwarouvou část.
-		Hardwarová část zahrnuje krabičku a mikropočítač ESP8266 a jeho nastavení. Softwarovou část zahrnuje nastavení databáze, subscribera a spuštění backendu a webové stránky.
-	
-	\input{tex_moduly/krabicka.tex}
-	\input{tex_moduly/esp.tex}
-	\input{tex_moduly/databaze.tex}
-	\input{tex_moduly/subscriber.tex}
-	\input{tex_moduly/backend.tex}	
-	\section{Závěr}
+
+
+\begin{titlepage}
+
+	\centering
+
+	{\scshape\LARGE Západočeská univerzita\par}
+	{\scshape\Large Fakulta aplikovaných věd \par}
+	{\scshape\Large Katerdra Kybernetiky \par}
+	{\begin{center}
+			\includegraphics[width=0.7\textwidth]{pic/fav.jpg}
+		\end{center}}
+
+	{\huge\bfseries Dokumentace k projektu ITE-YELLOW\par} % TODO: lepsi nazev
+
+	\vspace{2cm}
+
+	{\Large\itshape Martin Hamar, Radek Kaupe, Samuel Kokoška\par}
+
+	\vfill
+
+	\vspace{1cm}
+
+	\hskip -1 cm{KKY/ITE} \hfill {Datum: \today }
+
+
+
+\end{titlepage}
+
+\section{Úvod}
+Tento soubor slouží jako manuál pro projekt týmu Yellow. Manuál by měl obsahovat veškeré informace o zprovoznění všech částí projektů. V případě jakékoliv nejasnosti kontaktujte některého člena z týmu: \texttt{skokoska@students.zcu.cz}, \texttt{kauperad@students.zcu.cz}, \texttt{hamarm@students.zcu.cz}
+
+\section{Zprovoznění Jednotlivých modulů}
+Projekt je rozdělen na několik modulů, které spolu přirozeně spolupracují. Tyto moduly se dají hrubě rozdělit na hardwarovou část a na softwarouvou část.
+Hardwarová část zahrnuje krabičku a mikropočítač ESP8266 a jeho nastavení. Softwarovou část zahrnuje nastavení databáze, subscribera a spuštění backendu a webové stránky.
+
+\input{tex_moduly/krabicka.tex}
+\input{tex_moduly/esp.tex}
+\input{tex_moduly/databaze.tex}
+\input{tex_moduly/subscriber.tex}
+\input{tex_moduly/backend.tex}
+\section{Budoucí vývoj}
+V blízké budoucnosti se určité moduly (především na straně backendu a frontendu) rozšíří o implementaci přihlašování, FaceId a větší robustnosti. Tyto nové technologie by ovšem na zprovoznění projektu neměly mít vliv a manuál by tedy měl sloužit v budoucnosti stále stejně.
 \end{document}
