@@ -126,7 +126,7 @@ class LoginHandler(BaseHandler):
         if bcrypt.checkpw(password.encode(), user.password_hash):
             # Create session
             token = jwt.encode(
-                {"user_id": user.id, "exp": datetime.now() + timedelta(hours=1)},
+                {"user_id": user.id, "exp": datetime.now() + timedelta(hours=1)}, # milliseconds=1000
                 self.settings["secret_key"]
             )
             print(token)
