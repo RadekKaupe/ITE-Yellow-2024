@@ -149,6 +149,11 @@ class LoginHandler(RequestHandler):
                 {"user_id": user.id, "exp": datetime.now(timezone.utc) + timedelta(hours=1) },# Authentication expires in 1 hour
                 self.settings["secret_key"]
             )
+
+            # token = jwt.encode(
+            #     {"user_id": user.id, "exp": datetime.now(timezone.utc) + timedelta(milliseconds=10000) },# Authentication expires in 10 seconds - for testing
+            #     self.settings["secret_key"]
+            # )
             # print(token)
             self.set_secure_cookie("auth_token", token)
             self.set_status(200)
@@ -204,6 +209,12 @@ class RegisterHandler(RequestHandler):
             session.close()
     def get(self):
         self.render("static/auth/register.html")    
+
+class LogoutHandler(RequestHandler):
+    def get(self):
+        self.clear_cookie("token")
+        params = urlencode({"success": "User logout."}) 
+        self.redirect(f"/login?{params}")
 class GraphDataHandler(BaseHandler):
     """
     This Handler fetches data from the last X days and processes it 
@@ -702,6 +713,7 @@ class WebWSApp(TornadoApplication):
             (r'/statistics', StatisicsHandler),
             (r"/login", LoginHandler),
             (r"/register", RegisterHandler),
+            (r"/logout", LogoutHandler),
             (r'/(.*)', StaticFileHandler,
              {'path': join_path(dirname(__file__), 'static')})
         ]
