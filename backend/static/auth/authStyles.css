@@ -59,10 +59,10 @@ button:hover {
 }
 
 .error {
-    color: red;
+    color: #b3252b;
     display: none;
     background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+    border: 1px solid #b3252b;
     border-radius: 5px;
     text-align: center;
     width: 100%;
@@ -71,6 +71,21 @@ button:hover {
     font-weight: bold;
     /* margin-left: 25%; */
     margin-bottom: 15px;
+}
+.success {
+    color:green;
+    display: none;
+    background-color:#d4edda ;
+    border: 1px solid #1dab51;
+    border-radius: 5px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+    font-weight: bold;
+    /* margin-left: 25%; */
+    margin-bottom: 15px;
+
 }
 .switch-form {
     text-align: center;

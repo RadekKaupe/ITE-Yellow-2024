@@ -1,13 +1,29 @@
-const loginFormEl = document.querySelector("#loginForm")
+const loginFormEl = document.querySelector("#loginForm");
 const errorMessageEl = document.querySelector("#error-message");
-const usernameInputEl = document.querySelector("#username")
-const passwordInputEl = document.querySelector("#password")
+const successMessageEl = document.querySelector("#success-message");
+const usernameInputEl = document.querySelector("#username");
+const passwordInputEl = document.querySelector("#password");
+function writeSuccessMessage(message) {
+    errorMessageEl.style.display = "none";
+    successMessageEl.textContent = message;
+    successMessageEl.style.display = "block";
+}
+function writeErrorMessage(message){
+        successMessageEl.style.display = "none";
+        errorMessageEl.textContent = message;
+        errorMessageEl.style.display = "block";
+
+}
 window.onload = function () {
     const urlParams = new URLSearchParams(window.location.search);
     const error = urlParams.get("error");
     if (error) {
-        errorMessageEl.textContent = error;
-        errorMessageEl.style.display = "block";
+        writeErrorMessage(error)
+    }
+    const success = urlParams.get("success");
+    console.log(success);
+    if (success) {
+        writeSuccessMessage(success)
     }
 };
 loginFormEl.addEventListener("submit", async (e) => {
@@ -31,14 +47,16 @@ loginFormEl.addEventListener("submit", async (e) => {
         const data = await response.json();
         console.log(data);
         if (data.error) {
-            errorMessageEl.textContent = data.error;
-            errorMessageEl.style.display = "block";
+            writeErrorMessage(data.error)
         }
         if (data.redirect) {
             window.location.href = data.redirect;
         }
+        if (data.success) {
+            writeSuccessMessage(data.success)
+        }
     } catch (error) {
-        errorMessageEl.textContent = "An error occurred. Please try again.";
-        errorMessageEl.style.display = "block";
+        const message = "An error occurred. Please try again."
+        writeErrorMessage(message)
     }
 });
