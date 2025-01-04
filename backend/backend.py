@@ -94,11 +94,18 @@ def extract_teams_dict() -> dict[int:str]:
 class BaseHandler(RequestHandler):
     def get_current_user(self):
         auth_token = self.get_secure_cookie("auth_token")
+        print(f"Auth token: {auth_token}")
         if not auth_token:
             return None
         try:
             # Decode the JWT token and verify it
             payload = jwt.decode(auth_token, self.settings["secret_key"], algorithms=["HS256"])
+            print(f"payload: {payload}")
+            payload_exp = payload["exp"]
+            print(f"Current timestamp: {datetime.now(timezone.utc)}")
+            if  payload_exp< datetime.now().timestamp(): 
+                print(f"Payload expiration: {payload_exp  }")
+                raise HTTPError(401, "Token expired")
             return payload.get("user_id")
         except jwt.ExpiredSignatureError:
             return None
@@ -126,10 +133,10 @@ class LoginHandler(BaseHandler):
         if bcrypt.checkpw(password.encode(), user.password_hash):
             # Create session
             token = jwt.encode(
-                {"user_id": user.id, "exp": datetime.now() + timedelta(hours=1)}, # milliseconds=1000
+                {"user_id": user.id, "exp": datetime.now(timezone.utc) + timedelta(hours=1) },# Authentication expires in 1 hour
                 self.settings["secret_key"]
             )
-            print(token)
+            # print(token)
             self.set_secure_cookie("auth_token", token)
             self.set_status(200)
             # self.redirect("/dashboard")
@@ -139,10 +146,6 @@ class LoginHandler(BaseHandler):
             self.write({"error": "Invalid credentials"})
     def get(self):
         self.render("static/login.html")
-            # self.write('<html><body><form action="/login" method="post">'
-            #        'Name: <input type="text" name="name">'
-            #        '<input type="submit" value="Sign in">'
-            #        '</form></body></html>')
 
 
 class RegisterHandler(BaseHandler):
