@@ -1,9 +1,20 @@
 const registerFormEl = document.querySelector("#regisetrForm");
 
 const errorMessageEl = document.querySelector("#error-message");
-const usernameInputEl = document.querySelector("#username")
-const passwordInputEl = document.querySelector("#password")
-const confirmPasswordInputEl = document.querySelector("#confirmPassword")
+const successMessageEl = document.querySelector("#success-message");
+const usernameInputEl = document.querySelector("#username");
+const passwordInputEl = document.querySelector("#password");
+const confirmPasswordInputEl = document.querySelector("#confirmPassword");
+function writeSuccessMessage(message) {
+    errorMessageEl.style.display = "none";
+    successMessageEl.textContent = message;
+    successMessageEl.style.display = "block";
+}
+function writeErrorMessage(message) {
+    successMessageEl.style.display = "none";
+    errorMessageEl.textContent = message;
+    errorMessageEl.style.display = "block";
+}
 document
     .getElementById("registerForm")
     .addEventListener("submit", async (e) => {
@@ -14,23 +25,20 @@ document
         const confirmPassword = confirmPasswordInputEl.value;
 
         if (username.length < 4) {
-            errorMessageEl.style.color = "red";
-            errorMessageEl.textContent =
+            const message =
                 "Please make the username at least 5 characters long.";
-            errorMessageEl.style.display = "block";
+            writeErrorMessage(message);
             return;
         }
         if (password.length < 7 || confirmPassword.length < 7) {
-            errorMessageEl.style.color = "red";
-            errorMessageEl.textContent =
+            const message =
                 "Please make the password at least 8 characters long.";
-            errorMessageEl.style.display = "block";
+            writeErrorMessage(message);
             return;
         }
         if (password !== confirmPassword) {
-            errorMessageEl.style.color = "red";
-            errorMessageEl.textContent = "Passwords do not match";
-            errorMessageEl.style.display = "block";
+            const message = "Passwords do not match.";
+            writeErrorMessage(message);
             return;
         }
 
@@ -51,18 +59,14 @@ document
             } else {
                 const data = await response.json();
                 if (data.error) {
-                    errorMessageEl.textContent = data.error;
-                    errorMessageEl.style.display = "block";
-                    errorMessageEl.style.color = "red";
+                    writeErrorMessage(data.error);
                 }
                 if (data.success) {
-                    errorMessageEl.textContent = data.success;
-                    errorMessageEl.style.display = "block";
-                    errorMessageEl.style.color = "green";
+                    writeSuccessMessage(data.success);
                 }
             }
         } catch (error) {
-            errorMessageEl.textContent = "An error occurred. Please try again.";
-            errorMessageEl.style.display = "block";
+            const message = "An error occurred. Please try again.";
+            writeErrorMessage(message);
         }
     });

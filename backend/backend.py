@@ -193,7 +193,7 @@ class RegisterHandler(RequestHandler):
             session.commit()
             
             # Respond with success
-            self.write({"success": "User Registered"})
+            self.write({"success": "User Registered. Please wait for the approval of the admin."})
         
         except Exception as e:
             # Rollback for other exceptions

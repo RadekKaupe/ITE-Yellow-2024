@@ -59,10 +59,10 @@ button:hover {
 }
 
 .error {
-    color: #b3252b;
+    color: #dc143c;
     display: none;
     background-color: #f8d7da;
-    border: 1px solid #b3252b;
+    border: 1px solid #dc143c;
     border-radius: 5px;
     text-align: center;
     width: 100%;
