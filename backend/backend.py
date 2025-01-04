@@ -128,9 +128,12 @@ class LoginHandler(BaseHandler):
         if not user:
             self.write({"error": "Invalid credentials"})
             return
-        
+        # print(user.approved)
         # Verify password
         if bcrypt.checkpw(password.encode(), user.password_hash):
+            if(not user.approved):
+                self.write({"error": "User has not been yet approved. Please contact the admin of the page."})
+                return
             # Create session
             token = jwt.encode(
                 {"user_id": user.id, "exp": datetime.now(timezone.utc) + timedelta(hours=1) },# Authentication expires in 1 hour
