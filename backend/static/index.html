@@ -23,10 +23,14 @@
     <body onload="onBodyLoad()">
         <!-- Header Section -->
         <header>
-            <h1>Welcome to Yellow Team's Dashboard</h1>
-            <p>Real-time data display for each team</p>
+            <div class="header-content">
+                <a class="logout" href="/logout">Logout</a>
+                <div class="header-text">
+                    <h1>Welcome to Yellow Team's Dashboard</h1>
+                    <p>Real-time data display for each team</p>
+                </div>
+            </div>
         </header>
-
         <!-- Team Data Section -->
         <div class="team-container">
             <!-- Team Boxes -->
@@ -86,12 +90,9 @@
             </div>
         </div>
         <div class="link">
-            <a href="/statistics">Go to Statistics Page</a>
-            <a href="/graphs-one-day">Go to daily data graphs</a>
-            <a href="/graphs-one-week">Go to weekly data graphs</a>
-        </div>
-        <div class="link">
-            <a href="/logout">Logout</a>
+            <a class="bottom-link" href="/statistics">Go to Statistics Page</a>
+            <a class="bottom-link" href="/graphs-one-day">Go to daily data graphs</a>
+            <a class="bottom-link" href="/graphs-one-week">Go to weekly data graphs</a>
         </div>
         <!-- Scripts -->
         <script src="script.js" type="text/javascript"></script>
