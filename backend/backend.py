@@ -160,12 +160,12 @@ class LoginHandler(RequestHandler):
     def get(self):
         error = self.get_argument("error", None) 
         # print(error)
-        self.render("static/login.html", error = error)
+        self.render("static/auth/login.html", error = error)
         # if error:
         #     self.write({"error": error})
 
 
-class RegisterHandler(BaseHandler):
+class RegisterHandler(RequestHandler):
     async def post(self):
         # Get the username and password from the request
         username = self.get_argument("username")
@@ -203,7 +203,7 @@ class RegisterHandler(BaseHandler):
             # Close the session
             session.close()
     def get(self):
-        self.render("static/register.html")    
+        self.render("static/auth/register.html")    
 class GraphDataHandler(BaseHandler):
     """
     This Handler fetches data from the last X days and processes it 
