@@ -109,6 +109,16 @@
         </div>
 
         <script>
+            window.onload = function () {
+                const urlParams = new URLSearchParams(window.location.search);
+                const error = urlParams.get("error");
+                if (error) {
+                    const errorMessage =
+                        document.getElementById("error-message");
+                    errorMessage.textContent = error;
+                    errorMessage.style.display = "block";
+                }
+            };
             document
                 .getElementById("loginForm")
                 .addEventListener("submit", async (e) => {

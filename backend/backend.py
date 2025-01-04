@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlencode
 from psycopg2 import IntegrityError
 import psycopg2
 import tornado
@@ -100,19 +101,28 @@ class BaseHandler(RequestHandler):
         try:
             # Decode the JWT token and verify it
             payload = jwt.decode(auth_token, self.settings["secret_key"], algorithms=["HS256"])
-            print(f"payload: {payload}")
+            # print(f"payload: {payload}")
             payload_exp = payload["exp"]
-            print(f"Current timestamp: {datetime.now(timezone.utc)}")
+            # print(f"Current timestamp: {datetime.now(timezone.utc)}")
             if  payload_exp< datetime.now().timestamp(): 
-                print(f"Payload expiration: {payload_exp  }")
-                raise HTTPError(401, "Token expired")
+                # print(f"Payload expiration: {payload_exp  }")
+                self.redirect_with_error("Token Expired")
+                return
             return payload.get("user_id")
         except jwt.ExpiredSignatureError:
-            return None
+            self.redirect_with_error("Token Expired")
+            return 
         except jwt.InvalidTokenError:
-            return None
+            self.redirect_with_error("Invalid Token")
+            return
 
-class LoginHandler(BaseHandler):
+
+    def redirect_with_error(self, error_message):
+        params = urlencode({"error": error_message}) 
+        # self.redirect(f"/login")
+        self.redirect(f"/login?{params}")
+
+class LoginHandler(RequestHandler):
     async def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
@@ -148,7 +158,11 @@ class LoginHandler(BaseHandler):
             self.set_status(401)
             self.write({"error": "Invalid credentials"})
     def get(self):
-        self.render("static/login.html")
+        error = self.get_argument("error", None) 
+        # print(error)
+        self.render("static/login.html", error = error)
+        # if error:
+        #     self.write({"error": error})
 
 
 class RegisterHandler(BaseHandler):
