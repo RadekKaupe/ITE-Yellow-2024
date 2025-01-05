@@ -50,7 +50,7 @@ LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
 SessionLocal = sessionmaker(bind=engine)
 
-
+EPSILON = 1e-9
 class BaseHandler(RequestHandler):
     def get_current_user(self):
         auth_token = self.get_secure_cookie("auth_token")
@@ -300,7 +300,7 @@ class RecognizeImageHandler(RequestHandler):
         detections = detector.forward()
 
         faces = []
-
+        proba = None
         # loop over the detections
         for i in range(0, detections.shape[2]):
             # extract the confidence (i.e., probability) associated with the
@@ -334,18 +334,56 @@ class RecognizeImageHandler(RequestHandler):
                 preds = recognizer.predict_proba(vec)[0]
                 j = np.argmax(preds)
                 proba = preds[j]
-                name = le.classes_[j]
+                username = le.classes_[j]
 
                 faces.append({
-                    "name": name,
+                    "name": username,
                     "prob": proba,
                     "bbox": {"x1": int(startX), "x2": int(endX), "y1": int(startY), "y2": int(endY)},
                 })
 
-        js = {"faces": faces}
-        self.write(js)
-        print("Result JSON")
-        print(json.dumps(js, indent=4, sort_keys=True))
+        if(proba == None):
+            self.write({"error": "No faces were found."})
+            return
+        if(proba > 0.9 - EPSILON):
 
+
+            session = SessionLocal()
+
+            user = session.execute(
+                select(User).where(User.username == username)
+                ).scalar_one_or_none()
+            if not user:
+                self.write({"error": "Invalid credentials"})
+                return
+            # print(user.approved)
+            # Verify password
+            if(not user.approved):
+                self.write({"error": "User has not been yet approved. Please contact the admin of the page."})
+                return
+            # Create session
+            token = jwt.encode(
+                {"user_id": user.id, "exp": datetime.now(timezone.utc) + timedelta(hours=1) },# Authentication expires in 1 hour
+                self.settings["secret_key"]
+            )
+
+            # token = jwt.encode(
+            #     {"user_id": user.id, "exp": datetime.now(timezone.utc) + timedelta(milliseconds=10000) },# Authentication expires in 10 seconds - for testing
+            #     self.settings["secret_key"]
+            # )
+            # print(token)
+            self.set_secure_cookie("auth_token", token)
+            self.set_status(200)
+            response = {"faces": faces, "redirect": "/dashboard"}
+            print("Result JSON")
+            print(json.dumps(response, indent=4, sort_keys=True))
+            self.write(response)
+            return
+        
+        else: 
+            formatted_proba = f"{proba:.3f}"
+            # print(formatted_proba)
+            self.write({"error": f"Low Probability: {formatted_proba}%"})
+            return
     def get(self):
         self.render("static/auth/recognize.html")

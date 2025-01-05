@@ -1,4 +1,3 @@
-
 (function () {
     // The width and height of the captured photo. We will set the
     // width to the value defined here, but the height will be
@@ -100,25 +99,47 @@
             if (xhr.readyState === 4) {
                 const response = JSON.parse(xhr.response);
 
+                console.log(response);
+                if (response.error) {
+                    writeErrorMessage(response.error);
+                    return
+                }
                 const faces = response.faces;
                 if (faces.length == 0) {
                     writeErrorMessage("No face was found.");
-                    return
+                    return;
                 }
-                let names = [];
+                let usernames = [];
                 faces.forEach((face) =>
-                    names.push(
+                    usernames.push(
                         face.name + " (" + Math.round(face.prob * 100) + "%)"
                     )
                 );
-                names = names.join(", ");
-                console.log(names);
-                writeSuccessMessage(names)
+                usernames = usernames.join(", ");
+                console.log(usernames);
+                writeSuccessMessage(usernames);
+                if (response.redirect) {
+                    console.log("I should redirect?")
+                    console.log(response.redirect)
+                    setTimeout(() => { window.location.href = response.redirect; }, 1250);
+                    // window.location.href = response.redirect;
+                    return
+                }
             }
         };
 
         xhr.setRequestHeader("Content-Type", "text/plain");
         xhr.send(data);
+
+        // xhr.onreadystatechange = function () {
+        //     if (xhr.readyState === XMLHttpRequest.DONE) {
+        //         if (xhr.status === 200) {
+        //             writeSuccessMessage(names);
+        //         } else {
+        //             writeErrorMessage(xhr.statusText);
+        //         }
+        //     }
+        // };
     }
 
     function recognize() {
