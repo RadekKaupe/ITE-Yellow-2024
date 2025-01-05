@@ -237,15 +237,18 @@ class ReceiveImageHandler(BaseHandler):
 
 
 class TrainingHandler(RequestHandler):
-    def run_shell_script(self, script_path):
+
+    def run_shell_script(self, script_path, *args):
         print(script_path)
         try:
-            # git_bash = "C:/Program Files/Git/bin/bash.exe"
+            # Prepare the command with the script path and arguments
+            command = ["bash", script_path] + list(args)
+            
             # Run the script and capture output
-            result = subprocess.run(["bash", script_path], 
-                                capture_output=True,
-                                text=True,
-                                check=True)
+            result = subprocess.run(command, 
+                                    capture_output=True,
+                                    text=True,
+                                    check=True)
             print("Script output:", result.stdout)
             return True
         except subprocess.CalledProcessError as e:
@@ -254,9 +257,11 @@ class TrainingHandler(RequestHandler):
             return False
     
     def get(self):
-        train_sh_path = os.path.join('backend', 'faceid', 'train.sh')
+        faceid_path = os.path.join('backend', 'faceid')
+        train_sh_path = os.path.join(faceid_path,'train.sh')
         
-        self.run_shell_script(train_sh_path)
+        self.run_shell_script(train_sh_path, faceid_path)
+        self.redirect("/receive_image")
 
 detector = cv2.dnn.readNetFromCaffe("backend/faceid/face_detection_model/deploy.prototxt",
                                     "backend/faceid/face_detection_model/res10_300x300_ssd_iter_140000.caffemodel")
