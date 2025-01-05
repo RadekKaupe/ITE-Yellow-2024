@@ -276,14 +276,14 @@ class RecognizeImageHandler(RequestHandler):
     def post(self):
         # Convert from binary data to string
         received_data = self.request.body.decode()
-
+        print("post")
         assert received_data.startswith("data:image/png"), "Only data:image/png URL supported"
 
         # Parse data:// URL
         with urlopen(received_data) as response:
             image_data = response.read()
 
-        fn = f"recog_images/img-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.png" 
+        fn = f"backend/recog_images/img-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.png" 
         with open(fn, "wb") as fw:
             fw.write(image_data)
 

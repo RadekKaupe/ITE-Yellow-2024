@@ -58,11 +58,7 @@
       ev.preventDefault();
     }, false);
 
-    recognizebutton.addEventListener('click', function(ev){
-      recognize();
-      ev.preventDefault();
-    }, false);
-    
+  
   }
 
   // Capture a photo by fetching the current contents of the video
