@@ -1,3 +1,4 @@
+
 (function () {
     // The width and height of the captured photo. We will set the
     // width to the value defined here, but the height will be
@@ -22,8 +23,7 @@
         video = document.getElementById("video");
         canvas = document.getElementById("canvas");
         startbutton = document.getElementById("startbutton");
-        recognizebutton = document.getElementById("recognizebutton");
-        results = document.getElementById("results");
+        const recognizebutton = document.getElementById("recognizebutton");
 
         navigator.mediaDevices
             .getUserMedia({ video: true, audio: false })
@@ -98,12 +98,14 @@
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
-                response = JSON.parse(xhr.response);
+                const response = JSON.parse(xhr.response);
 
-                faces = response.faces;
-                console.log(faces);
-
-                names = [];
+                const faces = response.faces;
+                if (faces.length == 0) {
+                    writeErrorMessage("No face was found.");
+                    return
+                }
+                let names = [];
                 faces.forEach((face) =>
                     names.push(
                         face.name + " (" + Math.round(face.prob * 100) + "%)"
@@ -111,8 +113,7 @@
                 );
                 names = names.join(", ");
                 console.log(names);
-
-                results.innerHTML = names;
+                writeSuccessMessage(names)
             }
         };
 
@@ -136,3 +137,5 @@
     // once loading is complete.
     window.addEventListener("load", startup, false);
 })();
+
+import { writeErrorMessage, writeSuccessMessage } from "./messageDisplay.js";

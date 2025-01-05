@@ -84,7 +84,7 @@
                 if (xhr.status === 200) {
                     writeSuccessMessage("Picture succesfully taken.");
                 } else {
-                    console.log("Error:", xhr.status, xhr.statusText); // Add any additional logic for error
+                    writeErrorMessage(xhr.statusText);
                 }
             }
         };

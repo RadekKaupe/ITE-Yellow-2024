@@ -10,7 +10,7 @@
             media="all"
         />
         <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
-        <script src="auth/recognize.js"></script>
+        <script src="auth/recognize.js" type="module"></script>
     </head>
     <body>
         <div class="contentarea">
@@ -21,9 +21,10 @@
             <div class="buttons">
                 <button id="recognizebutton">Recognize</button>
             </div>
-            <p id="results"></p>
             <canvas id="canvas"> </canvas>
         <div class="switch-form">
+                <div class="error" id="error-message"></div>
+                <div class="success" id="success-message"></div>
             <a href="/receive_image" style="display: none;">Receive image</a>
             <p>
                 Want to login instead?
