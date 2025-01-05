@@ -1,0 +1,73 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+}
+
+.contentarea {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+}
+
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+.camera {
+    margin-bottom: 20px;
+}
+
+video {
+    width: 100%;
+    height: auto;
+    border: 2px solid #333333;
+    border-radius: 10px;
+}
+
+.buttons {
+    margin-bottom: 20px;
+}
+
+
+
+p#results {
+    font-size: 18px;
+    color: #555555;
+    margin-top: 20px;
+}
+
+canvas {
+    display: none;
+}
+button{
+
+    text-decoration: none;  /* Removes the underline */
+    font-size: 18px;        /* Sets font size */
+    font-weight: bold;      /* Makes the font bold */
+    color: white;           /* Sets text color */
+    background-color: #f1c40f;;  /* Blue background color */
+    padding: 10px 20px;     /* Adds padding around the text */
+    border-radius: 5px;     /* Rounds the corners */
+    transition: background-color 0.3s, transform 0.2s;  /* Adds smooth hover effects */
+}
+button:hover {
+
+    background-color: #0056b3;  /* Darker blue on hover */
+    transform: scale(1.05);      /* Slightly enlarges the button */
+}
+.switch-form {
+    text-align: center;
+    margin-top: 1rem;
+}
+.switch-form a {
+    color: #007bff;
+    text-decoration: none;
+}

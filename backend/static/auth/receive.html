@@ -1,28 +1,34 @@
- <!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-	<title>Take picture using WebRTC</title>
-	<meta charset='utf-8'>
-	<link rel="stylesheet" href="auth/main.css" type="text/css" media="all">
-	<script src="auth/receive.js">
-	</script>
-</head>
-<body>
-<div class="contentarea">
-	<h1>
-		Take picture using WebRTC
-	</h1>
-  <div class="camera">
-    <video id="video">Video stream not available.</video>
-  </div>
-  <div class="buttons">
-    <button id="startbutton">Take photo</button> 
-    <a href="/train">train</a>
-    <a href="/recognize">recognize</a>
-  </div>
-  <p id="results"></p>
-  <canvas id="canvas">
-  </canvas>
-</div>
-</body>
+    <head>
+        <title>Take picture using WebRTC</title>
+        <meta charset="utf-8" />
+        <link
+            rel="stylesheet"
+            href="auth/rec.css"
+            type="text/css"
+            media="all"
+        />
+        <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
+        <script src="auth/receive.js"></script>
+    </head>
+    <body>
+        <div class="contentarea">
+            <h1>Save your picture for FaceID in the future.</h1>
+            <div class="camera">
+                <video id="video">Video stream not available.</video>
+            </div>
+            <div class="buttons">
+                <button id="take-img">Take photo</button>
+                <button id="train">Train</button>
+            </div>
+            <p id="results"></p>
+            <canvas id="canvas"></canvas>
+            <div class="switch-form">
+
+                <a href="/recognize">Recognize</a>
+<p>Go to <a href="/dashboard">dashboard</a></p>
+            </div>
+        </div>
+    </body>
 </html>

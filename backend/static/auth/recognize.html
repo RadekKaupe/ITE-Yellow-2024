@@ -1,27 +1,35 @@
- <!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-	<title>Take picture using WebRTC</title>
-	<meta charset='utf-8'>
-	<link rel="stylesheet" href="auth/main.css" type="text/css" media="all">
-	<script src="auth/recognize.js">
-	</script>
-</head>
-<body>
-<div class="contentarea">
-	<h1>
-		Take picture using WebRTC
-	</h1>
-  <div class="camera">
-    <video id="video">Video stream not available.</video>
-  </div>
-  <div class="buttons">
-    <button id="recognizebutton">Recognize</button> 
-  </div>
-  <p id="results"></p>
-  <canvas id="canvas">
-  </canvas>
-</div>
-    <a href="/receive_image">Receive image</a>
-</body>
+    <head>
+        <title>Take picture using WebRTC</title>
+        <meta charset="utf-8" />
+        <link
+            rel="stylesheet"
+            href="auth/rec.css"
+            type="text/css"
+            media="all"
+        />
+        <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
+        <script src="auth/recognize.js"></script>
+    </head>
+    <body>
+        <div class="contentarea">
+            <h1>Login using FaceID</h1>
+            <div class="camera">
+                <video id="video">Video stream not available.</video>
+            </div>
+            <div class="buttons">
+                <button id="recognizebutton">Recognize</button>
+            </div>
+            <p id="results"></p>
+            <canvas id="canvas"> </canvas>
+        <div class="switch-form">
+            <a href="/receive_image">Receive image</a>
+            <p>
+                Want to login instead?
+                <a href="/login">Login</a>
+            </p>
+        </div>
+        </div>
+    </body>
 </html>
