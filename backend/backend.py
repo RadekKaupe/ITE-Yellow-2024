@@ -29,7 +29,7 @@ db_foler_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'db'))
 
 sys.path.insert(0, db_foler_path)
-from db import SensorData, Teams, SensorDataOutliers, User
+from db import SensorData, Teams, SensorDataOutliers 
 
 # Connecting to the database
 load_dotenv()
@@ -45,24 +45,7 @@ LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
 SessionLocal = sessionmaker(bind=engine)
 
-
-# Authentication decoratord
-def require_auth(handler_class):
-    def wrapper(method):
-        def wrapper(self, *args, **kwargs):
-            user = self.get_secure_cookie('user')  # Check for the secure cookie
-            if not user:
-                raise HTTPError(403, "Authentication required")  # Deny access if user is not authenticated
-            
-            # Check if the wrapped method is asynchronous
-            if inspect.iscoroutinefunction(method):
-                # Await the method if it's asynchronous
-                return method(self, *args, **kwargs)
-            else:
-                # Call the method directly if it's synchronous
-                return method(self, *args, **kwargs)
-        return wrapper
-    return wrapper
+from auth import LoginHandler, RegisterHandler, LogoutHandler, BaseHandler, ReceiveImageHandler, RecognizeImageHandler
 
 def convert_to_local_time(utc_timestamp: str):
     """Convert a utc timestamp to the LOCAL_TIMEZONE, which is needed for the testing table in the db"""
@@ -92,129 +75,7 @@ def extract_teams_dict() -> dict[int:str]:
     session.close()
     return teams_dict
 
-class BaseHandler(RequestHandler):
-    def get_current_user(self):
-        auth_token = self.get_secure_cookie("auth_token")
-        print(f"Auth token: {auth_token}")
-        if not auth_token:
-            return None
-        try:
-            # Decode the JWT token and verify it
-            payload = jwt.decode(auth_token, self.settings["secret_key"], algorithms=["HS256"])
-            # print(f"payload: {payload}")
-            payload_exp = payload["exp"]
-            # print(f"Current timestamp: {datetime.now(timezone.utc)}")
-            if  payload_exp< datetime.now().timestamp(): 
-                # print(f"Payload expiration: {payload_exp  }")
-                self.redirect_with_error("Token Expired")
-                return
-            return payload.get("user_id")
-        except jwt.ExpiredSignatureError:
-            self.redirect_with_error("Token Expired")
-            return 
-        except jwt.InvalidTokenError:
-            self.redirect_with_error("Invalid Token")
-            return
 
-
-    def redirect_with_error(self, error_message):
-        params = urlencode({"error": error_message}) 
-        # self.redirect(f"/login")
-        self.redirect(f"/login?{params}")
-
-class LoginHandler(RequestHandler):
-    async def post(self):
-        username = self.get_argument("username")
-        password = self.get_argument("password")
-        # print(username)
-        # print(password)
-        # Get user from database
-        
-        session = SessionLocal()
-
-        user = session.execute(
-            select(User).where(User.username == username)
-            ).scalar_one_or_none()
-        if not user:
-            self.write({"error": "Invalid credentials"})
-            return
-        # print(user.approved)
-        # Verify password
-        if bcrypt.checkpw(password.encode(), user.password_hash):
-            if(not user.approved):
-                self.write({"error": "User has not been yet approved. Please contact the admin of the page."})
-                return
-            # Create session
-            token = jwt.encode(
-                {"user_id": user.id, "exp": datetime.now(timezone.utc) + timedelta(hours=1) },# Authentication expires in 1 hour
-                self.settings["secret_key"]
-            )
-
-            # token = jwt.encode(
-            #     {"user_id": user.id, "exp": datetime.now(timezone.utc) + timedelta(milliseconds=10000) },# Authentication expires in 10 seconds - for testing
-            #     self.settings["secret_key"]
-            # )
-            # print(token)
-            self.set_secure_cookie("auth_token", token)
-            self.set_status(200)
-            # self.redirect("/dashboard")
-            self.write({"redirect": "/dashboard"}) 
-        else:
-            self.set_status(401)
-            self.write({"error": "Invalid credentials"})
-    def get(self):
-        error = self.get_argument("error", None) 
-        # print(error)
-        self.render("static/auth/login.html", error = error)
-        # if error:
-        #     self.write({"error": error})
-
-
-class RegisterHandler(RequestHandler):
-    async def post(self):
-        # Get the username and password from the request
-        username = self.get_argument("username")
-        password = self.get_argument("password")
-        
-        # Hash the password securely
-        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-        
-        # Create a new User instance
-        new_user = User(username=username, password_hash=password_hash)
-        
-        # Create a session
-        session = SessionLocal()
-        
-        try:
-            # Add the user to the session
-            session.add(new_user)
-            
-            # Commit the session
-            session.commit()
-            
-            # Respond with success
-            self.write({"success": "User Registered. Please wait for the approval of the admin."})
-        
-        except Exception as e:
-            # Rollback for other exceptions
-            session.rollback()
-            if "UniqueViolation" in str(e):
-                self.write({"error": "Username is already taken. Please choose another one."})
-            else:
-                self.write({"error": "An unknown error occurred. Please try again."})
-            # self.write({"error": f"An error occurred: {str(e)}"})
-        
-        finally:
-            # Close the session
-            session.close()
-    def get(self):
-        self.render("static/auth/register.html")    
-
-class LogoutHandler(RequestHandler):
-    def get(self):
-        self.clear_cookie("token")
-        params = urlencode({"success": "User logout."}) 
-        self.redirect(f"/login?{params}")
 class GraphDataHandler(BaseHandler):
     """
     This Handler fetches data from the last X days and processes it 
@@ -714,6 +575,8 @@ class WebWSApp(TornadoApplication):
             (r"/login", LoginHandler),
             (r"/register", RegisterHandler),
             (r"/logout", LogoutHandler),
+            (r"/receive", ReceiveImageHandler),
+            (r"/recognize", RecognizeImageHandler),
             (r'/(.*)', StaticFileHandler,
              {'path': join_path(dirname(__file__), 'static')})
         ]
