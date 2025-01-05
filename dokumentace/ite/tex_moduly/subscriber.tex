@@ -1,10 +1,18 @@
 \subsection{Subscriber a připojení k Aimtec AWS}
-Před samotným spuštěním subscribera je třeba vyřešit credentials týkající se připojení na Aimtec. je hlavní tabulka, kde se ukládájí veškerá validní data
+Před samotným spuštěním subscribera je třeba vyřešit credentials týkající se připojení na Aimtec.
 \subsubsection{Aimtec}
 \label{sssec:aimtec}
-Pro zajištění posílání dat na Aimtec upravte \verb|.env| soubor, aby obsahoval \verb|AIMTEC_URL=| a zadejte správnou URL adresu. Poté spusťte \verb|aimtec.py| skript, pro získání \verb|TEAM_UUID|. Ten také zadejte do již zmíněného soubouru.
+Pro zajištění posílání dat na Aimtec upravte \verb|.env| soubor, aby obsahoval \verb|AIMTEC_URL| a zadejte správnou URL adresu. Poté spusťte \verb|aimtec.py| skript, pro získání \verb|TEAM_UUID|. Ten také zadejte do již zmíněného soubouru.
 Nyní by měl \verb|.env| soubor vypadat následovně:
-
+\begin{verbatim}
+    
+DB_USER=uzivatel
+DB_PASSWORD=heslo
+DB_HOST=host
+DB_NAME=nazev_databaze
+AIMTEC_URL=URL
+TEAM_UUID=UUID
+\end{verbatim}
 \subsubsection{Subscriber}
 \label{sssec:subscriber}
 Pro zajištění komunikace s brokerem je třeba opět upravit \verb|.env| soubor, je třeba zadat následující položky:
@@ -30,7 +38,7 @@ Po provedení úprav v sekcích \ref{ssec:db}, \ref{sssec:aimtec} a \ref{sssec:s
     BROKER_PASSWD =heslo
     TOPIC=topic
 \end{verbatim}
-Pokud ano, nyní můžete spustit skript \verb|subscriber_vm.py|. 
+Pokud ano, můžete nyní spustit skript \verb|subscriber_vm.py|. 
 \subsubsection{Funkce samotného subscribera}
 Subscriber má několik funckí:
 \begin{enumerate}
@@ -52,7 +60,7 @@ Momentálně subscriber validuje:
 U příjímání chyb je třeba zmínit, že je ukládá do složky \verb|subscriber\err\|, kde názvy souborů jsou \verb|timestamp|y, které se v chybové zprávě vyskytují.
 
 \myparagraph{Ukládaní do databáze}
-Do "ostré"\ databáze se ukládájí pouze validní data. Pro validační a testovací účely se většina dat (ve správném formátu) uloží do testovací tabulky.
+Do `ostré' databáze se ukládájí pouze validní data. Pro validační a testovací účely se většina dat (ve správném formátu) uloží do testovací tabulky.
 Je to z důvodu možnosti zjištění případných chyb, ať už na straně ESPčka nebo subscribera. Také lze beztrestně manipulovat s daty, aniž by se změny projevili na webové stránce.
 \myparagraph{Posílání dat na Aimtec} 
 Funkčnost se dá popsat následovně:
