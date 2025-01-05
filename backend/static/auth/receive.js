@@ -22,9 +22,8 @@
         video = document.getElementById("video");
         canvas = document.getElementById("canvas");
         takeImageButton = document.getElementById("take-img");
-        recognizebutton = document.getElementById("recognizebutton");
-        results = document.getElementById("results");
-        trainButton = document.getElementById("train");
+        const trainButton = document.getElementById("train");
+
         navigator.mediaDevices
             .getUserMedia({ video: true, audio: false })
             .then(function (stream) {
@@ -80,6 +79,15 @@
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/receive_image", true);
         xhr.setRequestHeader("Content-Type", "text/plain");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    writeSuccessMessage("Picture succesfully taken.");
+                } else {
+                    console.log("Error:", xhr.status, xhr.statusText); // Add any additional logic for error
+                }
+            }
+        };
         xhr.send(data);
     }
 
@@ -139,3 +147,5 @@
     // once loading is complete.
     window.addEventListener("load", startup, false);
 })();
+
+import { writeErrorMessage, writeSuccessMessage } from "./messageDisplay.js";

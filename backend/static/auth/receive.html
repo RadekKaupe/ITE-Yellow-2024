@@ -10,7 +10,7 @@
             media="all"
         />
         <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
-        <script src="auth/receive.js"></script>
+        <script src="auth/receive.js" type="module"></script>
     </head>
     <body>
         <div class="contentarea">
@@ -25,7 +25,9 @@
             <p id="results"></p>
             <canvas id="canvas"></canvas>
             <div class="switch-form">
-                <a href="/recognize" style= "display: none;">Recognize</a>
+                <div class="error" id="error-message"></div>
+                <div class="success" id="success-message"></div>
+                <a href="/recognize" style="display: none">Recognize</a>
                 <p>Go back to the <a href="/dashboard">dashboard</a>.</p>
             </div>
         </div>
