@@ -45,7 +45,7 @@ LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
 SessionLocal = sessionmaker(bind=engine)
 
-from auth import LoginHandler, RegisterHandler, LogoutHandler, BaseHandler, ReceiveImageHandler, RecognizeImageHandler
+from auth import LoginHandler, RegisterHandler, LogoutHandler, BaseHandler, ReceiveImageHandler, RecognizeImageHandler, TrainingHandler
 
 def convert_to_local_time(utc_timestamp: str):
     """Convert a utc timestamp to the LOCAL_TIMEZONE, which is needed for the testing table in the db"""
@@ -575,8 +575,9 @@ class WebWSApp(TornadoApplication):
             (r"/login", LoginHandler),
             (r"/register", RegisterHandler),
             (r"/logout", LogoutHandler),
-            (r"/receive", ReceiveImageHandler),
+            (r"/receive_image", ReceiveImageHandler),
             (r"/recognize", RecognizeImageHandler),
+            (r"/train", TrainingHandler),
             (r'/(.*)', StaticFileHandler,
              {'path': join_path(dirname(__file__), 'static')})
         ]

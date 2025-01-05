@@ -1,4 +1,5 @@
 
+import subprocess
 from urllib.parse import urlencode
 from urllib.request import urlopen
 import tornado
@@ -174,32 +175,96 @@ class LogoutHandler(RequestHandler):
         self.redirect(f"/login?{params}")
         
 
+tornado.log.enable_pretty_logging()
+app_log = logging.getLogger("tornado.application")
 
+
+def create_user_dataset_folder(username):
+    # Define the base path
+    base_path = os.path.join('backend', 'faceid', 'dataset')
+    # print(base_path)
+    # Create the full path including username
+    user_path = os.path.join(base_path, username)
+    # print(user_path)
+    # Check if base directories exist, create them if they don't
+    os.makedirs(base_path, exist_ok=True)
+    
+    # Create user directory if it doesn't exist
+    if not os.path.exists(user_path):
+        os.makedirs(user_path)
+        print(f"Created directory for user: {username}")
+        return True
+    else:
+        print(f"Directory already exists for user: {username}")
+        return False
 
 class ReceiveImageHandler(BaseHandler):
-    @tornado.web.authenticated
     def post(self):
         # Convert from binary data to string
         received_data = self.request.body.decode()
 
         assert received_data.startswith("data:image/png"), "Only data:image/png URL supported"
 
+        username = self.get_user_from_token()
+        create_user_dataset_folder(username=username)
         # Parse data:// URL
         with urlopen(received_data) as response:
             image_data = response.read()
 
 
+        app_log.info("Received image: %d bytes", len(image_data))
         # Write an image to the file
-        with open(f"images/img-{datetime.now().strftime('%Y%m%d-%H%M%S')}.png", "wb") as fw:
-            fw.write(image_data)
+        try:
+            with open(f"backend/faceid/dataset/{username}/img-{datetime.now().strftime('%Y%m%d-%H%M%S')}.png", "wb") as fw:
+                fw.write(image_data)
+        except Exception as e:
+            print(f"Something went wrong when saving the image.")
+    @tornado.web.authenticated
+    def get(self):
+        self.render("static/auth/receive.html")
 
-detector = cv2.dnn.readNetFromCaffe("faceid/face_detection_model/deploy.prototxt",
-                                    "faceid/face_detection_model/res10_300x300_ssd_iter_140000.caffemodel")
+    def get_user_from_token(self):
+        auth_token = self.get_secure_cookie("auth_token")
+        payload = jwt.decode(auth_token, self.settings["secret_key"], algorithms=["HS256"])
 
-embedder = cv2.dnn.readNetFromTorch("faceid/openface_nn4.small2.v1.t7")
+        user_id = payload["user_id"]
+        session = SessionLocal()
+        username = session.execute(
+            select(User.username).where(User.id == user_id)
+        ).scalar_one_or_none()
+        return username
 
-recognizer = pickle.loads(open("faceid/output/recognizer.pickle", "rb").read())
-le = pickle.loads(open("faceid/output/le.pickle", "rb").read())
+
+
+class TrainingHandler(RequestHandler):
+    def run_shell_script(self, script_path):
+        print(script_path)
+        try:
+            # git_bash = "C:/Program Files/Git/bin/bash.exe"
+            # Run the script and capture output
+            result = subprocess.run(["bash", script_path], 
+                                capture_output=True,
+                                text=True,
+                                check=True)
+            print("Script output:", result.stdout)
+            return True
+        except subprocess.CalledProcessError as e:
+            print("Error running script:", e)
+            print("Error output:", e.stderr)
+            return False
+    
+    def get(self):
+        train_sh_path = os.path.join('backend', 'faceid', 'train.sh')
+        
+        self.run_shell_script(train_sh_path)
+
+detector = cv2.dnn.readNetFromCaffe("backend/faceid/face_detection_model/deploy.prototxt",
+                                    "backend/faceid/face_detection_model/res10_300x300_ssd_iter_140000.caffemodel")
+
+embedder = cv2.dnn.readNetFromTorch("backend/faceid/openface_nn4.small2.v1.t7")
+
+recognizer = pickle.loads(open("backend/faceid/output/recognizer.pickle", "rb").read())
+le = pickle.loads(open("backend/faceid/output/le.pickle", "rb").read())
 
 
 class RecognizeImageHandler(RequestHandler):
@@ -276,3 +341,6 @@ class RecognizeImageHandler(RequestHandler):
         self.write(js)
         print("Result JSON")
         print(json.dumps(js, indent=4, sort_keys=True))
+
+    def get(self):
+        self.render("static/auth/recognize.html")
