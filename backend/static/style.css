@@ -31,12 +31,13 @@ header {
 
 .header-content {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     position: relative;
 }
 
 .header-content h1, .header-content p {
+
     text-align: center;
     margin: 0; /* Remove default margins */
 }
@@ -45,7 +46,6 @@ header {
     margin-top: 0;
 }
 .logout {
-    position: absolute;
     right: 0px; /* Adjust as needed for padding */
     text-decoration: none;
     color: white;
