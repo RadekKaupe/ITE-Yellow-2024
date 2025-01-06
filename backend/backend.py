@@ -47,6 +47,10 @@ SessionLocal = sessionmaker(bind=engine)
 
 from auth import LoginHandler, RegisterHandler, LogoutHandler, BaseHandler, ReceiveImageHandler, RecognizeImageHandler, TrainingHandler
 from websocket_handler import WSHandler 
+
+
+JWT_KEY = os.getenv("JWT_KEY")
+COOKIE_KEY = os.getenv("COOKIE_KEY")
 def convert_to_local_time(utc_timestamp: str):
     """Convert a utc timestamp to the LOCAL_TIMEZONE, which is needed for the testing table in the db"""
     try:
@@ -555,9 +559,9 @@ class WebWSApp(TornadoApplication):
         self.tornado_settings = {
             "debug": True,
             "autoreload": True,
-            "cookie_secret": "your-secret-key",# TODO: add a real secret ke
+            "cookie_secret": COOKIE_KEY,
             "login_url": "/login",
-            "secret_key": "your-jwt-secret" ## TODO: add a real secret key
+            "secret_key": JWT_KEY 
         }
         # IMPORTANT
         # Periodically fetches and broadcast sensor data to WebSocket clients
