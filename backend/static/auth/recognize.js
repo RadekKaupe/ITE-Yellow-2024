@@ -119,8 +119,6 @@
                 console.log(usernames);
                 writeSuccessMessage(usernames);
                 if (response.redirect) {
-                    console.log("I should redirect?")
-                    console.log(response.redirect)
                     setTimeout(() => { window.location.href = response.redirect; }, 1250);
                     // window.location.href = response.redirect;
                     return

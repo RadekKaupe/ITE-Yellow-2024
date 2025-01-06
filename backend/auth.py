@@ -263,20 +263,20 @@ class TrainingHandler(RequestHandler):
         self.run_shell_script(train_sh_path, faceid_path)
         self.redirect("/receive_image")
 
-detector = cv2.dnn.readNetFromCaffe("backend/faceid/face_detection_model/deploy.prototxt",
-                                    "backend/faceid/face_detection_model/res10_300x300_ssd_iter_140000.caffemodel")
-
-embedder = cv2.dnn.readNetFromTorch("backend/faceid/openface_nn4.small2.v1.t7")
-
-recognizer = pickle.loads(open("backend/faceid/output/recognizer.pickle", "rb").read())
-le = pickle.loads(open("backend/faceid/output/le.pickle", "rb").read())
 
 
 class RecognizeImageHandler(RequestHandler):
     def post(self):
+        detector = cv2.dnn.readNetFromCaffe("backend/faceid/face_detection_model/deploy.prototxt",
+                                            "backend/faceid/face_detection_model/res10_300x300_ssd_iter_140000.caffemodel")
+
+        embedder = cv2.dnn.readNetFromTorch("backend/faceid/openface_nn4.small2.v1.t7")
+
+        recognizer = pickle.loads(open("backend/faceid/output/recognizer.pickle", "rb").read())
+        le = pickle.loads(open("backend/faceid/output/le.pickle", "rb").read())
         # Convert from binary data to string
         received_data = self.request.body.decode()
-        print("post")
+        # print("post")
         assert received_data.startswith("data:image/png"), "Only data:image/png URL supported"
 
         # Parse data:// URL
@@ -383,6 +383,7 @@ class RecognizeImageHandler(RequestHandler):
         else: 
             formatted_proba = f"{proba:.3f}"
             # print(formatted_proba)
+            # self.write({"error": f"Low Probability: {formatted_proba}%", "faces": faces}) # Testovaci vypisy
             self.write({"error": f"Low Probability: {formatted_proba}%"})
             return
     def get(self):
