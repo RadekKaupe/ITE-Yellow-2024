@@ -72,9 +72,11 @@ class BaseHandler(RequestHandler):
                 return
             return payload.get("user_id")
         except jwt.ExpiredSignatureError:
+            self.clear_cookie("auth_token") 
             self.redirect_with_error("Your session has expired. Please login again.")
             return 
         except jwt.InvalidTokenError:
+            self.clear_cookie("auth_token") 
             self.redirect_with_error("Invalid Token")
             return
 
@@ -85,7 +87,25 @@ class BaseHandler(RequestHandler):
         self.set_cookie("logout_message",logout_message_encoded)
         self.redirect(f"/login")
 
-class LoginHandler(RequestHandler):
+class AuthHandler(RequestHandler):
+    def check_if_logged_in(self):
+        auth_token = self.get_secure_cookie("auth_token")
+        if auth_token: 
+            try: 
+                jwt.decode(auth_token, self.settings["secret_key"], algorithms=["HS256"]) 
+                self.redirect("/dashboard")
+                return True
+            except jwt.ExpiredSignatureError:
+                 self.clear_cookie("auth_token") 
+                 self.write({"error": "Session expired. Please login again."}) 
+                 return False
+            except jwt.InvalidTokenError:
+                self.clear_cookie("auth_token")
+                self.write({"error": "Invalid Token"}) 
+                return False
+        else:
+            return False
+class LoginHandler(AuthHandler):
     async def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
@@ -126,14 +146,11 @@ class LoginHandler(RequestHandler):
             self.set_status(401)
             self.write({"error": "Invalid credentials"})
     def get(self):
-        error = self.get_argument("error", None) 
-        # print(error)
-        self.render("static/auth/login.html", error = error)
-        # if error:
-        #     self.write({"error": error})
+        if(not self.check_if_logged_in()):
+            self.render("static/auth/login.html")
 
 
-class RegisterHandler(RequestHandler):
+class RegisterHandler(AuthHandler):
     async def post(self):
         # Get the username and password from the request
         username = self.get_argument("username")
@@ -171,11 +188,12 @@ class RegisterHandler(RequestHandler):
             # Close the session
             session.close()
     def get(self):
-        self.render("static/auth/register.html")    
+        if(not self.check_if_logged_in()):
+            self.render("static/auth/register.html")    
 
 class LogoutHandler(RequestHandler):
     def get(self):
-        self.clear_cookie("token")
+        self.clear_cookie("auth_token")
         logout_message = json.dumps({"success": "User Logout"})
         logout_message_encoded = urllib.parse.quote(logout_message)
         self.set_cookie("logout_message",logout_message_encoded)
@@ -275,7 +293,7 @@ class TrainingHandler(RequestHandler):
 
 
 
-class RecognizeImageHandler(RequestHandler):
+class RecognizeImageHandler(AuthHandler):
     def post(self):
         detector = cv2.dnn.readNetFromCaffe("backend/faceid/face_detection_model/deploy.prototxt",
                                             "backend/faceid/face_detection_model/res10_300x300_ssd_iter_140000.caffemodel")
@@ -397,4 +415,5 @@ class RecognizeImageHandler(RequestHandler):
             self.write({"error": f"Low Probability: {formatted_proba}%"})
             return
     def get(self):
-        self.render("static/auth/recognize.html")
+        if(not self.check_if_logged_in()):
+            self.render("static/auth/recognize.html")
