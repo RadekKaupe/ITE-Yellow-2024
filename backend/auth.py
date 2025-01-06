@@ -14,7 +14,6 @@ from sqlalchemy.orm import sessionmaker
 import sys
 from datetime import datetime,  timedelta
 import pytz
-from datetime import datetime, timezone
 import jwt
 import bcrypt
 import tornado.httpserver
@@ -49,6 +48,8 @@ engine = create_engine(
 LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 
 SessionLocal = sessionmaker(bind=engine)
+
+from websocket_handler import WSHandler
 
 EPSILON = 1e-9
 class BaseHandler(RequestHandler):
@@ -257,10 +258,12 @@ class TrainingHandler(RequestHandler):
             return False
     
     def get(self):
+        WSHandler.send_message(self, {"success": "Training started."})
         faceid_path = os.path.join('backend', 'faceid')
         train_sh_path = os.path.join(faceid_path,'train.sh')
         
         self.run_shell_script(train_sh_path, faceid_path)
+        WSHandler.send_message(self, {"success": "Training finished."})
         self.redirect("/receive_image")
 
 
@@ -358,7 +361,7 @@ class RecognizeImageHandler(RequestHandler):
                 return
             # print(user.approved)
             # Verify password
-            if(not user.approved):
+            if(not user.approved): # This shouldn't  happen naturally, 
                 self.write({"error": "User has not been yet approved. Please contact the admin of the page."})
                 return
             # Create session

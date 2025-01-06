@@ -46,7 +46,7 @@ LOCAL_TIMEZONE = pytz.timezone("Europe/Prague")
 SessionLocal = sessionmaker(bind=engine)
 
 from auth import LoginHandler, RegisterHandler, LogoutHandler, BaseHandler, ReceiveImageHandler, RecognizeImageHandler, TrainingHandler
-
+from websocket_handler import WSHandler 
 def convert_to_local_time(utc_timestamp: str):
     """Convert a utc timestamp to the LOCAL_TIMEZONE, which is needed for the testing table in the db"""
     try:
@@ -524,35 +524,6 @@ class MainHandler(BaseHandler):
         self.render("static/index.html")
 
 
-class WSHandler(WebSocketHandler):
-    """Handles some WebSocket Communication, not really used."""
-
-    def initialize(self) -> None:
-        self.application.ws_clients.append(self)
-        print('Webserver: New WS Client. Connected clients:',
-              len(self.application.ws_clients))
-
-    def open(self) -> None:
-        print('Webserver: Websocket opened.')
-        self.write_message('Server ready.')
-
-    def on_message(self, msg) -> None:
-        try:
-            msg = loads_json(msg)
-            print('Webserver: Received json WS message:', msg)
-
-            # If 'team_id' is sent, we can send the specific data immediately as well
-            if 'team_id' in msg:
-                team_data = self.application.fetch_sensor_data(msg['team_id'])
-                self.write_message(dumps_json({"sensor_data": team_data}))
-
-        except ValueError:
-            print('Webserver: Received WS message:', msg)
-
-    def on_close(self) -> None:
-        self.application.ws_clients.remove(self)
-        print('Webserver: Websocket client closed. Connected clients:',
-              len(self.application.ws_clients))
 
 
 class WebWSApp(TornadoApplication):
