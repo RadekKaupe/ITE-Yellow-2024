@@ -1,0 +1,10 @@
+\section{Biometrická autentizace}
+Při implementaci jsem využil učiteli dodaných zdrojů, ve formě skriptů \verb|faceid_server.py|,\newline \verb|extract_embeddings.py|a \verb|train.sh|.
+\myparagraph{Rozšíření backendu o FaceID}
+V prvním skriptu se nacházejí Tornado Handleři, jeden zajišťující komunikaci s frontendem v rámci posílání a ukládání fotek a druhý v rámci detekci obličeje ve fotce.
+Předtím oba dva handleři fungovaly v rámci jedné URL adresy. Já je rozdělil. Aplikace funguje následovně:
+\begin{enumerate}
+    \item Nepřihlášený uživatel se může buď přihlásit přes uživatelské jméno a heslo, přihlásit se přes FaceID nebo se zaregistrovat
+    \item Po registraci musí uživatel čekat na schválení adminem, jinak se nepřhlásí, ani v případě, že již fotky má uložené v rámci biometické autentizace
+    \item Přihlášený uživatel má přístup k celé aplikaci, včetně možnosti nafotit si své fotky pro FaceID
+\end{enumerate} 
