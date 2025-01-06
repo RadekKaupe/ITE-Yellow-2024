@@ -2,9 +2,23 @@
 Při implementaci jsem využil učiteli dodaných zdrojů, ve formě skriptů \verb|faceid_server.py|,\newline \verb|extract_embeddings.py|a \verb|train.sh|.
 \myparagraph{Rozšíření backendu o FaceID}
 V prvním skriptu se nacházejí Tornado Handleři, jeden zajišťující komunikaci s frontendem v rámci posílání a ukládání fotek a druhý v rámci detekci obličeje ve fotce.
-Předtím oba dva handleři fungovaly v rámci jedné URL adresy. Já je rozdělil. Aplikace funguje následovně:
+Předtím oba dva handleři ???fungovali??? v rámci jedné URL adresy. Já je rozdělil. Aplikace funguje následovně:
 \begin{enumerate}
     \item Nepřihlášený uživatel se může buď přihlásit přes uživatelské jméno a heslo, přihlásit se přes FaceID nebo se zaregistrovat
-    \item Po registraci musí uživatel čekat na schválení adminem, jinak se nepřhlásí, ani v případě, že již fotky má uložené v rámci biometické autentizace
-    \item Přihlášený uživatel má přístup k celé aplikaci, včetně možnosti nafotit si své fotky pro FaceID
+    \item Po registraci musí uživatel čekat na schválení adminem, jinak se nepřhlásí (ani v případě, že již fotky má uložené v rámci biometické autentizace)
+    \item Přihlášený uživatel má přístup k celé aplikaci, včetně možnosti nafotit si své fotky pro FaceID a natrénovat model pro autentizaci obličejů
 \end{enumerate} 
+
+\myparagraph{Uživatelské účty a identity}
+Máme celkem 9 uživatelských účtů pro příhlášení, pro: 
+\begin{itemize}
+    \item 4 vyučující% Jan Švec, Vlasta Radová, Martin Bulín (bulinm) a Tomáš Lebeda (TODO)
+    \item 3 členy týmu
+    \item 1 admin účet, ke kterému mají přístup všichni členové týmu
+\end{itemize}
+Identity je 8. Jsou vytvořené pro všechny členy týmu, jeden kategorie `unknown' (aby se `nové' tváře nemohli přihlásit, jiank by je systém identifikoval jako validního uživatele) a 3 identity učitelé, aby mohlo dojít k právě zmíněné identity `unknown'.
+Kategorie `unknown' má celkem TODO fotek.
+Každý z členů má 10 až 25 fotek, které si každý sám nafotil.
+Od každého vyučujícího jsme dostali 10 - 25 fotek. Každý s různým počtem, aby šlo testovat úspěšnost identifikace.
+Rozhodovací práh je nastaven na alespoň TODO: MOŽNA ZMĚN/SNIŽ 90\% pravděpodobnost identifikace uživatele. 
+Je nutné podotknout, že identita `unkown' není vůbec uložená v databázi a nemá možnost se do aplikace přihlásit.
