@@ -28,4 +28,4 @@ Pokud jsou uživatelská credentials v pořádku a uživatel je zaregistován a 
 Všechny další žádosti nyní automaticky kontrolují zda je JWT neexpiroval nebo s ním nebylo manipulovánu. 
 JWT má totiž nastavenou donbu expirace jedné hodiny a obsahuje `podepsán' tajným klíčem, který je znám pouze serveru.  
 \myparagraph{Odhlašování}
-Pro odhlašování byl vytvořen Tornado Handler, který vymaže cookie, obsahující token a přesměruje uživale zpět na přihlašovací stránku.
+Pro odhlašování byl vytvořen Tornado Handler, který vymaže token obsahující cookie a přesměruje uživale zpět na přihlašovací stránku.
