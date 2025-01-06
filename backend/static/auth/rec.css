@@ -57,6 +57,7 @@ button{
     padding: 10px 20px;     /* Adds padding around the text */
     border-radius: 5px;     /* Rounds the corners */
     transition: background-color 0.3s, transform 0.2s;  /* Adds smooth hover effects */
+    cursor: pointer;
 }
 button:hover {
 

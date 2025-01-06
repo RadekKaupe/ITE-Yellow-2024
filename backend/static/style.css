@@ -55,6 +55,7 @@ header {
     padding: 10px 15px;
     border-radius: 5px;
     transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
 }
 
 
@@ -130,12 +131,14 @@ header {
     padding: 10px 20px;     /* Adds padding around the text */
     border-radius: 5px;     /* Rounds the corners */
     transition: background-color 0.3s, transform 0.2s;  /* Adds smooth hover effects */
+    cursor: pointer;
 }
 
 /* Hover effect */
 .bottom-link:hover, .logout:hover {
     background-color: #0056b3;  /* Darker blue on hover */
     transform: scale(1.05);      /* Slightly enlarges the button */
+    cursor: pointer;
 }
 
 /* Optional: Adding focus state for accessibility */
