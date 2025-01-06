@@ -1,21 +1,12 @@
+import { writeErrorMessage, writeSuccessMessage } from "./messageDisplay.js";
 const registerFormEl = document.querySelector("#regisetrForm");
 
-const errorMessageEl = document.querySelector("#error-message");
-const successMessageEl = document.querySelector("#success-message");
 const usernameInputEl = document.querySelector("#username");
 const passwordInputEl = document.querySelector("#password");
 const confirmPasswordInputEl = document.querySelector("#confirmPassword");
-function writeSuccessMessage(message) {
-    errorMessageEl.style.display = "none";
-    successMessageEl.textContent = message;
-    successMessageEl.style.display = "block";
-}
-function writeErrorMessage(message) {
-    successMessageEl.style.display = "none";
-    errorMessageEl.textContent = message;
-    errorMessageEl.style.display = "block";
-}
+
 document
+
     .getElementById("registerForm")
     .addEventListener("submit", async (e) => {
         e.preventDefault();
