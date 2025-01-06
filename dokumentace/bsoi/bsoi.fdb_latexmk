@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1736172981.97148 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" "bsoi.pdf" "bsoi" 1736172983.1001 0
+["pdflatex"] 1736174602.42954 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" "bsoi.pdf" "bsoi" 1736174603.58733 0
   "../pic/fav.jpg" 1700474390 15815 322c5e6ea875c485edc205c5f4f9f658 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1735573721 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1000.pk" 1702292364 25420 96051d5bed7c7f28b9fa9043779b70fa ""
@@ -121,14 +121,13 @@
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1656236890 56148 51a9a8571c07b9921892ae11063ae853 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "bsoi.aux" 1736172982 1474 0ca8427b09ba4808275e5673779b4fee "pdflatex"
-  "bsoi.out" 1736172982 597 8b66d5b9e93e66c496626050a97b1407 "pdflatex"
-  "bsoi.tex" 1736169463 2525 2c914ed6e900e981df844d5fa34ef759 ""
-  "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" 1736169463 2525 2c914ed6e900e981df844d5fa34ef759 ""
+  "bsoi.aux" 1736174603 1702 aff9d361610dfd1a449ee812702e2814 "pdflatex"
+  "bsoi.out" 1736174603 680 1dcb8ab563cd21079e017c04927c025c "pdflatex"
+  "bsoi.tex" 1736174601 2501 7f1a9b51600b65308cbf156f23b2da93 ""
+  "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" 1736174601 2501 7f1a9b51600b65308cbf156f23b2da93 ""
   "tex_moduly/bezpecnostVM.tex" 1736167806 0 d41d8cd98f00b204e9800998ecf8427e ""
-  "tex_moduly/biometrie.tex" 1736172981 2197 798714f67e2ce675ba460baa1a3de6d5 ""
+  "tex_moduly/biometrieAPrihlasovani.tex" 1736174600 2991 5d8af11da7e4121a1699f285886606dd ""
   "tex_moduly/monitoringAZalohovani.tex" 1736167770 0 d41d8cd98f00b204e9800998ecf8427e ""
-  "tex_moduly/prihlasovani.tex" 1736168011 0 d41d8cd98f00b204e9800998ecf8427e ""
   "tex_moduly/provoz.tex" 1736170323 1185 58966c02012ca3f615ff0c6e22f402ab ""
   "tex_moduly/sifrovani.tex" 1736167792 0 d41d8cd98f00b204e9800998ecf8427e ""
   "tex_moduly/ucty.tex" 1736167742 0 d41d8cd98f00b204e9800998ecf8427e ""

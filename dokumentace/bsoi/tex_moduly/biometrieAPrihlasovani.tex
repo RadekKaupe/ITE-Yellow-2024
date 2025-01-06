@@ -1,10 +1,10 @@
-\section{Biometrická autentizace}
+\section{Přihlášení a biometrická autentizace}
 Při implementaci jsem využil učiteli dodaných zdrojů, ve formě skriptů \verb|faceid_server.py|,\newline \verb|extract_embeddings.py|a \verb|train.sh|.
 \myparagraph{Rozšíření backendu o FaceID}
 V prvním skriptu se nacházejí Tornado Handleři, jeden zajišťující komunikaci s frontendem v rámci posílání a ukládání fotek a druhý v rámci detekci obličeje ve fotce.
 Předtím oba dva handleři ???fungovali??? v rámci jedné URL adresy. Já je rozdělil. Aplikace funguje následovně:
 \begin{enumerate}
-    \item Nepřihlášený uživatel se může buď přihlásit přes uživatelské jméno a heslo, přihlásit se přes FaceID nebo se zaregistrovat
+    \item Nepřihlášený uživatel se může buď přihlásit přes uživatelské jméno a heslo (vstupní stránka), přihlásit se přes FaceID nebo se zaregistrovat
     \item Po registraci musí uživatel čekat na schválení adminem, jinak se nepřhlásí (ani v případě, že již fotky má uložené v rámci biometické autentizace)
     \item Přihlášený uživatel má přístup k celé aplikaci, včetně možnosti nafotit si své fotky pro FaceID a natrénovat model pro autentizaci obličejů
 \end{enumerate} 
@@ -22,3 +22,10 @@ Každý z členů má 10 až 25 fotek, které si každý sám nafotil.
 Od každého vyučujícího jsme dostali 10 - 25 fotek. Každý s různým počtem, aby šlo testovat úspěšnost identifikace.
 Rozhodovací práh je nastaven na alespoň TODO: MOŽNA ZMĚN/SNIŽ 90\% pravděpodobnost identifikace uživatele. 
 Je nutné podotknout, že identita `unkown' není vůbec uložená v databázi a nemá možnost se do aplikace přihlásit.
+\myparagraph{Funkčnost přihlašování}
+V případě, že se člověk přihlásí, je mu nastaven Json Web Token (JWT). Ten řeší zda je uživatelská session je validní či nikoliv.
+Pokud jsou uživatelská credentials v pořádku a uživatel je zaregistován a schválený adminem je mu JWT uložen jako secure cookie.
+Všechny další žádosti nyní automaticky kontrolují zda je JWT neexpiroval nebo s ním nebylo manipulovánu. 
+JWT má totiž nastavenou donbu expirace jedné hodiny a obsahuje `podepsán' tajným klíčem, který je znám pouze serveru.  
+\myparagraph{Odhlašování}
+Pro odhlašování byl vytvořen Tornado Handler, který vymaže cookie, obsahující token a přesměruje uživale zpět na přihlašovací stránku.
