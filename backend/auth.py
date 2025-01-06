@@ -239,7 +239,7 @@ class ReceiveImageHandler(BaseHandler):
 
 class TrainingHandler(RequestHandler):
 
-    def run_shell_script(self, script_path, *args):
+    async def run_shell_script(self, script_path, *args):
         print(script_path)
         try:
             # Prepare the command with the script path and arguments
@@ -257,13 +257,13 @@ class TrainingHandler(RequestHandler):
             print("Error output:", e.stderr)
             return False
     
-    def get(self):
-        WSHandler.send_message(self, {"success": "Training started."})
+    async def get(self):
+        WSHandler.send_message(self, {"success": "Training started. Wait for page refresh please."})
         faceid_path = os.path.join('backend', 'faceid')
         train_sh_path = os.path.join(faceid_path,'train.sh')
         
-        self.run_shell_script(train_sh_path, faceid_path)
-        WSHandler.send_message(self, {"success": "Training finished."})
+        await self.run_shell_script(train_sh_path, faceid_path)
+        # WSHandler.send_message(self, {"success": "Training finished."})
         self.redirect("/receive_image")
 
 
