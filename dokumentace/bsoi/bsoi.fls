@@ -230,10 +230,6 @@ INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecrm144
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecti1440.tfm
 INPUT C:\Users\samko\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx1440.tfm
-INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\tex\latex\base\t1cmtt.fd
-INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\tex\latex\base\t1cmtt.fd
-INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\tex\latex\base\t1cmtt.fd
-INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ectt1000.tfm
 INPUT .\tex_moduly\vm.tex
 INPUT .\tex_moduly\vm.tex
 INPUT tex_moduly\vm.tex
@@ -252,6 +248,8 @@ INPUT tex_moduly\bezpecnostVM.tex
 INPUT .\tex_moduly\provoz.tex
 INPUT .\tex_moduly\provoz.tex
 INPUT tex_moduly\provoz.tex
+INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecrm1200.tfm
+INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx1200.tfm
 INPUT .\tex_moduly\biometrie.tex
 INPUT .\tex_moduly\biometrie.tex
 INPUT tex_moduly\biometrie.tex
@@ -261,8 +259,8 @@ INPUT tex_moduly\prihlasovani.tex
 INPUT bsoi.aux
 INPUT .\bsoi.out
 INPUT .\bsoi.out
-INPUT C:\Users\samko\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ectt1000.pk
-INPUT C:\Users\samko\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ectt1000.pk
+INPUT C:\Users\samko\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx1200.pk
+INPUT C:\Users\samko\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx1200.pk
 INPUT C:\Users\samko\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx1440.pk
 INPUT C:\Users\samko\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx1440.pk
 INPUT C:\Users\samko\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1000.pk

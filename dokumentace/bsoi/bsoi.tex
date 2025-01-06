@@ -32,37 +32,36 @@
 
 \begin{titlepage}
 
-	\centering
+    \centering
 
-	{\scshape\LARGE Západočeská univerzita\par}
-	{\scshape\Large Fakulta aplikovaných věd \par}
-	{\scshape\Large Katerdra Kybernetiky \par}
-	{\begin{center}
-			\includegraphics[width=0.7\textwidth]{../pic/fav.jpg}
-		\end{center}}
+    {\scshape\LARGE Západočeská univerzita\par}
+    {\scshape\Large Fakulta aplikovaných věd \par}
+    {\scshape\Large Katerdra Kybernetiky \par}
+    {\begin{center}
+            \includegraphics[width=0.7\textwidth]{../pic/fav.jpg}
+        \end{center}}
 
-	{\huge\bfseries Dokumentace k projektu distribuci ITE-YELLOW\par} % TODO: lepsi nazev
+    {\huge\bfseries Dokumentace distribuci projeku ITE-YELLOW\par} % TODO: lepsi nazev
 
-	\vspace{2cm}
+    \vspace{2cm}
 
-	{\Large\itshape Martin Hamar, Radek Kaupe, Samuel Kokoška\par}
+    {\Large\itshape Martin Hamar, Radek Kaupe, Samuel Kokoška\par}
 
-	\vfill
+    \vfill
 
-	\vspace{1cm}
+    \vspace{1cm}
 
-	\hskip -1 cm{KKY/BSOI} \hfill {Datum: \today }
+    \hskip -1 cm{KKY/BSOI} \hfill {Datum: \today }
 
 
 
 \end{titlepage}
 
 \section{Úvod}
-Tento soubor slouží jako manuál pro projekt týmu Yellow. Manuál by měl obsahovat veškeré informace o zprovoznění všech částí projektů. V případě jakékoliv nejasnosti kontaktujte některého člena z týmu: \texttt{skokoska@students.zcu.cz}, \texttt{kauperad@students.zcu.cz}, \texttt{hamarm@students.zcu.cz}
-
-\section{Zprovoznění Jednotlivých modulů}
-Projekt je rozdělen na několik modulů, které spolu přirozeně spolupracují. Tyto moduly se dají hrubě rozdělit na hardwarovou část a na softwarouvou část.
-Hardwarová část zahrnuje krabičku a mikropočítač ESP8266 a jeho nastavení. Softwarovou část zahrnuje nastavení databáze, subscribera a spuštění backendu a webové stránky.
+V rámci předmětu KKY/BSOI jsme si vytvořili a nastavili virtuální stroj s operačním systémem Linux. 
+Tento stroj je momentálně používán k provozu applikace vyvíjené v rámci předmětu KKY/ITE. \href{http://147.228.173.162:8881}{Zde} je na aplikaci a \href{https://github.com/RadekKaupe/ITE-Yellow-2024}{zde} je odkaz na Githubový repozitář, kde jsou k dipozici veškeré zdojové kódy aplikace jak části ITE, tak části BSOI. 
+Tento referát by měl popsat virtuální stroj, jeho nastavení, činnosti a realizaci způsobů přihlášení do již zmíněné aplikace.   
+\section{Řešení}
 
 \input{tex_moduly/vm.tex}
 \input{tex_moduly/ucty.tex}
@@ -72,6 +71,5 @@ Hardwarová část zahrnuje krabičku a mikropočítač ESP8266 a jeho nastaven�
 \input{tex_moduly/provoz.tex}
 \input{tex_moduly/biometrie.tex}
 \input{tex_moduly/prihlasovani.tex}
-\section{Budoucí vývoj}
-V blízké budoucnosti se určité moduly (především na straně backendu a frontendu) rozšíří o implementaci přihlašování, FaceId a větší robustnosti. Tyto nové technologie by ovšem na zprovoznění projektu neměly mít vliv a manuál by tedy měl sloužit v budoucnosti stále stejně.
+\section{Závěr}
 \end{document}
