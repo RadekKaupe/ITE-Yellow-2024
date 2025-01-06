@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 import sys
-from datetime import datetime,  timedelta
+from datetime import datetime,  timedelta, timezone
 import pytz
 import jwt
 import bcrypt
@@ -28,6 +28,8 @@ import imutils
 import pickle
 import cv2
 import json
+
+import urllib
 # Import of db.py for classes, which are the columns in the database tables
 db_foler_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'db'))
@@ -65,12 +67,12 @@ class BaseHandler(RequestHandler):
             payload_exp = payload["exp"]
             # print(f"Current timestamp: {datetime.now(timezone.utc)}")
             if  payload_exp< datetime.now().timestamp(): 
+                self.redirect_with_error("Your session has expired. Please login again.")
                 # print(f"Payload expiration: {payload_exp  }")
-                self.redirect_with_error("Token Expired")
                 return
             return payload.get("user_id")
         except jwt.ExpiredSignatureError:
-            self.redirect_with_error("Token Expired")
+            self.redirect_with_error("Your session has expired. Please login again.")
             return 
         except jwt.InvalidTokenError:
             self.redirect_with_error("Invalid Token")
@@ -78,9 +80,11 @@ class BaseHandler(RequestHandler):
 
 
     def redirect_with_error(self, error_message):
-        params = urlencode({"error": error_message}) 
-        # self.redirect(f"/login")
-        self.redirect(f"/login?{params}")
+        logout_message = json.dumps({"error": error_message})
+        logout_message_encoded = urllib.parse.quote(logout_message)
+        self.set_cookie("logout_message",logout_message_encoded)
+        self.redirect(f"/login")
+
 class LoginHandler(RequestHandler):
     async def post(self):
         username = self.get_argument("username")
@@ -172,9 +176,12 @@ class RegisterHandler(RequestHandler):
 class LogoutHandler(RequestHandler):
     def get(self):
         self.clear_cookie("token")
-        params = urlencode({"success": "User logout."}) 
-        self.redirect(f"/login?{params}")
-        
+        logout_message = json.dumps({"success": "User Logout"})
+        logout_message_encoded = urllib.parse.quote(logout_message)
+        self.set_cookie("logout_message",logout_message_encoded)
+        self.redirect("/login")
+        # params = urlencode({"success": "User logout."}) 
+        # self.redirect(f"/login?{params}")
 
 tornado.log.enable_pretty_logging()
 app_log = logging.getLogger("tornado.application")

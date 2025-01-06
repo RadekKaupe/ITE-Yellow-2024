@@ -26,6 +26,7 @@ class WSHandler(WebSocketHandler):
 
     def on_message(self, msg) -> None:
         try:
+            print(msg)
             msg = loads_json(msg)
             print('Webserver: Received json WS message:', msg)
 
@@ -33,7 +34,6 @@ class WSHandler(WebSocketHandler):
             if 'team_id' in msg:
                 team_data = self.application.fetch_sensor_data(msg['team_id'])
                 self.write_message(dumps_json({"sensor_data": team_data}))
-
         except ValueError:
             print('Webserver: Received WS message:', msg)
 
