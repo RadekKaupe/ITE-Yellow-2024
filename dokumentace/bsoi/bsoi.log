@@ -3,8 +3,8 @@ entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/ite/document.tex
-(s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/ite/document.tex
+**s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex
+(s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-08-29>
 (C:\Users\samko\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -575,27 +575,27 @@ Package: esdiff
 File: l3backend-pdftex.def 2023-04-19 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count360
 \l__pdf_internal_box=\box105
-) (document.aux)
-\openout1 = `document.aux'.
+) (bsoi.aux)
+\openout1 = `bsoi.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
  (C:\Users\samko\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count361
@@ -644,52 +644,52 @@ LaTeX Font Info:    ... okay on input line 29.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring ON on input line 29.
-(document.out) (document.out)
+Package hyperref Info: Link coloring ON on input line 30.
+(bsoi.out) (bsoi.out)
 \@outlinefile=\write3
-\openout3 = `document.out'.
+\openout3 = `bsoi.out'.
 
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count367
-<../pic/fav.jpg, id=67, 823.075pt x 446.66875pt>
+<../pic/fav.jpg, id=15, 823.075pt x 446.66875pt>
 File: ../pic/fav.jpg Graphic file (type jpg)
 <use ../pic/fav.jpg>
-Package pdftex.def Info: ../pic/fav.jpg  used on input line 40.
+Package pdftex.def Info: ../pic/fav.jpg  used on input line 41.
 (pdftex.def)             Requested size: 308.71104pt x 167.52762pt.
  [1
 
 {C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <../pic/fav.jpg>]
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 60.
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 61.
  (C:\Users\samko\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-) (tex_moduly/krabicka.tex) (tex_moduly/esp.tex
+) (tex_moduly/vm.tex) (tex_moduly/ucty.tex) (tex_moduly/monitoringAZalohovani.tex) (tex_moduly/sifrovani.tex) (tex_moduly/bezpecnostVM.tex) (tex_moduly/provoz.tex) (tex_moduly/biometrie.tex) (tex_moduly/prihlasovani.tex)
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.5     \item M
-               ěření teploty. vlhkosti a osvětlení. [1]) (tex_moduly/databaze.tex [2]) (tex_moduly/subscriber.tex [3]) (tex_moduly/backend.tex) [4] [5] (document.aux)
+l.77 \end{document}
+                    [1] (bsoi.aux)
  ***********
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-08-29>
  ***********
-Package rerunfilecheck Info: File `document.out' has not changed.
-(rerunfilecheck)             Checksum: 1508F24BDBDB9E806B76552F95052F17;1995.
+Package rerunfilecheck Info: File `bsoi.out' has not changed.
+(rerunfilecheck)             Checksum: 38B3E383F981CE9A6C98C57FFDAC4E61;399.
  ) 
 Here is how much of TeX's memory you used:
- 17685 strings out of 475248
- 283917 string characters out of 5757812
- 1929785 words of memory out of 5000000
- 38896 multiletter control sequences out of 15000+600000
- 567599 words of font info for 50 fonts, out of 8000000 for 9000
+ 17631 strings out of 475248
+ 283652 string characters out of 5757812
+ 1921785 words of memory out of 5000000
+ 38874 multiletter control sequences out of 15000+600000
+ 564948 words of font info for 46 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 72i,5n,79p,1138b,595s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
-Output written on document.pdf (6 pages, 156981 bytes).
+ 72i,5n,79p,1135b,490s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
+Output written on bsoi.pdf (2 pages, 93022 bytes).
 PDF statistics:
- 490 PDF objects out of 1000 (max. 8388607)
- 43 named destinations out of 1000 (max. 500000)
- 134 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 244 PDF objects out of 1000 (max. 8388607)
+ 5 named destinations out of 1000 (max. 500000)
+ 30 words of extra memory for PDF output out of 10000 (max. 10000000)
 

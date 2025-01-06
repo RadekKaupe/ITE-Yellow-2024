@@ -1,3 +1,4 @@
+
 \documentclass{article}
 
 \usepackage[czech]{babel} 
@@ -40,7 +41,7 @@
 			\includegraphics[width=0.7\textwidth]{../pic/fav.jpg}
 		\end{center}}
 
-	{\huge\bfseries Dokumentace k projektu ITE-YELLOW\par} % TODO: lepsi nazev
+	{\huge\bfseries Dokumentace k projektu distribuci ITE-YELLOW\par} % TODO: lepsi nazev
 
 	\vspace{2cm}
 
@@ -50,7 +51,7 @@
 
 	\vspace{1cm}
 
-	\hskip -1 cm{KKY/ITE} \hfill {Datum: \today }
+	\hskip -1 cm{KKY/BSOI} \hfill {Datum: \today }
 
 
 
@@ -63,11 +64,14 @@ Tento soubor slouží jako manuál pro projekt týmu Yellow. Manuál by měl obs
 Projekt je rozdělen na několik modulů, které spolu přirozeně spolupracují. Tyto moduly se dají hrubě rozdělit na hardwarovou část a na softwarouvou část.
 Hardwarová část zahrnuje krabičku a mikropočítač ESP8266 a jeho nastavení. Softwarovou část zahrnuje nastavení databáze, subscribera a spuštění backendu a webové stránky.
 
-\input{tex_moduly/krabicka.tex}
-\input{tex_moduly/esp.tex}
-\input{tex_moduly/databaze.tex}
-\input{tex_moduly/subscriber.tex}
-\input{tex_moduly/backend.tex}
+\input{tex_moduly/vm.tex}
+\input{tex_moduly/ucty.tex}
+\input{tex_moduly/monitoringAZalohovani.tex}
+\input{tex_moduly/sifrovani.tex}
+\input{tex_moduly/bezpecnostVM.tex}
+\input{tex_moduly/provoz.tex}
+\input{tex_moduly/biometrie.tex}
+\input{tex_moduly/prihlasovani.tex}
 \section{Budoucí vývoj}
 V blízké budoucnosti se určité moduly (především na straně backendu a frontendu) rozšíří o implementaci přihlašování, FaceId a větší robustnosti. Tyto nové technologie by ovšem na zprovoznění projektu neměly mít vliv a manuál by tedy měl sloužit v budoucnosti stále stejně.
 \end{document}
