@@ -53,6 +53,22 @@ SessionLocal = sessionmaker(bind=engine)
 
 from websocket_handler import WSHandler
 
+def create_folder(path): 
+    try: 
+        os.makedirs(path, exist_ok=True)
+        print(f"Folder '{path}' created successfully.")
+    except Exception as e:
+        print(f"Error creating folder: {e}")
+FACE_ID_PATH = os.path.join('backend', 'faceid')
+dataset_path = os.path.join(FACE_ID_PATH, 'dataset')
+RECOG_IMAGES_PATH = os.path.join('backend', 'recog_images')
+output_path = os.path.join(FACE_ID_PATH, 'output') 
+create_folder(dataset_path)
+create_folder(RECOG_IMAGES_PATH)
+create_folder(output_path)
+
+
+
 EPSILON = 1e-9
 class BaseHandler(RequestHandler):
     def get_current_user(self):
@@ -240,8 +256,11 @@ class ReceiveImageHandler(BaseHandler):
 
         app_log.info("Received image: %d bytes", len(image_data))
         # Write an image to the file
+        path = os.path.join("backend", "faceid", "dataset", username)
+        filename = f"img-{datetime.now().strftime('%Y%m%d-%H%M%S')}.png" 
+        full_path = os.path.join(path, filename)
         try:
-            with open(f"backend/faceid/dataset/{username}/img-{datetime.now().strftime('%Y%m%d-%H%M%S')}.png", "wb") as fw:
+            with open(full_path, "wb") as fw:
                 fw.write(image_data)
         except Exception as e:
             print(f"Something went wrong when saving the image.")
@@ -295,23 +314,25 @@ class TrainingHandler(RequestHandler):
 
 class RecognizeImageHandler(AuthHandler):
     def post(self):
-        detector = cv2.dnn.readNetFromCaffe("backend/faceid/face_detection_model/deploy.prototxt",
-                                            "backend/faceid/face_detection_model/res10_300x300_ssd_iter_140000.caffemodel")
+        deploy_path = os.path.join(FACE_ID_PATH, "face_detection_model", "deploy.prototxt") 
+        caffe_model_path = os.path.join(FACE_ID_PATH, "face_detection_model", "res10_300x300_ssd_iter_140000.caffemodel") 
+        embedder_path = os.path.join(FACE_ID_PATH, "openface_nn4.small2.v1.t7")
+        recognizer_path = os.path.join(FACE_ID_PATH, "output", "recognizer.pickle") 
+        le_path = os.path.join(FACE_ID_PATH, "output", "le.pickle")
 
-        embedder = cv2.dnn.readNetFromTorch("backend/faceid/openface_nn4.small2.v1.t7")
+        detector = cv2.dnn.readNetFromCaffe(deploy_path, caffe_model_path)
+        embedder = cv2.dnn.readNetFromTorch(embedder_path)
+        recognizer = pickle.loads(open(recognizer_path, "rb").read())
+        le = pickle.loads(open(le_path, "rb").read())
 
-        recognizer = pickle.loads(open("backend/faceid/output/recognizer.pickle", "rb").read())
-        le = pickle.loads(open("backend/faceid/output/le.pickle", "rb").read())
-        # Convert from binary data to string
         received_data = self.request.body.decode()
-        # print("post")
         assert received_data.startswith("data:image/png"), "Only data:image/png URL supported"
 
         # Parse data:// URL
         with urlopen(received_data) as response:
             image_data = response.read()
-
-        fn = f"backend/recog_images/img-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.png" 
+        filename = f"img-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.png"
+        fn = os.path.join(RECOG_IMAGES_PATH, filename)
         with open(fn, "wb") as fw:
             fw.write(image_data)
 
@@ -369,7 +390,10 @@ class RecognizeImageHandler(AuthHandler):
                     "prob": proba,
                     "bbox": {"x1": int(startX), "x2": int(endX), "y1": int(startY), "y2": int(endY)},
                 })
-
+                print(faces)
+        if(len(faces)):
+            self.write({"error": "Multiple Faces detected."})
+            return
         if(proba == None):
             self.write({"error": "No faces were found."})
             return
