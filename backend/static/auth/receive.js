@@ -17,8 +17,9 @@ var video = null;
 var canvas = null;
 var takeImageButton = null;
 const hostname = window.location.hostname;
-// const ws = new WebSocket(`wss://${hostname}:443/websocket`); //VM
-const ws = new WebSocket(`ws://${hostname}:443/websocket`);   //local
+const port = window.location.port; // This will give you the port number
+// const ws = new WebSocket(`wss://${hostname}:${port}/websocket`); //VM
+const ws = new WebSocket(`ws://${hostname}:${port}/websocket`); //local
 
 ws.onmessage = function (ev) {
     try {
