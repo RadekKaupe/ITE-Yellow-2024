@@ -53,15 +53,25 @@ SessionLocal = sessionmaker(bind=engine)
 
 from websocket_handler import WSHandler
 
+def get_script_directory():
+    script_path = os.path.abspath(__file__)
+    script_directory = os.path.dirname(script_path)
+    return script_directory
+
+
 def create_folder(path): 
     try: 
         os.makedirs(path, exist_ok=True)
         print(f"Folder '{path}' created successfully.")
     except Exception as e:
         print(f"Error creating folder: {e}")
-FACE_ID_PATH = os.path.join('backend', 'faceid')
+
+
+BACKEND_PATH = get_script_directory()
+print(f"Backend location: {BACKEND_PATH}")
+FACE_ID_PATH = os.path.join(BACKEND_PATH, 'faceid')
 dataset_path = os.path.join(FACE_ID_PATH, 'dataset')
-RECOG_IMAGES_PATH = os.path.join('backend', 'recog_images')
+RECOG_IMAGES_PATH = os.path.join(BACKEND_PATH,'recog_images')
 output_path = os.path.join(FACE_ID_PATH, 'output') 
 create_folder(dataset_path)
 create_folder(RECOG_IMAGES_PATH)
