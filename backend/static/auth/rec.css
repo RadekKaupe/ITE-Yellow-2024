@@ -15,7 +15,6 @@ body {
     text-align: center;
 }
 
-
 h1 {
     text-align: center;
     color: #333;
@@ -36,8 +35,6 @@ video {
     margin-bottom: 20px;
 }
 
-
-
 p#results {
     font-size: 18px;
     color: #555555;
@@ -47,22 +44,20 @@ p#results {
 canvas {
     display: none;
 }
-button{
-
-    text-decoration: none;  /* Removes the underline */
-    font-size: 18px;        /* Sets font size */
-    font-weight: bold;      /* Makes the font bold */
-    color: white;           /* Sets text color */
-    background-color: #f1c40f;;  /* Blue background color */
-    padding: 10px 20px;     /* Adds padding around the text */
-    border-radius: 5px;     /* Rounds the corners */
-    transition: background-color 0.3s, transform 0.2s;  /* Adds smooth hover effects */
+button {
+    text-decoration: none; /* Removes the underline */
+    font-size: 18px; /* Sets font size */
+    font-weight: bold; /* Makes the font bold */
+    color: white; /* Sets text color */
+    background-color: #f1c40f; /* Blue background color */
+    padding: 10px 20px; /* Adds padding around the text */
+    border-radius: 5px; /* Rounds the corners */
+    transition: background-color 0.3s, transform 0.2s; /* Adds smooth hover effects */
     cursor: pointer;
 }
 button:hover {
-
-    background-color: #0056b3;  /* Darker blue on hover */
-    transform: scale(1.05);      /* Slightly enlarges the button */
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarges the button */
 }
 .switch-form {
     text-align: center;
@@ -87,9 +82,9 @@ button:hover {
     margin-bottom: 15px;
 }
 .success {
-    color:green;
+    color: green;
     display: none;
-    background-color:#d4edda ;
+    background-color: #d4edda;
     border: 1px solid #1dab51;
     border-radius: 5px;
     text-align: center;
@@ -99,7 +94,6 @@ button:hover {
     font-weight: bold;
     /* margin-left: 25%; */
     margin-bottom: 15px;
-
 }
 .fade-in {
     animation: fadeIn 0.5s ease-in-out;
@@ -112,4 +106,24 @@ button:hover {
     to {
         opacity: 1;
     }
+}
+.explanation-area {
+    max-width: fit-content;
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px auto; /* This will center the div horizontally */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.explanation ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+.explanation li {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.5;
 }
