@@ -21,14 +21,13 @@ const ws = new WebSocket(`ws://${hostname}:8881/websocket`);
 
 ws.onmessage = function (ev) {
     try {
-        const data = JSON.parse(ev.data)
-        
-        if(data.success){
-            writeSuccessMessage(data.success)
-        }
+        const data = JSON.parse(ev.data);
 
+        if (data.success) {
+            writeSuccessMessage(data.success);
+        }
     } catch (e) {
-        console.error("Failed to parse message:", e )
+        console.error("Failed to parse message:", e);
     }
 };
 function startup() {
@@ -93,12 +92,13 @@ function sendpicture(data) {
     xhr.open("POST", "/receive_image", true);
     xhr.setRequestHeader("Content-Type", "text/plain");
     xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                writeSuccessMessage("Picture succesfully taken.");
-            } else {
-                writeErrorMessage(xhr.statusText);
-            }
+        const response = JSON.parse(xhr.response);
+        // console.log(response);
+        if (response.error) {
+            writeErrorMessage(response.error);
+        }
+        if (response.success) {
+            writeSuccessMessage(response.success);
         }
     };
     xhr.send(data);

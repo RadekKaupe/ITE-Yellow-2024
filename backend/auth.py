@@ -233,7 +233,7 @@ app_log = logging.getLogger("tornado.application")
 
 def create_user_dataset_folder(username):
     # Define the base path
-    base_path = os.path.join('backend', 'faceid', 'dataset')
+    base_path = dataset_path
     # print(base_path)
     # Create the full path including username
     user_path = os.path.join(base_path, username)
@@ -266,13 +266,15 @@ class ReceiveImageHandler(BaseHandler):
 
         app_log.info("Received image: %d bytes", len(image_data))
         # Write an image to the file
-        path = os.path.join("backend", "faceid", "dataset", username)
+        path = os.path.join(dataset_path, username)
         filename = f"img-{datetime.now().strftime('%Y%m%d-%H%M%S')}.png" 
         full_path = os.path.join(path, filename)
+        self.write({"success": f"Picture of user {username} taken."})
         try:
             with open(full_path, "wb") as fw:
                 fw.write(image_data)
         except Exception as e:
+            self.write({"error": f"Something went wrong when saving the picture, contact the admin."})
             print(f"Something went wrong when saving the image.")
     @tornado.web.authenticated
     def get(self):
