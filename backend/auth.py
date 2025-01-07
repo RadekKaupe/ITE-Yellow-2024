@@ -402,13 +402,13 @@ class RecognizeImageHandler(AuthHandler):
                     "bbox": {"x1": int(startX), "x2": int(endX), "y1": int(startY), "y2": int(endY)},
                 })
                 print(faces)
-        if(len(faces)):
+        if(len(faces) >= 2):
             self.write({"error": "Multiple Faces detected."})
             return
         if(proba == None):
             self.write({"error": "No faces were found."})
             return
-        if(proba > 0.9 - EPSILON):
+        if(proba > 0.8 - EPSILON):
 
 
             session = SessionLocal()
