@@ -28,6 +28,9 @@ ws.onmessage = function (ev) {
         if (data.success) {
             writeSuccessMessage(data.success);
         }
+        if(data.error){
+            writeErrorMessage(data.error)
+        }
     } catch (e) {
         console.error("Failed to parse message:", e);
     }

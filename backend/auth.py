@@ -1,4 +1,5 @@
 
+import asyncio
 import subprocess
 from urllib.parse import urlencode
 from urllib.request import urlopen
@@ -314,13 +315,15 @@ class TrainingHandler(RequestHandler):
             return False
     
     async def get(self):
-        WSHandler.send_message(self, {"success": "Training started. Wait for page refresh please."})
         train_sh_path = os.path.join(FACE_ID_PATH,'train.sh')
-        
-        await self.run_shell_script(train_sh_path, FACE_ID_PATH)
+        WSHandler.send_message(self, {"success": "Training started. Wait for page refresh please."})
+        if((await self.run_shell_script(train_sh_path, FACE_ID_PATH))== False):
+            WSHandler.send_message(self, {"error": "Something went wrong during the training."})
+            await asyncio.sleep(5) 
+            
         # WSHandler.send_message(self, {"success": "Training finished."})
-        self.redirect("/receive_image")
 
+        self.redirect("/receive_image")
 
 
 class RecognizeImageHandler(AuthHandler):
