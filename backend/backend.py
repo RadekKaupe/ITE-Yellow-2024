@@ -717,7 +717,7 @@ class WebWSApp(TornadoApplication):
             iol.spawn_callback(client.write_message, dumps_json(message))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': # Local
     """Starts the backend application."""
     PORT = 8881
     app = WebWSApp()
@@ -727,3 +727,17 @@ if __name__ == '__main__':
     app.listen(PORT)
     iol = IOLoop.current()
     iol.start()
+
+
+# if __name__ == '__main__': # VM
+#     """Starts the backend application.""" 
+#     PORT = 8881 
+#     app = WebWSApp() 
+#     print('Webserver: Initialized. Listening on', PORT)
+#     team_dict = extract_teams_dict() 
+#     print(team_dict) # SSL options
+#     ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+#     ssl_ctx.load_cert_chain(certfile="cert.pem", keyfile="key.pem")
+#     ssl_ctx.load_verify_locations(cafile="fullchain.pem")
+#     app.listen(PORT, ssl_options=ssl_ctx)
+#     iol = IOLoop.current() iol.start()
