@@ -24,6 +24,7 @@ from tornado.web import HTTPError
 import jwt
 import bcrypt
 from psycopg2.errors import UniqueViolation
+import ssl
 # Import of db.py for classes, which are the columns in the database tables
 db_foler_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'db'))
@@ -730,14 +731,13 @@ if __name__ == '__main__': # Local
 
 
 # if __name__ == '__main__': # VM
-#     """Starts the backend application.""" 
-#     PORT = 8881 
-#     app = WebWSApp() 
-#     print('Webserver: Initialized. Listening on', PORT)
-#     team_dict = extract_teams_dict() 
-#     print(team_dict) # SSL options
-#     ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-#     ssl_ctx.load_cert_chain(certfile="cert.pem", keyfile="key.pem")
-#     ssl_ctx.load_verify_locations(cafile="fullchain.pem")
-#     app.listen(PORT, ssl_options=ssl_ctx)
-#     iol = IOLoop.current() iol.start()
+#      """Starts the backend application."""
+#      PORT = 443
+#      app = WebWSApp()
+#      print('Webserver: Initialized. Listening on', PORT)
+#      team_dict = extract_teams_dict()
+#      print(team_dict) # SSL options
+#      http_server = tornado.httpserver.HTTPServer(app, ssl_options = { "certfile": "cert.pem", "keyfile": "key.pem", "ca_certs": "fullchain.pem",})
+#      http_server.listen(PORT)
+#      iol = IOLoop.current()
+#      iol.start()
