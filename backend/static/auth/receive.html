@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Take picture using WebRTC</title>
+        <meta charset="utf-8" />
+        <link
+            rel="stylesheet"
+            href="auth/rec.css"
+            type="text/css"
+            media="all"
+        />
+        <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
+        <script src="auth/receive.js" type="module"></script>
+    </head>
+    <body>
+        <div class="contentarea">
+            <h1>Save your picture for FaceID in the future.</h1>
+            <div class="camera">
+                <video id="video">Video stream not available.</video>
+            </div>
+            <div class="buttons">
+                <button id="take-img">Take photo</button>
+                <button id="train">Train</button>
+            </div>
+            <p id="results"></p>
+            <canvas id="canvas"></canvas>
+            <div class="switch-form">
+                <div class="error" id="error-message"></div>
+                <div class="success" id="success-message"></div>
+                <a href="/recognize" style="display: none">Recognize</a>
+                <p>Go back to the <a href="/dashboard">dashboard</a>.</p>
+            </div>
+        </div>
+        <div class="explanation-area">
+            <div class="explanation">
+                <ul>
+                    <li>Tlačítkem "Take photo" vyfotíte obrázek.</li>
+                    <li>
+                        Tlačítkem "Train" se uloží a natrénuje se model pro
+                        detekci Vašeho obličeje, pro přihlášení pomocí FaceID.
+                    </li>
+                    <li>
+                        Vyfoťte 10-20 fotek pro optimální použití. Tlačítko
+                        "Train" mačkejte, až po vyfocení všech fotek..
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </body>
+</html>

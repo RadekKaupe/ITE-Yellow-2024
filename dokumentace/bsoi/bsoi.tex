@@ -1,0 +1,74 @@
+
+\documentclass{article}
+
+\usepackage[czech]{babel} 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage[IL2]{fontenc} % Different type of font for wierdos
+\usepackage{graphicx} % Required for the inclusion of images
+\usepackage{natbib} % Required to change bibliography style to APA
+\usepackage{amsmath} % Required for some math elements 
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{epstopdf}
+\usepackage{multicol}
+\usepackage{color}
+\usepackage{float}
+\usepackage[total={15.5cm,23.5cm}, top=2.5cm, left=3cm, includefoot]{geometry}
+\usepackage[colorlinks=true,linkcolor = black, urlcolor = black, citecolor = black]{hyperref}
+\usepackage{enumitem}
+\usepackage{subfig}
+\usepackage[toc,page]{appendix}
+\usepackage{hyperref} 
+\usepackage{matlab-prettifier}
+\usepackage{datetime}
+\usepackage{mathtools}
+\usepackage[thinc]{esdiff}
+\newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
+
+\begin{document}
+
+
+\begin{titlepage}
+
+    \centering
+
+    {\scshape\LARGE Západočeská univerzita\par}
+    {\scshape\Large Fakulta aplikovaných věd \par}
+    {\scshape\Large Katerdra Kybernetiky \par}
+    {\begin{center}
+            \includegraphics[width=0.7\textwidth]{../pic/fav.jpg}
+        \end{center}}
+
+    {\huge\bfseries Dokumentace distribuci projeku ITE-YELLOW\par} % TODO: lepsi nazev
+
+    \vspace{2cm}
+
+    {\Large\itshape Martin Hamar, Radek Kaupe, Samuel Kokoška\par}
+
+    \vfill
+
+    \vspace{1cm}
+
+    \hskip -1 cm{KKY/BSOI} \hfill {Datum: \today }
+
+
+
+\end{titlepage}
+
+\section{Úvod}
+V rámci předmětu KKY/BSOI jsme si vytvořili a nastavili virtuální stroj s operačním systémem Linux. 
+Tento stroj je momentálně používán k provozu applikace vyvíjené v rámci předmětu KKY/ITE. \href{http://147.228.173.162:8881}{Zde} je na aplikaci a \href{https://github.com/RadekKaupe/ITE-Yellow-2024}{zde} je odkaz na Githubový repozitář, kde jsou k dipozici veškeré zdojové kódy aplikace jak části ITE, tak části BSOI. 
+Tento referát by měl popsat virtuální stroj, jeho nastavení, činnosti a realizaci způsobů přihlášení do již zmíněné aplikace.   
+\section{Řešení}
+
+\input{tex_moduly/vm.tex}
+\input{tex_moduly/ucty.tex}
+\input{tex_moduly/monitoringAZalohovani.tex}
+\input{tex_moduly/sifrovani.tex}
+\input{tex_moduly/bezpecnostVM.tex}
+\input{tex_moduly/provoz.tex}
+\input{tex_moduly/biometrieAPrihlasovani.tex}
+\section{Závěr}
+\end{document}

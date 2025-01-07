@@ -19,26 +19,46 @@ body {
     min-height: 100vh;
 }
 
-/* Header Styles */
+
 header {
     background-color: #f1c40f;
     color: white;
-    text-align: center;
     padding: 20px;
     margin-bottom: 10px;
     width: 100%;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    color: #FFFFFF;
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
 }
 
-header p {
-    font-size: 1.2rem;
+.header-content h1, .header-content p {
+
+    text-align: center;
+    margin: 0; /* Remove default margins */
 }
+
+.header-content a {
+    margin-top: 0;
+}
+.logout {
+    right: 0px; /* Adjust as needed for padding */
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    /* border: 1px solid #716a00; */
+    background-color: #f1c40f; /* Same as header background */
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+}
+
+
 
 /* Team Container - Grid Layout */
 .team-container {
@@ -101,7 +121,7 @@ header p {
     background-color: #4287f5; /* Blue */
 }
 
-a {
+.bottom-link {
 
     text-decoration: none;  /* Removes the underline */
     font-size: 18px;        /* Sets font size */
@@ -111,16 +131,18 @@ a {
     padding: 10px 20px;     /* Adds padding around the text */
     border-radius: 5px;     /* Rounds the corners */
     transition: background-color 0.3s, transform 0.2s;  /* Adds smooth hover effects */
+    cursor: pointer;
 }
 
 /* Hover effect */
-a:hover {
+.bottom-link:hover, .logout:hover {
     background-color: #0056b3;  /* Darker blue on hover */
     transform: scale(1.05);      /* Slightly enlarges the button */
+    cursor: pointer;
 }
 
 /* Optional: Adding focus state for accessibility */
-a:focus {
+.bottom-link:focus {
     outline: 3px solid #FFD700;  /* Adds a gold outline when focused */
 }
 
