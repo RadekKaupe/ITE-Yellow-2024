@@ -269,10 +269,10 @@ class ReceiveImageHandler(BaseHandler):
         path = os.path.join(dataset_path, username)
         filename = f"img-{datetime.now().strftime('%Y%m%d-%H%M%S')}.png" 
         full_path = os.path.join(path, filename)
-        self.write({"success": f"Picture of user {username} taken."})
         try:
             with open(full_path, "wb") as fw:
                 fw.write(image_data)
+            self.write({"success": f"Picture of user {username} taken."})
         except Exception as e:
             self.write({"error": f"Something went wrong when saving the picture, contact the admin."})
             print(f"Something went wrong when saving the image.")
@@ -315,10 +315,9 @@ class TrainingHandler(RequestHandler):
     
     async def get(self):
         WSHandler.send_message(self, {"success": "Training started. Wait for page refresh please."})
-        faceid_path = os.path.join('backend', 'faceid')
-        train_sh_path = os.path.join(faceid_path,'train.sh')
+        train_sh_path = os.path.join(FACE_ID_PATH,'train.sh')
         
-        await self.run_shell_script(train_sh_path, faceid_path)
+        await self.run_shell_script(train_sh_path, FACE_ID_PATH)
         # WSHandler.send_message(self, {"success": "Training finished."})
         self.redirect("/receive_image")
 
