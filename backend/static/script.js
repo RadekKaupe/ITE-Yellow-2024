@@ -14,7 +14,8 @@ function fetchLatestData() {
 function onBodyLoad() {
     fetchLatestData();
     const hostname = window.location.hostname;  
-    ws = new WebSocket(`ws://${hostname}:8881/websocket`);
+    // const ws = new WebSocket(`wss://${hostname}:443/websocket`); //VM
+    const ws = new WebSocket(`ws://${hostname}:443/websocket`); //local
     ws.onopen = onSocketOpen
     ws.onmessage = onSocketMessage
     ws.onclose = onSocketClose

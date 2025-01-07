@@ -14,7 +14,7 @@ numpy>=1.24.0
 pytz>=2023.3
 
 # Authentication & Security
-python-jwt>=4.0.0
+PyJWT>=2.8.0  # Changed from python-jwt to PyJWT for clarity
 bcrypt>=4.0.1
 python-dotenv>=1.0.0
 
