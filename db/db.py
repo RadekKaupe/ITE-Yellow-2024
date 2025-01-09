@@ -1,10 +1,11 @@
 import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from sqlalchemy import LargeBinary, create_engine, Column, Integer, String, Float, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base, Session
 from dotenv import load_dotenv
 import os
 
 Base = declarative_base()
+
 
 class Teams(Base):
     __tablename__ = "teams"
@@ -73,6 +74,22 @@ class SensorDataTest(Base):
     team = relationship("Teams", back_populates="sensor_data_test")
 
 
+class User(Base):
+    # Specify the table name
+    __tablename__ = 'users'
+
+    # Define the primary key column
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # Define a column for the username
+    username = Column(String, nullable=False, unique=True)
+
+    # Define a column for the password hash
+    password_hash = Column(LargeBinary, nullable=False)
+
+    approved = Column(Boolean, default=False)
+
+
 def create_teams() -> None:
     """Function creates teams into the 'teams' table"""
     teams = ['blue', 'black', 'green', 'pink', 'red', 'yellow']
@@ -108,7 +125,6 @@ def validate_deletion() -> bool:
     print(f"If you are sure, type: {phrase} ")
     validation = input()
     return validation == phrase
-
 
 
 if __name__ == "__main__":

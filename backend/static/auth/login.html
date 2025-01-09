@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login</title>
+        <link rel="stylesheet" href="auth/authStyles.css" type="text/css" />
+        <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Login</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                    />
+                </div>
+                <div class="error" id="error-message"></div>
+                <div class="success" id="success-message"></div>
+                <button type="submit">Login</button>
+            </form>
+            <div class="switch-form">
+                <p>Don't have an account? <a href="/register">Register</a></p>
+                <p>Want to try the FaceID instead? <a href="/recognize">FaceID</a></p>
+            </div>
+        </div>
+        <script src="auth/login.js" type="module"></script>
+    </body>
+</html>

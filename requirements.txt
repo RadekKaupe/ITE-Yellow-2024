@@ -1,0 +1,22 @@
+# Web Framework
+tornado>=6.3.3
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+
+# Image Processing
+opencv-python>=4.8.0
+imutils>=0.5.4
+numpy>=1.24.0
+
+# Date/Time Handling
+pytz>=2023.3
+
+# Authentication & Security
+PyJWT>=2.8.0  # Changed from python-jwt to PyJWT for clarity
+bcrypt>=4.0.1
+python-dotenv>=1.0.0
+
+# Utilities
+urllib3>=2.0.0
