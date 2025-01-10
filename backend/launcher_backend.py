@@ -1,5 +1,5 @@
 import os
-import time
+from time import sleep
 from contextlib import redirect_stdout
 
 script = os.path.join(os.path.dirname(__file__), "backend.py")
@@ -11,5 +11,5 @@ while(True):
                 exec(open(script).read())
             except:
                 print("backend crashed")
-                time.sleep(10)
+                sleep(10)
         
