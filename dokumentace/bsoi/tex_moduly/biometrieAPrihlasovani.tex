@@ -16,11 +16,11 @@ Máme celkem 9 uživatelských účtů pro příhlášení, pro:
     \item 3 členy týmu
     \item 1 admin účet, ke kterému mají přístup všichni členové týmu
 \end{itemize}
-Identity je 8. Jsou vytvořené pro všechny členy týmu, jeden kategorie `unknown' (aby se `nové' tváře nemohli přihlásit, jiank by je systém identifikoval jako validního uživatele) a 3 identity učitelé, aby mohlo dojít k právě zmíněné identity `unknown'.
-Kategorie `unknown' má celkem TODO fotek.
+Identit je 8. Jsou vytvořené pro všechny členy týmu, jeden kategorie `unknown' (aby se `nové' tváře nemohli přihlásit, jiank by je systém identifikoval jako validního uživatele) a 3 identity učitelé, aby mohlo dojít k právě zmíněné identity `unknown'.
+Kategorie `unknown' má celkem 17 fotek, z toho 3 neobsahují lidský obličej, aby se neuronová síť naučila přiřazovat neplatné fotografie neautorizovanému uživateli.
 Každý z členů má 10 až 25 fotek, které si každý sám nafotil.
 Od každého vyučujícího jsme dostali 10 - 25 fotek. Každý s různým počtem, aby šlo testovat úspěšnost identifikace.
-Rozhodovací práh je nastaven na alespoň TODO: MOŽNA ZMĚN/SNIŽ 80\% pravděpodobnost identifikace uživatele. 
+Rozhodovací práh je nastaven na alespoň 90\% pravděpodobnost identifikace uživatele. 
 Je nutné podotknout, že identita `unkown' není vůbec uložená v databázi a nemá možnost se do aplikace přihlásit.
 \myparagraph{Funkčnost přihlašování}
 V případě, že se člověk přihlásí, je mu nastaven Json Web Token (JWT). Ten řeší zda je uživatelská session je validní či nikoliv.
