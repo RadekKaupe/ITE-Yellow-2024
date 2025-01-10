@@ -1,0 +1,4 @@
+\subsection{Zálohování}
+Zálohování databáze bylo implementováno pomocí nástroje Borgbackup, specificky funkcí prune pro automatizaci celého procesu k ukládání každodenní zálohy na účty skokoska a radek, v případě poruchy či potřeby vrátit databázi do předchozího stavu tedy existují dvě zálohy.
+
+Na každém účtě je složka "backup" obsahující zašifrovanou zálohu pod defaultním heslem "gobackImadeamistake".
