@@ -14,4 +14,5 @@ with open(path, 'a') as file:
                     exec(open(script).read())
                 except:
                     print_exc(file=file)
+                    file.flush()
                     sleep(10)
