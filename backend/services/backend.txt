@@ -1,0 +1,11 @@
+[Unit]
+Description= launches backend.py
+After=network.target
+
+[Service]
+WorkingDirectory=/home/skokoska/ite_sp/backend
+ExecStart=/usr/bin/python3 /home/skokoska/ite_sp/backend/launcher_backend.py
+User=root
+
+[Install]
+WantedBy=multi-user.target

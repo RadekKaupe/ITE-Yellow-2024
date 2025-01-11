@@ -1,0 +1,11 @@
+[Unit]
+Description= launches log_manager_sub.py
+After=network.target
+
+[Service]
+WorkingDirectory=/home/skokoska/ite_sp/subscriber
+ExecStart=/usr/bin/python3 /home/skokoska/ite_sp/subscriber/log_manager_sub.py
+User=root
+
+[Install]
+WantedBy=multi-user.target
