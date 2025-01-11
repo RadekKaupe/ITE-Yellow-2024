@@ -1,7 +1,10 @@
 \subsection{Provoz distribuované aplikace}
 Součásí aplikace je PostgreSQL databáze a dva python skripty, jeden z nich řeší MQTT subscribera, abychom mohli data příjímat, validovat a ukládat a druhý tvoří backend naší webové aplikace.
 K založení PostgreSQL databáze byl vytvořen python skript, který stačí spustit pouze jednou, aby vytvořil tabulky. Skripty na subscribera a backend musí běžet neustále, aby aplikace mohla být v provozu.
+Tyto skripty běží současně pomocí tmuxu. Tmux je `Terminal Multiplexer', který umožňuje rozdělit obrazovku terminálu na více panelů a vytváření `sezení' (sessions), které mohou běžet i na pozadí, poté co se člověk odpojí.
 Subscriber a backend spolu `komunikují' pouze přes databázi, ke které mají oba skripty přístup.
-Spouštění skriptů subscriberu a backendu po pádu a logování výstupů zprostředkovávají "launchery" - python skripty, které ty původní provozují v nekonečném cyklu s try-except blokem a přesměrovávají jejich stdout (výstup na konzoli) do textových souborů.
-Launchery samotné jsou spuštěny pomocí systemd služeb, které jsou nastaveny, aby se spouštěly při zapnutí/resetu virtuálního stroje.
+
+ZAJISTI AUTOMATICKY SPUSTENI PO RESTARTu
+
+Momentálně logování výstupu je k vidění pouze v rámci tmux session, kde jsou nastavené výpisy za běhu obou skriptů, aby mohlo dojít ke kontrole kdykoliv některým členů z týmu. 
 Nasazení verzí se může provést pomocí programu WinSCP, kterým se nové soubory nahrají na virtuální stroj.
