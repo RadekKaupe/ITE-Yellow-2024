@@ -1,3 +1,0 @@
-subscriber.service
-backend.service
-log_manager_sub.service

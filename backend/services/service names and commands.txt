@@ -1,0 +1,9 @@
+subscriber.service
+backend.service
+log_manager_sub.service
+
+
+edit/vytvoření nějaké service: sudo systemctl --force --full edit <service name>  POZOR - z nějakého důvodu je tam vim
+zjištění statusu service: sudo systemctl status <service name>
+start/restart/stop service: sudo systemctl start/restart/stop <service name>
+zapnutí/vypnutí spuštění service po bootu: sudo systemctl enable/disable <service name>
