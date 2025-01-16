@@ -1,31 +1,32 @@
 \subsection{Přihlášení a biometrická autentizace}
-Při implementaci jsem využil učiteli dodaných zdrojů, ve formě skriptů \verb|faceid_server.py|,\newline \verb|extract_embeddings.py|a \verb|train.sh|.
+Při implementaci byly využity zdroje dodané vyučujícími ve formě skriptů \verb|faceid_server.py|,\newline \verb|extract_embeddings.py|a \verb|train.sh|.
 \myparagraph{Rozšíření backendu o FaceID}
-V prvním skriptu se nacházejí Tornado Handleři, jeden zajišťující komunikaci s frontendem v rámci posílání a ukládání fotek a druhý v rámci detekci obličeje ve fotce.
-Předtím oba dva handleři ???fungovali??? v rámci jedné URL adresy. Já je rozdělil. Aplikace funguje následovně:
+Ve skriptu \verb|faceid_server.py| se nacházejí dva Tornado handlery, první zajišťující komunikaci s frontendem v rámci posílání a ukládání fotek a druhý v rámci detekci obličeje ve fotce.
+Původně byly oba handlery provozovány v rámci jedné URL adresy, ale eventuelně byly rozděleny. Aplikace funguje následovně:
 \begin{enumerate}
-    \item Nepřihlášený uživatel se může buď přihlásit přes uživatelské jméno a heslo (vstupní stránka), přihlásit se přes FaceID nebo se zaregistrovat
-    \item Po registraci musí uživatel čekat na schválení adminem, jinak se nepřhlásí (ani v případě, že již fotky má uložené v rámci biometické autentizace)
-    \item Přihlášený uživatel má přístup k celé aplikaci, včetně možnosti nafotit si své fotky pro FaceID a natrénovat model pro autentizaci obličejů
+    \item Nepřihlášený uživatel se může buď přihlásit přes uživatelské jméno a heslo (vstupní stránka), přihlásit se přes FaceID nebo se zaregistrovat.
+    \item Po registraci musí uživatel čekat na schválení adminem, jinak se nepřhlásí (ani v případě, že již fotky má uložené v rámci biometické autentizace).
+    \item Přihlášený uživatel má přístup k celé aplikaci, včetně možnosti nafotit si své fotky pro FaceID a natrénovat model pro autentizaci obličejů.
 \end{enumerate} 
 
 \myparagraph{Uživatelské účty a identity}
-Máme celkem 9 uživatelských účtů pro příhlášení, pro: 
+Je dostupné celkem 9 uživatelských účtů pro příhlášení, konkrétně pro: 
 \begin{itemize}
-    \item 4 vyučující% Jan Švec, Vlasta Radová, Martin Bulín (bulinm) a Tomáš Lebeda (TODO)
+    \item 3 vyučující% Jan Švec, Vlasta Radová, Martin Bulín (bulinm) a Tomáš Lebeda (TODO)
     \item 3 členy týmu
     \item 1 admin účet, ke kterému mají přístup všichni členové týmu
 \end{itemize}
-Identit je 8. Jsou vytvořené pro všechny členy týmu, jeden kategorie `unknown' (aby se `nové' tváře nemohli přihlásit, jiank by je systém identifikoval jako validního uživatele) a 3 identity učitelé, aby mohlo dojít k právě zmíněné identity `unknown'.
+Biometrických identit je v době psaní tohoto dokumentu 7. Jsou vytvořené pro všechny 3 členy týmu, jedna pro kategorii `unknown' (aby se `nové' tváře nemohly přihlásit, jinak by je systém identifikoval jako validního uživatele) a 3 identity učitelů. 
+% aby mohlo dojít k právě zmíněné identity `unknown' - IDK
 Kategorie `unknown' má celkem 17 fotek, z toho 3 neobsahují lidský obličej, aby se neuronová síť naučila přiřazovat neplatné fotografie neautorizovanému uživateli.
 Každý z členů má 10 až 25 fotek, které si každý sám nafotil.
 Od každého vyučujícího jsme dostali 10 - 25 fotek. Každý s různým počtem, aby šlo testovat úspěšnost identifikace.
 Rozhodovací práh je nastaven na alespoň 90\% pravděpodobnost identifikace uživatele. 
 Je nutné podotknout, že identita `unkown' není vůbec uložená v databázi a nemá možnost se do aplikace přihlásit.
 \myparagraph{Funkčnost přihlašování}
-V případě, že se člověk přihlásí, je mu nastaven Json Web Token (JWT). Ten řeší zda je uživatelská session je validní či nikoliv.
-Pokud jsou uživatelská credentials v pořádku a uživatel je zaregistován a schválený adminem je mu JWT uložen jako secure cookie.
-Všechny další žádosti nyní automaticky kontrolují zda je JWT neexpiroval nebo s ním nebylo manipulovánu. 
-JWT má totiž nastavenou donbu expirace jedné hodiny a obsahuje `podepsán' tajným klíčem, který je znám pouze serveru.  
+V případě, že se uživatel přihlásí, je mu nastaven Json Web Token (JWT). Ten řeší zda je uživatelská session validní či nikoliv.
+Pokud jsou uživatelské credentials v pořádku, uživatel je zaregistován a schválený adminem, je mu JWT uložen jako secure cookie.
+Všechny další žádosti nyní automaticky kontrolují zda JWT neexpiroval nebo s ním nebylo manipulováno. 
+JWT má nastavenou dobu expirace jedné hodiny a obsahuje `signaturu' - tajný klíč, který je znám pouze serveru.  
 \myparagraph{Odhlašování}
-Pro odhlašování byl vytvořen Tornado Handler, který vymaže token obsahující cookie a přesměruje uživale zpět na přihlašovací stránku.
+Pro odhlašování byl vytvořen Tornado handler, který vymaže token obsahující cookie a přesměruje uživatele zpět na přihlašovací stránku.
