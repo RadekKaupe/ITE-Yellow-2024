@@ -720,7 +720,7 @@ class WebWSApp(TornadoApplication):
 
 if __name__ == '__main__': # Local
     """Starts the backend application."""
-    PORT = 443 
+    PORT = 442 
     app = WebWSApp()
     print('Webserver: Initialized. Listening on', PORT)
     team_dict = extract_teams_dict()
