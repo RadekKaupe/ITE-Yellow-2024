@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1737117696.1517 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" "bsoi.pdf" "bsoi" 1737117697.2838 0
+["pdflatex"] 1737119043.17732 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" "bsoi.pdf" "bsoi" 1737119044.37291 0
   "../pic/fav.jpg" 1700474390 15815 322c5e6ea875c485edc205c5f4f9f658 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1735573721 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1000.pk" 1702292364 25420 96051d5bed7c7f28b9fa9043779b70fa ""
@@ -121,10 +121,10 @@
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1656236890 56148 51a9a8571c07b9921892ae11063ae853 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "bsoi.aux" 1737117697 2474 acdb824dff57b7d90e5d67bb98922a99 "pdflatex"
-  "bsoi.out" 1737117697 1621 fa5f373c88e32b7bbf24334707ea69a5 "pdflatex"
-  "bsoi.tex" 1737116073 2552 ae438f3cd9aa798123b6368a912761e7 ""
-  "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" 1737116073 2552 ae438f3cd9aa798123b6368a912761e7 ""
+  "bsoi.aux" 1737119044 2474 acdb824dff57b7d90e5d67bb98922a99 "pdflatex"
+  "bsoi.out" 1737119044 1621 fa5f373c88e32b7bbf24334707ea69a5 "pdflatex"
+  "bsoi.tex" 1737119042 2520 f0cbdebbad1e3755f55d34b8c97481e8 ""
+  "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" 1737119042 2520 f0cbdebbad1e3755f55d34b8c97481e8 ""
   "tex_moduly/bezpecnostVM.tex" 1737116709 250 4a8d967133ee6416b71071b5ec7d3f09 ""
   "tex_moduly/biometrieAPrihlasovani.tex" 1737117695 3355 df740a6ee61c858858929aa9cfef05dc ""
   "tex_moduly/monitoringAZalohovani.tex" 1737117599 720 026bd85b8af68d2c9992f570be030e83 ""
