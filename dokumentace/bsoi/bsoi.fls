@@ -233,11 +233,11 @@ INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx144
 INPUT .\tex_moduly\vm.tex
 INPUT .\tex_moduly\vm.tex
 INPUT tex_moduly\vm.tex
+INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecrm1200.tfm
+INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx1200.tfm
 INPUT .\tex_moduly\ucty.tex
 INPUT .\tex_moduly\ucty.tex
 INPUT tex_moduly\ucty.tex
-INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecrm1200.tfm
-INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx1200.tfm
 INPUT .\tex_moduly\monitoringAZalohovani.tex
 INPUT .\tex_moduly\monitoringAZalohovani.tex
 INPUT tex_moduly\monitoringAZalohovani.tex
