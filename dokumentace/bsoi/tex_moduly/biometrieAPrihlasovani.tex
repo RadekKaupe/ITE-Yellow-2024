@@ -21,7 +21,7 @@ Biometrických identit je v době psaní tohoto dokumentu 7. Jsou vytvořené pr
 Kategorie `unknown' má celkem 17 fotek, z toho 3 neobsahují lidský obličej, aby se neuronová síť naučila přiřazovat neplatné fotografie neautorizovanému uživateli.
 Každý z členů má 10 až 25 fotek, které si každý sám nafotil.
 Od každého vyučujícího jsme dostali 10 - 25 fotek. Každý s různým počtem, aby šlo testovat úspěšnost identifikace.
-Rozhodovací práh je nastaven na alespoň 80\% pravděpodobnost identifikace uživatele. Byl určen testováním členy týmu za rozumnou hranici mezi bezlečností a přihlášením.
+Rozhodovací práh je nastaven na alespoň 80\% pravděpodobnost identifikace uživatele. Byl určen testováním členy týmu za rozumnou hranici mezi bezpečností a přihlášením.
 Je nutné podotknout, že identita `unkown' není vůbec uložená v databázi a nemá možnost se do aplikace přihlásit.
 \myparagraph{Funkčnost přihlašování}
 V případě, že se uživatel přihlásí, je mu nastaven Json Web Token (JWT). Ten řeší zda je uživatelská session validní či nikoliv.

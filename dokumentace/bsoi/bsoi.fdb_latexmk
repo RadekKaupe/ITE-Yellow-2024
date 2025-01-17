@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1737119368.74369 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" "bsoi.pdf" "bsoi" 1737119370.202 0
+["pdflatex"] 1737119592.5999 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" "bsoi.pdf" "bsoi" 1737119593.89822 0
   "../pic/fav.jpg" 1700474390 15815 322c5e6ea875c485edc205c5f4f9f658 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1735573721 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1000.pk" 1702292364 25420 96051d5bed7c7f28b9fa9043779b70fa ""
@@ -121,12 +121,12 @@
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1656236890 56148 51a9a8571c07b9921892ae11063ae853 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "bsoi.aux" 1737119369 2474 acdb824dff57b7d90e5d67bb98922a99 "pdflatex"
-  "bsoi.out" 1737119369 1621 fa5f373c88e32b7bbf24334707ea69a5 "pdflatex"
+  "bsoi.aux" 1737119593 2474 acdb824dff57b7d90e5d67bb98922a99 "pdflatex"
+  "bsoi.out" 1737119593 1621 fa5f373c88e32b7bbf24334707ea69a5 "pdflatex"
   "bsoi.tex" 1737119368 2519 f85290d00ecc44cd91ce636a6533892c ""
   "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" 1737119368 2519 f85290d00ecc44cd91ce636a6533892c ""
   "tex_moduly/bezpecnostVM.tex" 1737119367 308 65eb5d19925d31ecff9d547106ad2b0e ""
-  "tex_moduly/biometrieAPrihlasovani.tex" 1737117695 3355 df740a6ee61c858858929aa9cfef05dc ""
+  "tex_moduly/biometrieAPrihlasovani.tex" 1737119591 3355 6a017d5134bd211c3589d272e9d47bce ""
   "tex_moduly/monitoringAZalohovani.tex" 1737117599 720 026bd85b8af68d2c9992f570be030e83 ""
   "tex_moduly/provoz.tex" 1737116996 1340 f28df2a05a4ad295e87d0b2fa69c1a09 ""
   "tex_moduly/sifrovani.tex" 1737116863 457 739b6d3c01c11e132ccfc89df5b76f7a ""
