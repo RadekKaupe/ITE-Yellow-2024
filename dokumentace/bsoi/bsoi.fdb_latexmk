@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1737040509.37606 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" "bsoi.pdf" "bsoi" 1737040510.67169 0
+["pdflatex"] 1737116996.84073 "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" "bsoi.pdf" "bsoi" 1737116998.47219 0
   "../pic/fav.jpg" 1700474390 15815 322c5e6ea875c485edc205c5f4f9f658 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1735573721 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/samko/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1000.pk" 1702292364 25420 96051d5bed7c7f28b9fa9043779b70fa ""
@@ -121,15 +121,15 @@
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1656236890 56148 51a9a8571c07b9921892ae11063ae853 ""
   "C:/Users/samko/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "bsoi.aux" 1737040510 2097 02e77d911ef270c6e46ec5461c7e358a "pdflatex"
-  "bsoi.out" 1737040510 1176 7b0e354cecec78a2b7b2598f7a444b51 "pdflatex"
-  "bsoi.tex" 1737011060 2501 7f1a9b51600b65308cbf156f23b2da93 ""
-  "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" 1737011060 2501 7f1a9b51600b65308cbf156f23b2da93 ""
-  "tex_moduly/bezpecnostVM.tex" 1736240715 0 d41d8cd98f00b204e9800998ecf8427e ""
-  "tex_moduly/biometrieAPrihlasovani.tex" 1737040505 3209 6a0dd0418cb5ef75258a267b7d708d63 ""
-  "tex_moduly/monitoringAZalohovani.tex" 1737010834 451 e9b835f0f2ecadac100bfa3afe8e041c ""
-  "tex_moduly/provoz.tex" 1737010834 1331 8b16f4c3892872dbef19c4fa0f80c81f ""
-  "tex_moduly/sifrovani.tex" 1736240715 0 d41d8cd98f00b204e9800998ecf8427e ""
+  "bsoi.aux" 1737116998 2474 acdb824dff57b7d90e5d67bb98922a99 "pdflatex"
+  "bsoi.out" 1737116998 1621 fa5f373c88e32b7bbf24334707ea69a5 "pdflatex"
+  "bsoi.tex" 1737116073 2552 ae438f3cd9aa798123b6368a912761e7 ""
+  "s:/FAV/my-obsidian-vault/03-School/ite_bsoi_vault/semestralni_prace/ITE-Yellow-2024/dokumentace/bsoi/bsoi.tex" 1737116073 2552 ae438f3cd9aa798123b6368a912761e7 ""
+  "tex_moduly/bezpecnostVM.tex" 1737116709 250 4a8d967133ee6416b71071b5ec7d3f09 ""
+  "tex_moduly/biometrieAPrihlasovani.tex" 1737116073 3261 732eab0f98b3073bc7635f6e0f9d4d8f ""
+  "tex_moduly/monitoringAZalohovani.tex" 1737116422 720 026bd85b8af68d2c9992f570be030e83 ""
+  "tex_moduly/provoz.tex" 1737116996 1340 f28df2a05a4ad295e87d0b2fa69c1a09 ""
+  "tex_moduly/sifrovani.tex" 1737116863 457 739b6d3c01c11e132ccfc89df5b76f7a ""
   "tex_moduly/ucty.tex" 1737040505 349 968c96a51e1e7b37d2324aa1358e6056 ""
   "tex_moduly/vm.tex" 1737040505 259 47a557f2f97c9bde44c19b99a2eeeed6 ""
   (generated)

@@ -250,13 +250,13 @@ INPUT tex_moduly\bezpecnostVM.tex
 INPUT .\tex_moduly\provoz.tex
 INPUT .\tex_moduly\provoz.tex
 INPUT tex_moduly\provoz.tex
-INPUT .\tex_moduly\biometrieAPrihlasovani.tex
-INPUT .\tex_moduly\biometrieAPrihlasovani.tex
-INPUT tex_moduly\biometrieAPrihlasovani.tex
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\tex\latex\base\t1cmtt.fd
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\tex\latex\base\t1cmtt.fd
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\tex\latex\base\t1cmtt.fd
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ectt1000.tfm
+INPUT .\tex_moduly\biometrieAPrihlasovani.tex
+INPUT .\tex_moduly\biometrieAPrihlasovani.tex
+INPUT tex_moduly\biometrieAPrihlasovani.tex
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecbx1000.tfm
 INPUT C:\Users\samko\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\tcrm1000.tfm
 INPUT bsoi.aux

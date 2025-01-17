@@ -1,6 +1,7 @@
-\subsection{Monitorování a zálohování}
-Jeden ze členů týmu využil pro monitoring služeb UptimeRobot (\href{https://uptimerobot.com/}{https://uptimerobot.com/}), kde byl nastaven ping na IP adresu virtuálního stroje každých 5 minut.
+\subsection{Monitoring}
+Dva členové týmu využil pro monitoring služeb UptimeRobot (\href{https://uptimerobot.com/}{https://uptimerobot.com/}), kde byl nastaven ping na IP adresu virtuálního stroje každých 5 minut. V výpadku nás služba upozorní emailem.
 
+\subsection{Zálohování}
 Zálohování databáze bylo implementováno pomocí nástroje Borgbackup, specificky funkcí prune pro automatizaci celého procesu k ukládání každodenní zálohy na účty skokoska a radek, v případě poruchy či potřeby vrátit databázi do předchozího stavu tedy existují dvě zálohy.
 
-Na každém účtě je složka "backup" obsahující zašifrovanou zálohu pod defaultním heslem "gobackImadeamistake".
+Na každém účtě je složka `backup' obsahující zašifrovanou zálohu pod defaultním heslem `gobackImadeamistak'.

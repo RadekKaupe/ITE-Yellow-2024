@@ -1,2 +1,4 @@
 \subsection{Zabezpečení virtuálního stroje}
-Aplikace je přístupná pouze ze sítě ZČU na portu 442, aby zbytečně nebyla přístupná komukoli. Proto je také ve firewallu vypnut přístup odkudkoli na port 443 (standardně pro HTTPS), zatímco port 80 (HTTP) bylo třeba otevřít pro přístup odkudkoli kvůli TLS certifikátu.
+Samotnáwebová aplikace je přístupná pouze ze sítě ZČU a to na portu 442.
+Poté bylo třeba otevřít port 80 (HTTP) kvůli vystavení TLS certifikátu.
+Žádné jiné porty otevřené nejsou.

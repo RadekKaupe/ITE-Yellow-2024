@@ -1,2 +1,7 @@
 \subsection{Šifrování}
-S pomocí acme.sh klienta jsme si nechali vystavit TLS certifikát od Let's Encrypt s ECC šifrováním.
+Certifikáty  pro šifrování pomocí TLS (Transport Layer Security) byly vystaveny od autority `Let's encrypt' a byl použit šifrovací klíč ECC. Certifikát je platný 90 dní a má celkem tři části:
+\begin{enumerate}
+    \item key.pem - obsahuje soukromý klíč, který je pužit k dešifrování dat
+    \item cert.pem - obsahuje certifikát serve  ru
+    \item fullchain.pem - řetězec důvěry
+\end{enumerate}.

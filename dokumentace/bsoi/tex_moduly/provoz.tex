@@ -2,7 +2,8 @@
 Součásí aplikace je PostgreSQL databáze a dva python skripty, jeden z nich řeší MQTT subscribera, abychom mohli data příjímat, validovat a ukládat a druhý tvoří backend naší webové aplikace.
 K založení PostgreSQL databáze byl vytvořen python skript, který stačí spustit pouze jednou, aby vytvořil tabulky. Skripty na subscribera a backend musí běžet neustále, aby aplikace mohla být v provozu.
 Subscriber a backend spolu `komunikují' pouze přes databázi, ke které mají oba skripty přístup.
-Spouštění skriptů subscriberu a backendu po pádu a logování výstupů zprostředkovávají "launchery" - python skripty, které ty původní provozují v nekonečném cyklu s try-except blokem a přesměrovávají jejich stdout (výstup na konzoli) do textových souborů.
+
+Spouštění skriptů subscriberu a backendu po pádu a logování výstupů zprostředkovávají `launchery' - python skripty, které ty původní provozují v nekonečném cyklu s try-except blokem a přesměrovávají jejich stdout (výstup na konzoli) do textových souborů.
 Launchery samotné jsou spuštěny pomocí systemd služeb, které jsou nastaveny, aby se spouštěly při zapnutí/resetu virtuálního stroje.
-Z důvodu velkého množství výpisů subscribera jsou jeho výpisy uchovávány jen z posledních dvou dní v .txt souborech po hodinách. O to se stará separátní kombinace python skriptu a systemd služby.
+Z důvodu velkého množství výpisů subscribera jsou jeho výpisy uchovávány jen z posledních dvou dní v \verb|.txt| souborech po hodinách. O to se stará separátní kombinace python skriptu a systemd služby.
 Nasazení verzí se může provést pomocí programu WinSCP, kterým se nové soubory nahrají na virtuální stroj.
