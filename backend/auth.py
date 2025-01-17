@@ -411,7 +411,7 @@ class RecognizeImageHandler(AuthHandler):
         if(proba == None):
             self.write({"error": "No faces were found."})
             return
-        if(proba > 0.9 - EPSILON):
+        if(proba > 0.8 - EPSILON):
 
 
             session = SessionLocal()

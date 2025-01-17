@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10) (preloaded format=pdflatex 2023.12.11)  17 JAN 2025 13:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10) (preloaded format=pdflatex 2023.12.11)  17 JAN 2025 13:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -681,13 +681,13 @@ Package rerunfilecheck Info: File `bsoi.out' has not changed.
 Here is how much of TeX's memory you used:
  17670 strings out of 475248
  284085 string characters out of 5757812
- 1929785 words of memory out of 5000000
+ 1930785 words of memory out of 5000000
  38892 multiletter control sequences out of 15000+600000
  567599 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  72i,5n,79p,1135b,490s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users\samko\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
-Output written on bsoi.pdf (4 pages, 141036 bytes).
+Output written on bsoi.pdf (4 pages, 141112 bytes).
 PDF statistics:
  414 PDF objects out of 1000 (max. 8388607)
  25 named destinations out of 1000 (max. 500000)
